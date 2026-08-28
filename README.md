@@ -10,6 +10,7 @@
 | `modern-web-guidance` | แนวทางเว็บสมัยใหม่จาก Google Chrome team |
 | `mcp-agent-dev` | แนวทางสร้าง MCP Server และ AI Agent |
 | `ui-ux-pro-max` | Design intelligence — สร้าง UI/UX ระดับมืออาชีพ ตามประเภทธุรกิจ |
+| `technology-advisor` | Senior Architect Advisor — วิเคราะห์ว่าควรใช้/ไม่ควรใช้เทคโนโลยีใดเมื่อไหร่ |
 
 ## วิธีใช้
 
