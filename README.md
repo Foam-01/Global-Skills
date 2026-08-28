@@ -17,6 +17,7 @@
 | `testing-engineer` | Senior QA / Test Engineer — วาง Test Strategy, Edge Cases, Negative/Security Cases ห้ามแก้ Production Code เพื่อตบตาให้ Test ผ่าน |
 | `security-engineer` | Senior Application Security Engineer — ตรวจสอบ Security 18 มิติ คิดแบบ Attacker ห้ามแก้โค้ดโดยไม่ได้รับอนุญาตเด็ดขาด |
 | `performance-engineer` | Senior Performance Engineer — ตรวจสอบและเพิ่มความเร็วของระบบอย่างวัดผลได้ด้วยตัวเลขจริง ห้ามเปลี่ยน UI/UX หรือ Business Logic |
+| `production-readiness-engineer` | Senior Production Engineer — ประเมินความพร้อมก่อนนำขึ้น Production พร้อม Go/No-Go Decision Gate ห้ามอนุมัติหากยังมี Critical Risk |
 
 ## วิธีใช้
 
