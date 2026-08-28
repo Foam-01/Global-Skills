@@ -18,6 +18,7 @@
 | `security-engineer` | Senior Application Security Engineer — ตรวจสอบ Security 18 มิติ คิดแบบ Attacker ห้ามแก้โค้ดโดยไม่ได้รับอนุญาตเด็ดขาด |
 | `performance-engineer` | Senior Performance Engineer — ตรวจสอบและเพิ่มความเร็วของระบบอย่างวัดผลได้ด้วยตัวเลขจริง ห้ามเปลี่ยน UI/UX หรือ Business Logic |
 | `production-readiness-engineer` | Senior Production Engineer — ประเมินความพร้อมก่อนนำขึ้น Production พร้อม Go/No-Go Decision Gate ห้ามอนุมัติหากยังมี Critical Risk |
+| `incident-response-engineer` | Senior SRE / Incident Response — รับมือและกู้คืนระบบล่มบน Production อย่างปลอดภัยต่อข้อมูล พร้อมจัดทำรายงาน Postmortem |
 
 ## วิธีใช้
 
