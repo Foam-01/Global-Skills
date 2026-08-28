@@ -45,23 +45,35 @@ Compare Before vs After (สรุปรายงานเปรียบเท�
 
 ## 🔍 มิติตรวจสอบประสิทธิภาพ (Performance Spectrum)
 
-### 1. Frontend Performance
+### 1. Frontend Performance & User Experience
+- **Loading Skeleton Strategy**: สั่งให้วิเคราะห์และ **"ทำ Loading Skeleton ทั้งฝั่ง Server (React Server Components / Suspense) และฝั่ง Client"** เพื่อปรับปรุง Perceived Performance
 - **Loading & Metrics**: Page Load Time, Core Web Vitals (LCP, FID/INP, CLS), TTFB (Time to First Byte)
 - **Bundle & Code Splitting**: JS Bundle Size, Code Splitting, Dynamic Imports, Lazy Loading, Unused JS Removal
 - **Rendering & React**: React Re-renders, Unnecessary Component Rerenders, Server Components vs Client Components Isolation, Hydration Performance
 - **Assets & Preloading**: Image Optimization (`next/image`, WebP/AVIF), Font Loading (`font-display: swap`), Video Asset Loading, Preload/Prefetch Strategies
 
-### 2. Backend Performance
+### 2. Backend & Deployment Infrastructure
+- **Infrastructure & Region Audit**:
+  - ตรวจสอบว่าใช้ฐานข้อมูลอะไร และเซิร์ฟเวอร์ตั้งอยู่ที่ภูมิภาค (Region) ไหน
+  - ตรวจสอบว่า Backend และหน้าเว็บ Deploy ด้วยอะไร และ **"ตั้งอยู่ Region เดียวกันกับฐานข้อมูลหรือไม่"** (ป้องกัน Network Latency ข้าม Region)
 - **Response Time & Latency**: API Response Time, Slow API Identification, TTFB
 - **Middleware & Guards**: Cost of Authentication, Guard Checks, Interceptors, Heavy Logging overhead
 - **System Resources**: CPU Usage, Memory Leaks, Event Loop Lag, Concurrency Bottlenecks
 
-### 3. Database Performance
+### 3. Database & Data Fetching Patterns
+- **Query & Data Audit**:
+  - ตรวจสอบว่าเรียก Query แบบไหน ดึงข้อมูลประเภทใด และปริมาณเท่าไร
+  - เช็กว่ามีการ **Query ซ้ำในลูปแบบ N+1** หรือการ **เรียก API หลายตัวต่อกัน (Waterfall Fetches)** หรือไม่
 - **Query Efficiency**: Slow Query Logs, N+1 Query Problems, `SELECT *` Abuse, Missing Indexes
 - **Data Access Patterns**: Pagination (Offset vs Cursor-based), Heavy JOINs, Redundant Queries
 - **Connections**: Database Connection Pooling, Transaction Locks & Hold Times
 
-### 4. Caching & Redis Strategy
+### 4. Network Diagnostic & HAR Analysis
+- **Browser DevTools Deep-Dive**:
+  - ตรวจสอบใน Browser DevTools > Network ว่าเสียเวลาที่ช่วง **Waiting/TTFB**, **Download**, หรือ **การประเมินผลของหน้าเว็บ (Client Rendering)**
+  - **HAR File Analysis**: หากยังหาจุดช้าไม่พบ สั่งให้ผู้ใช้ Export **ไฟล์ `.har` จากแท็บ Network** นำมาให้วิเคราะห์ เพื่อดูว่า Request ไหนใช้เวลานานและช้าตรงช่วงใดอย่างละเอียด
+
+### 5. Caching & Redis Strategy
 - **Necessity Evaluation**: ตรวจสอบว่า DB Indexing / In-memory Caching เพียงพอหรือไม่ก่อนใช้ Redis
 - **Cache Strategy**: การเลือก Key, Cache TTL (Time-to-Live), Cache Invalidation Logic (Purge/Stale-While-Revalidate)
 - **Use Cases**: Session Caching, Heavy Aggregated Queries Caching, Rate Limiting, Job Queues
@@ -88,16 +100,17 @@ Compare Before vs After (สรุปรายงานเปรียบเท�
 ---
 
 ## 2. 🔍 Bottleneck Analysis (สาเหตุของความช้า)
-1. **Frontend**: [เช่น มีการ Import Library ใหญ่แบบไม่มี Code Splitting หรือ Re-render ซ้ำซ้อน]
-2. **Backend / DB**: [เช่น เกิดปัญหา N+1 Query หรือขาด Index ในคอลัมน์ที่ถูก Filter บ่อย]
+1. **Infrastructure & Network Audit**: [เช่น DB อยู่ Singapore แต่ Backend อยู่ US หรือปัญหา TTFB สูง]
+2. **Frontend & Skeleton**: [เช่น ขาด Loading Skeleton ทั้งฝั่ง Server และ Client]
+3. **Backend / DB & HAR Analysis**: [เช่น เกิดปัญหา N+1 Query หรือวิเคราะห์จากไฟล์ .har พบ API Waterfall]
 
 ---
 
 ## 3. 🛠️ Proposed Optimizations (ข้อเสนอการปรับแต่ง)
-- **Optimization 1**: [แนวทางแก้ เช่น ปรับ N+1 เป็น JOIN / Eager Loading]
-  - *Expected Impact*: ลด Query จาก 42 เหลือ 1 쿼รี (คาดว่าเร็วขึ้น ~800ms)
-- **Optimization 2**: [แนวทางแก้ เช่น เพิ่ม `next/image` และ Dynamic Import]
-  - *Expected Impact*: ลด Bundle Size ลง 60%
+- **Optimization 1**: [แนวทางแก้ เช่น เพิ่ม Loading Skeleton ทั้ง Server (Suspense) และ Client]
+  - *Expected Impact*: ปรับปรุง Perceived Performance ทันที
+- **Optimization 2**: [แนวทางแก้ เช่น ปรับ N+1 เป็น JOIN / Eager Loading และย้าย Region]
+  - *Expected Impact*: ลด Query จาก 42 เหลือ 1 쿼รี และลด Network Latency
 
 ---
 
@@ -109,5 +122,5 @@ Compare Before vs After (สรุปรายงานเปรียบเท�
 | JS Bundle Size | 1.2 MB | 380 KB | 📉 **ลดลง 68.3%** |
 | DB Queries per Request | 42 queries | 1 query | 📉 **ลดลง 97.6%** |
 
-- **Verification Evidence**: [วางหลักฐานภาพถ่าย/ตัวเลขรัน Benchmark เช่น Lighthouse/k6/Log Timeline]
+- **Verification Evidence**: [วางหลักฐานภาพถ่าย/ตัวเลขรัน Benchmark เช่น Lighthouse/HAR Analysis Timeline]
 ```
