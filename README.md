@@ -22,6 +22,7 @@
 | `system-design-interviewer` | Principal Architect Interviewer — เปลี่ยน AI เป็นผู้ท้าทายความคิด ตั้งคำถามเชิงลึก (Socratic Method) สอบทานสถาปัตยกรรม |
 | `project-manager-orchestrator` | Technical PM / Task Orchestrator — หัวหน้าผู้ช่วยส่วนตัว ย่อย Requirement เป็น Epic->Feature->Task->Subtask พร้อมกำกับสถานะ 7 สเตจ |
 | `engineering-mindset` | 🌟 **Master Skill** — สกิลพิเศษควบคุมปรัชญาและสายการทำงานของ AI ทั้งหมดเพื่อเปลี่ยน AI เป็น Engineering Partner |
+| `project-orchestrator` | ⭐⭐⭐ **Project Orchestrator** — ตัวประสานงานหลักระดับบนสุด รับ Requirement ดิบจากผู้บริหาร วางแผนแม่บทแบบไม่กระโดดไปเขียนโค้ด พร้อม Route งานไปสกิลอื่นๆ |
 
 ## วิธีใช้
 
