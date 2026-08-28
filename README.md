@@ -9,6 +9,7 @@
 | `thai-response` | ให้ AI ตอบเป็นภาษาไทยเสมอ |
 | `modern-web-guidance` | แนวทางเว็บสมัยใหม่จาก Google Chrome team |
 | `mcp-agent-dev` | แนวทางสร้าง MCP Server และ AI Agent |
+| `ui-ux-pro-max` | Design intelligence — สร้าง UI/UX ระดับมืออาชีพ ตามประเภทธุรกิจ |
 
 ## วิธีใช้
 
