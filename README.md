@@ -14,6 +14,7 @@
 | `architecture-reviewer` | Senior Architect Reviewer — ตรวจสอบ Architecture หา Bottleneck/SPOF และประเมินความเปราะบางของระบบ |
 | `requirements-analyst` | Senior Systems Analyst — แตก Requirement กว้างๆ ให้กลายเป็น User Stories, Technical Tasks และ API Specs |
 | `debugging-engineer` | Senior Debugging Engineer — สืบหา Root Cause ของ Bug อย่างเป็นระบบ ห้ามแก้โค้ดแบบเดาสุ่ม |
+| `testing-engineer` | Senior QA / Test Engineer — วาง Test Strategy, Edge Cases, Negative/Security Cases ห้ามแก้ Production Code เพื่อตบตาให้ Test ผ่าน |
 
 ## วิธีใช้
 
