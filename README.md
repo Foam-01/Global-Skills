@@ -37,7 +37,8 @@ LAYER 3: QUALITY SYSTEM (41 Quality Gates Checklist)
 | 14 | `system-design-interviewer` | Principal Architect Interviewer — เปลี่ยน AI เป็นผู้ท้าทายความคิด (Socratic Method) |
 | 15 | `project-manager-orchestrator` | Technical PM / Task Orchestrator — ย่อยงานเป็น Task-001 ถึง Task-XXX พร้อมกำกับ 7 สเตจ |
 | 16 | `engineering-mindset` | 🌟 **Master Skill** — ปรัชญาและสายการทำงานของ AI ทั้งหมดเพื่อเปลี่ยน AI เป็น Engineering Partner |
-| 17 | `project-orchestrator` | ⭐⭐⭐ **Grand Orchestrator (Layer 1)** — ศูนย์กลางคุมภาพรวม ติดตามสถานะโปรเจกต์ และกำกับ Quality Gates 41 ข้อ |
+| 17 | `vibe-software-engineering` | 🏗️ **Hybrid Skill** — Vibe Coding รวดเร็วระดับสปีดแสง แต่ฝังฐานปูนคอนกรีตวิศวกรรมซอฟต์แวร์แน่นหนาใต้ดิน |
+| 18 | `project-orchestrator` | ⭐⭐⭐ **Grand Orchestrator (Layer 1)** — ศูนย์กลางคุมภาพรวม ติดตามสถานะโปรเจกต์ และกำกับ Quality Gates 41 ข้อ |
 
 ---
 
