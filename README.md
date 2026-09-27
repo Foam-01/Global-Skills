@@ -1,6 +1,6 @@
 # 🛠️ Global Skills
 
-สกิลสำหรับ AI Agent (Antigravity IDE) — คลังเก็บสกิลส่วนตัว แบ่งหมวดหมู่เป็น 5 กลุ่มชัดเจน รวมทั้งหมด 18 สกิล
+สกิลสำหรับ AI Agent (Antigravity IDE) — คลังเก็บสกิลส่วนตัว แบ่งหมวดหมู่เป็น 5 กลุ่มชัดเจน รวมทั้งหมด 19 สกิล
 
 ## 🏛️ สถาปัตยกรรมระบบ 3 Layers (3-Tier AI System Architecture)
 
@@ -8,8 +8,8 @@
 LAYER 1: ORCHESTRATION LAYER (project-orchestrator)
 └── คุมแผนแม่บท, ติดตามสถานะ %Progress, Route งานไป Layer 2, กำกับ Quality Gates
 
-LAYER 2: ENGINEERING SKILLS (17 Specialized AI Roles)
-└── ลงรายละเอียดลึกเฉพาะด้าน (BA, Architect, Tech Advisor, Security, QA, SRE, UI/UX ฯลฯ)
+LAYER 2: ENGINEERING SKILLS (18 Specialized AI Roles)
+└── ลงรายละเอียดลึกเฉพาะด้าน (BA, Architect, Tech Advisor, Security, QA, SRE, UI/UX, SQL ฯลฯ)
 
 LAYER 3: QUALITY SYSTEM (41 Quality Gates Checklist)
 └── ตะแกรงร่อนตรวจคุณภาพ 41 ข้อ ดักตรวจเฉพาะข้อที่สอดคล้องตาม Phase ต่างๆ
@@ -17,7 +17,7 @@ LAYER 3: QUALITY SYSTEM (41 Quality Gates Checklist)
 
 ---
 
-## 📦 รายชื่อสกิลตามหมวดหมู่ (5 Categories / 18 Skills)
+## 📦 รายชื่อสกิลตามหมวดหมู่ (5 Categories / 19 Skills)
 
 ### 👑 1. Master & Orchestration (แม่ทัพคุมภาพรวมและปรัชญาความคิด)
 > 📁 `01-master-orchestration/`
@@ -63,6 +63,7 @@ LAYER 3: QUALITY SYSTEM (41 Quality Gates Checklist)
 | `security-engineer` | Senior Application Security Engineer — ตรวจสอบ Security 18 มิติ คิดแบบ Attacker |
 | `performance-engineer` | Senior Performance Engineer — ตรวจวิเคราะห์คอขวดและเพิ่มความเร็วด้วยตัวเลขจริง |
 | `debugging-engineer` | Senior Debugging Engineer — สืบหา Root Cause ของ Bug อย่างเป็นระบบ |
+| `senior-sql-engineer` | 🗄️ Senior SQL Engineer — วิเคราะห์ ออกแบบ ตรวจสอบ ปรับปรุง SQL และ Database (PostgreSQL, Index, Query Performance) |
 
 ---
 
