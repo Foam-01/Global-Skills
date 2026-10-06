@@ -19,6 +19,8 @@ LAYER 3: QUALITY SYSTEM (41 Quality Gates Checklist)
 
 ## 📦 รายชื่อสกิลตามหมวดหมู่ (5 Categories / 19 Skills)
 
+📖 คู่มือเลือกสกิลตามสถานการณ์และคำอธิบายแต่ละตัว: [docs/skills-guide.md](docs/skills-guide.md)
+
 ### 👑 1. Master & Orchestration (แม่ทัพคุมภาพรวมและปรัชญาความคิด)
 > 📁 `01-master-orchestration/`
 
