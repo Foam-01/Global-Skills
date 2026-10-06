@@ -94,6 +94,8 @@ npx skills add pbakaus/impeccable -g -a claude-code
 
 ครั้งแรกในแต่ละโปรเจกต์ ให้รัน `/impeccable init` และ `/impeccable hooks on` ในแชท
 
+📖 คู่มือเลือกคำสั่ง: [docs/impeccable-guide.md](docs/impeccable-guide.md)
+
 ---
 
 ## 🛠️ วิธีใช้
