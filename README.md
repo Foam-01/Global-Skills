@@ -78,6 +78,24 @@ LAYER 3: QUALITY SYSTEM (41 Quality Gates Checklist)
 
 ---
 
+## 🌐 สกิลภายนอกที่ติดตั้งแบบ Global
+
+สกิลจากแหล่งภายนอกที่ติดตั้งไว้ที่ `~/.claude/skills/` (ใช้ได้ทุกโปรเจกต์ใน Claude Code และไม่ได้เก็บไว้ใน repo นี้)
+
+| สกิล | แหล่งที่มา | บทบาทและคำอธิบาย |
+|---|---|---|
+| `impeccable` | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | 🎨 Frontend Design — ออกแบบ วิจารณ์ ตรวจ (audit) และขัดเกลา UI/UX ทั้ง typography, layout, สี, motion และ accessibility |
+
+ติดตั้ง:
+
+```bash
+npx skills add pbakaus/impeccable -g -a claude-code
+```
+
+ครั้งแรกในแต่ละโปรเจกต์ ให้รัน `/impeccable init` และ `/impeccable hooks on` ในแชท
+
+---
+
 ## 🛠️ วิธีใช้
 
 คัดลอกโฟลเดอร์สกิลที่ต้องการจากหมวดหมู่เข้าไปในโปรเจกต์:
