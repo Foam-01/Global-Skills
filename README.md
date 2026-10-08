@@ -87,8 +87,9 @@ LAYER 3: QUALITY SYSTEM (41 Quality Gates Checklist)
 | สกิล | แหล่งที่มา | บทบาทและคำอธิบาย |
 |---|---|---|
 | `impeccable` | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | 🎨 Frontend Design — ออกแบบ วิจารณ์ ตรวจ (audit) และขัดเกลา UI/UX ทั้ง typography, layout, สี, motion และ accessibility |
+| `security-audit` | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | 🔐 Security Audit — ตรวจช่องโหว่ทั้ง codebase แบบ 6 ขั้น มีตรวจซ้ำอิสระ และออกรายงานเป็นไฟล์ |
 
-ติดตั้ง:
+### `impeccable`
 
 ```bash
 npx skills add pbakaus/impeccable -g -a claude-code
@@ -97,6 +98,16 @@ npx skills add pbakaus/impeccable -g -a claude-code
 ครั้งแรกในแต่ละโปรเจกต์ ให้รัน `/impeccable init` และ `/impeccable hooks on` ในแชท
 
 📖 คู่มือเลือกคำสั่ง: [docs/impeccable-guide.md](docs/impeccable-guide.md)
+
+### `security-audit`
+
+```bash
+npx skills add https://github.com/cloudflare/security-audit-skill --skill security-audit -g -a claude-code
+```
+
+ไม่มีคำสั่ง `/` พิมพ์สั่งเป็นภาษาธรรมดา เช่น "security audit this codebase" (ต้องมี Node.js)
+
+📖 คู่มือการใช้งาน: [docs/security-audit-guide.md](docs/security-audit-guide.md)
 
 ---
 

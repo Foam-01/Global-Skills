@@ -1,7 +1,7 @@
 # 📚 คู่มือสกิลทั้งหมด — ใช้สกิลไหน เมื่อไหร่
 
 รวมคำอธิบายสกิลทุกตัวใน repo นี้ ว่าแต่ละตัวทำอะไร ใช้ตอนไหน และสั่งอย่างไร
-สกิลภายนอก (Impeccable) ดูแยกที่ [impeccable-guide.md](impeccable-guide.md)
+สกิลภายนอกดูแยกที่ [impeccable-guide.md](impeccable-guide.md) และ [security-audit-guide.md](security-audit-guide.md)
 
 ---
 
@@ -22,7 +22,8 @@
 | เจอบั๊ก หาสาเหตุไม่เจอ | `debugging-engineer` |
 | ระบบช้า | `performance-engineer` |
 | SQL ช้า, ออกแบบตาราง, index, lock, migration | `senior-sql-engineer` |
-| ตรวจช่องโหว่ความปลอดภัย | `security-engineer` |
+| ตรวจช่องโหว่ความปลอดภัย (เร็ว / เฉพาะฟีเจอร์) | `security-engineer` |
+| ตรวจช่องโหว่ทั้งระบบ ออกรายงานเป็นไฟล์ | `security-audit` (global) |
 | วางแผนการเทสต์, คิด test case | `testing-engineer` |
 | จะขึ้น Production อยากรู้ว่าพร้อมหรือยัง | `production-readiness-engineer` |
 | ระบบบน Production ล่ม | `incident-response-engineer` |
