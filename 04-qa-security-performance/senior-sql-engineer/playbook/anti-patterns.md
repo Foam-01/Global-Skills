@@ -156,3 +156,26 @@ LEFT JOIN OrderItems i ON i.OrderID = o.OrderID -- 1 order มีได้หล
 - ห้ามแก้ด้วย `DISTINCT` / `SUM(DISTINCT …)` แบบไม่คิด — ซ่อนปัญหา และผิดเมื่อมีค่าซ้ำจริง
 
 **เมื่อรีวิว:** เจอ RIGHT ปน LEFT → ขอให้เขียนใหม่เป็น LEFT ทิศเดียว (ระดับ Low ด้านความอ่านง่าย) · แต่เจอ WHERE บนตารางฝั่งขวา หรือ join 1-ต่อ-หลายหลายตัวแล้ว `SUM` → จัดเป็น **บั๊กความถูกต้อง (High)** · เงื่อนไข join ที่ดูแปลก (เช่น `Employees` join ด้วย `OrderID` แทน `o.EmployeeID = e.EmployeeID`) → ตรวจ schema ว่าความสัมพันธ์ถูกต้องหรือไม่
+
+## AP-07 — ดึงข้อมูลทั้งหมดมากรอง / รวมยอดในโค้ดแอป และไม่เคยดู SQL ที่ ORM สร้าง
+
+```ts
+// ❌ ดึงออเดอร์ทุกแถวทุกคอลัมน์มาที่แอป แล้วกรองและรวมยอดด้วยลูป
+const orders = await prisma.order.findMany();
+const total = orders
+  .filter(o => o.status === "paid" && o.createdAt >= start)
+  .reduce((s, o) => s + o.amount, 0);
+
+// ✅ ให้ database กรองและรวมยอด ส่งกลับมาแค่ผลลัพธ์
+const { _sum } = await prisma.order.aggregate({
+  where: { status: "paid", createdAt: { gte: start } },
+  _sum: { amount: true },
+});
+```
+
+- **ทำไมช้า:** ข้อมูลทุกแถวต้องอ่านจาก disk, ส่งผ่านเครือข่าย, แปลงเป็น object และกินหน่วยความจำของแอป — โตตามจำนวนข้อมูล ไม่ใช่ตามผลลัพธ์ที่ต้องการ · database ใช้ index กับเงื่อนไขที่อยู่ในแอปไม่ได้
+- **หลัก:** กรอง (`WHERE`), เลือกคอลัมน์ (`select` / ไม่ใช้ `SELECT *`), เรียง + แบ่งหน้า (`ORDER BY` + `LIMIT`), นับ / รวมยอด (`COUNT`, `SUM`, `GROUP BY`) **ใน database** แล้วส่งมาเฉพาะสิ่งที่ใช้
+- **ดู SQL ที่ ORM สร้างจริงเสมอ:** เปิด query log (Prisma: `log: ["query"]`, EF Core: `LogTo` / `ToQueryString()`, Sequelize: `logging`, Laravel: `DB::listen` / `toSql()`) — คำสั่งบรรทัดเดียวใน ORM อาจกลายเป็น query ขนาดใหญ่, หลาย query (N+1, AP-02) หรือดึงคอลัมน์เกินจำเป็น แล้วเอา SQL นั้นไปดู execution plan (EP-01)
+- **ระวัง LINQ / ORM ที่ดูเหมือนกรองใน database แต่จริงไม่ใช่:** เช่นเรียก `.ToList()` / `AsEnumerable()` ก่อน `.Where()` ใน EF Core หรือใช้ฟังก์ชันที่ ORM แปลงเป็น SQL ไม่ได้ ทำให้ดึงทั้งตารางมากรองในหน่วยความจำ
+- **ข้อยกเว้น:** logic ที่เขียนใน SQL ไม่ได้หรือซับซ้อนมาก ทำในแอปได้ แต่ให้ database กรองให้เหลือน้อยที่สุดก่อน
+- **เมื่อรีวิว:** `findMany()` / `SELECT *` ที่ไม่มี `where` / `take` บนตารางที่โตได้ ตามด้วย `.filter` / `.reduce` / ลูปในแอป → แจ้งเป็นปัญหา performance (Medium–High ตามขนาดตาราง)
