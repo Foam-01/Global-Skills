@@ -18,6 +18,7 @@
 | | IX-05 | ช่องค้นหา `LIKE %คำ%`: prefix vs contains (ผลลัพธ์ต่างกัน!), pg_trgm สำหรับภาษาไทย, Full-Text, escape wildcard |
 | | IX-06 | สร้าง index แล้ว reads ลดแต่เวลาไม่ลด (1.39M → 230K reads, ~110 วินาทีเท่าเดิม): หาคอขวด, ส่งข้อมูลหลายล้านแถว, columnstore / partition / aggregate |
 | | IX-07 | Filtered / Partial Index (2,016 MB → 28 MB): ใช้กับกลุ่มคงที่ (pending, deleted_at IS NULL) ไม่ใช่ค่าที่ผู้ใช้เลือก, ข้อจำกัด parameter / SET options |
+| | IX-08 | Index มากเกินไป = ต้นทุนตอนเขียน + วิธีหา index ที่ไม่ได้ใช้ / ซ้ำซ้อน (SQL Server DMV, pg_stat_user_indexes) และเงื่อนไขก่อนลบ |
 | [schema-design.md](schema-design.md) | SD-01 | เลือก data type ให้พอดี: ปัญหาจริงของ MAX (index key, memory grant), PostgreSQL ต่างกัน, เบอร์โทร / เงิน / สถานะ, BIT ขังไว้ 2 ค่า |
 | [execution-plans.md](execution-plans.md) | EP-01 | เปิดและอ่าน execution plan: แถวจริง vs ประเมิน (34 of 1), scan / seek / lookup, คำเตือน, Cost % เป็นค่าประเมิน, Missing Index |
 | | EP-02 | แยกกล่องใน plan 4 กลุ่ม + Scan vs Seek (Index Scan ≠ อ่านทั้งตาราง): Nested Loops / Hash / Merge Join ใช้เมื่อไหร่, คำเตือนที่พบบ่อย (implicit conversion, spill, no join predicate), Missing Index ไม่ใช่คำเตือน, ไม่ใช่ทุก scan ต้องเป็น seek |
@@ -25,6 +26,6 @@
 ## วิธีเพิ่มบทเรียนใหม่
 
 1. เลือกไฟล์ตามหัวข้อ ถ้าไม่มีไฟล์ที่เหมาะ ให้สร้างไฟล์ใหม่ (เช่น `transactions.md`, `concurrency.md`, `pagination.md`) และเพิ่มในตาราง `14.5` ของ `SKILL.md`
-2. ใช้รหัสต่อจากเดิม (AP-08, IX-08, SD-02, EP-03 …) และเพิ่มแถวในตารางด้านบน
+2. ใช้รหัสต่อจากเดิม (AP-08, IX-09, SD-02, EP-03 …) และเพิ่มแถวในตารางด้านบน
 3. แต่ละบทต้องมี: ❌ ตัวอย่างที่ผิด · ✅ วิธีแก้ · **ทำไม** · **ข้อยกเว้น / ข้อควรระวัง** · คำสั่งของทั้ง SQL Server และ PostgreSQL ถ้าต่างกัน
 4. ตรวจความถูกต้องก่อนใส่ (คลิปสั้นมักตัดข้อยกเว้นออก) และห้ามขัดกับ CORE PRINCIPLE ใน `SKILL.md`

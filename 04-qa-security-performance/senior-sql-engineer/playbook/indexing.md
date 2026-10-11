@@ -270,3 +270,37 @@ WHERE status = 'pending';
 - index เล็กลง → ใช้พื้นที่ disk และ buffer pool น้อยลง (อ่านเร็วขึ้น, cache ได้มากขึ้น)
 - แถวที่ไม่ตรง filter **ไม่ต้องอัปเดต index** ตอน insert / update → ต้นทุนการเขียนลดลง
 - statistics ของ index แม่นขึ้นสำหรับกลุ่มนั้น
+
+## IX-08 — Index มากเกินไป: ทุก index คือต้นทุนตอนเขียน
+
+**หลัก:** ทุก nonclustered index คือโครงสร้างข้อมูลอีกชุดที่ต้องอัปเดตพร้อมตาราง — ตาราง 1 ตาราง มี index 10 ตัว = 1 `INSERT` ต้องเขียน 11 ที่ (และ `UPDATE` คอลัมน์ที่อยู่ใน index / `DELETE` ก็เช่นกัน) บวก transaction log, lock และ page split ที่เพิ่มขึ้น
+
+- อ่านเร็วขึ้นแต่เขียนช้าลง → **ตารางที่เขียนบ่อย** (log, event, order, คิวงาน) ต้องมี index เท่าที่จำเป็นจริง ส่วนตาราง reporting / อ่านอย่างเดียวรับ index ได้มากกว่า
+- ทุก index ใช้ disk, ใช้ buffer pool, ทำให้ backup / restore / rebuild นานขึ้น
+- การสร้าง index ก็มีต้นทุนเอง: ตัวอย่างจริง (SQL Server, ตาราง `Posts`) แต่ละ `CREATE INDEX` อ่านทั้งตาราง ~12,120 หน้าแบบขนาน + sort ใช้ CPU ~4 วินาที / elapsed ~2.4 วินาที ต่อ index — บนตารางใหญ่ใน production ต้องใช้ `ONLINE = ON` / `CONCURRENTLY` (IX-01)
+- วัดผลกระทบจริงด้วยการเทียบ logical reads / เวลา ของ `INSERT` / `UPDATE` ก่อนและหลังเพิ่ม index ห้ามสรุปว่า "พัง" หรือ "ไม่กระทบ" โดยไม่วัด
+
+### หา index ที่ไม่ได้ใช้ / ซ้ำซ้อน
+
+```sql
+-- SQL Server: index ที่ถูกอัปเดตแต่แทบไม่ถูกใช้อ่าน (สถิติรีเซ็ตเมื่อ restart server)
+SELECT OBJECT_NAME(s.object_id) AS table_name, i.name AS index_name,
+       s.user_seeks, s.user_scans, s.user_lookups, s.user_updates
+FROM sys.dm_db_index_usage_stats s
+JOIN sys.indexes i ON i.object_id = s.object_id AND i.index_id = s.index_id
+WHERE s.database_id = DB_ID() AND i.type_desc = 'NONCLUSTERED'
+ORDER BY (s.user_seeks + s.user_scans + s.user_lookups) ASC, s.user_updates DESC;
+
+-- PostgreSQL / Supabase: index ที่ไม่เคยถูก scan (สถิติตั้งแต่ reset ล่าสุด)
+SELECT relname AS table_name, indexrelname AS index_name, idx_scan,
+       pg_size_pretty(pg_relation_size(indexrelid)) AS size
+FROM pg_stat_user_indexes
+ORDER BY idx_scan ASC, pg_relation_size(indexrelid) DESC;
+```
+
+- **ซ้ำซ้อน:** index `(A)` มักซ้ำกับ `(A, B)` (index ตัวหลังใช้แทนได้เกือบทุกกรณี) · index ที่ key เหมือนกันแต่ชื่อต่าง · missing index ที่ถูกสร้างตามคำแนะนำซ้ำๆ (EP-01 ข้อ 5)
+- **ก่อนลบ index:**
+  - ดูสถิติให้ครอบคลุมรอบการใช้งานจริง (รายงานสิ้นเดือน / สิ้นปีอาจใช้ index ที่ปกติไม่มีใครแตะ) และสถิติหายเมื่อ restart
+  - index ที่บังคับ **unique / primary key / foreign key lookup** ห้ามลบเพียงเพราะ seek น้อย
+  - ลบทีละตัว เก็บคำสั่งสร้างกลับไว้ และวัด query สำคัญหลังลบ
+- **ก่อนเพิ่ม index ใหม่:** ดูว่ามี index เดิมที่ขยาย (เพิ่ม key / INCLUDE) แทนได้ไหม แทนการสร้างตัวใหม่ทุกครั้งที่เจอ query ช้า
