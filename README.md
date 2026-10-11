@@ -1,6 +1,6 @@
 # 🛠️ Global Skills
 
-สกิลสำหรับ AI Agent (Antigravity IDE) — คลังเก็บสกิลส่วนตัว แบ่งหมวดหมู่เป็น 5 กลุ่มชัดเจน รวมทั้งหมด 19 สกิล
+สกิลสำหรับ AI Agent (Antigravity IDE) — คลังเก็บสกิลส่วนตัว แบ่งหมวดหมู่เป็น 5 กลุ่มชัดเจน รวมทั้งหมด 20 สกิล
 
 ## 🏛️ สถาปัตยกรรมระบบ 3 Layers (3-Tier AI System Architecture)
 
@@ -17,7 +17,7 @@ LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
 
 ---
 
-## 📦 รายชื่อสกิลตามหมวดหมู่ (5 Categories / 19 Skills)
+## 📦 รายชื่อสกิลตามหมวดหมู่ (5 Categories / 20 Skills)
 
 📖 คู่มือเลือกสกิลตามสถานการณ์และคำอธิบายแต่ละตัว: [docs/skills-guide.md](docs/skills-guide.md)
 
@@ -62,6 +62,7 @@ LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
 
 | สกิล | บทบาทและคำอธิบาย |
 |---|---|
+| `code-reviewer` | 🔍 Senior Code Reviewer — รีวิว diff / PR ก่อน merge หาบั๊ก ความเสี่ยง และจุดที่ดูแลยาก พร้อมหลักฐานและระดับความรุนแรง |
 | `testing-engineer` | Senior QA / Test Engineer — วาง Test Strategy, Edge Cases, Negative/Security Cases |
 | `security-engineer` | Senior Application Security Engineer — ตรวจสอบ Security 18 มิติ คิดแบบ Attacker |
 | `performance-engineer` | Senior Performance Engineer — ตรวจวิเคราะห์คอขวดและเพิ่มความเร็วด้วยตัวเลขจริง |

@@ -24,7 +24,7 @@ description: ทำหน้าที่เป็น Senior Software Project Orc
 LAYER 1: ORCHESTRATION LAYER (project-orchestrator)
 └── คุมแผนแม่บท, ติดตามสถานะ %Progress, Route งานไป Layer 2, กำกับ Quality Gates
 
-LAYER 2: ENGINEERING SKILLS (16 Specialized AI Roles)
+LAYER 2: ENGINEERING SKILLS (สกิลเฉพาะทาง ดูรายชื่อในหัวข้อ AI SKILL ROUTING PLAN)
 └── ลงรายละเอียดลึกเฉพาะด้าน (BA, Architect, Tech Advisor, Security, QA, SRE, UI/UX ฯลฯ)
 
 LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
@@ -51,14 +51,31 @@ QUALITY GATES APPLIED: [ระบุข้อ Quality Gate (เช่น #06, F3
 
 ## 🔀 AI SKILL ROUTING PLAN (LAYER 2)
 
-ส่งต่อบริบทไปยัง AI Skills ใน Layer 2 ตามความซับซ้อนจริง:
+ส่งต่องานให้สกิลตาม Phase **เรียกเฉพาะสกิลที่จำเป็นกับโจทย์จริง** ไม่ต้องผ่านทุกสกิล และอ้างสกิลด้วยชื่อจริงตามตารางนี้เท่านั้น
 
-1. **07 Requirements Analyst**: ย่อย Requirement ดิบเป็น Sales, Inventory, Purchase พร้อม FR, NFR, User Stories & Acceptance Criteria
-2. **06 Architecture Reviewer**: วิเคราะห์สถาปัตยกรรม Data Flow, Module Boundaries และ Database Boundaries
-3. **05 Technology Advisor**: วิเคราะห์เลือก Tech Stack และ **"ตัดเทคโนโลยีที่ไม่จำเป็นออก"** (เช่น บอกว่า Redis/Kafka/Microservices ยังไม่จำเป็น)
-4. **15 Project Manager / Task Planner**: แปลงเป็น `TASK-001` ถึง `TASK-XXX` พร้อมระบุ Dependencies (DB ➔ Backend ➔ Frontend ➔ Testing)
-5. **10 Security / 11 Performance / 09 Testing Engineer**: ตรวจสอบความปลอดภัย ความเร็ว และแผนการทดสอบ
-6. **12 Production Readiness / 17 Release Manager**: ตรวจความพร้อมก่อนขึ้น Production และส่งมอบระบบ
+| Phase | สกิล | ใช้เมื่อ |
+|---|---|---|
+| Discovery / Requirements | `requirements-analyst` | แปลงโจทย์ดิบเป็น FR, NFR, User Stories, Acceptance Criteria, API และ Data Model |
+| Discovery / Requirements | `system-design-interviewer` | โจทย์ใหญ่หรือกำกวม ต้องถามจี้ให้ชัดก่อนออกแบบ |
+| Architecture | `technology-advisor` | เลือก Tech Stack และตัดเทคโนโลยีที่ยังไม่จำเป็นออก |
+| Architecture | `architecture-reviewer` | วาง / ตรวจ Data Flow, Module Boundaries, คอขวด และ SPOF |
+| Architecture | `senior-sql-engineer` | ออกแบบ schema, index, migration |
+| Planning | `project-manager-orchestrator` | แตกงานเป็น Epic → Feature → Task พร้อม Dependencies และติดตามสถานะรายงาน |
+| Development | `vibe-software-engineering` | ต้องการ MVP เร็วแต่ต้องวางรากฐานให้แข็งแรง |
+| Development | `modern-web-guidance`, `ui-ux-pro-max`, `impeccable` (global) | สร้างหน้าเว็บ / UI |
+| Development | `flutter-engineer` | สร้างแอป Flutter (Android / iOS) |
+| Development | `mcp-agent-dev` | สร้าง MCP server หรือ agent skill |
+| Review | `code-reviewer` | รีวิวโค้ดที่เพิ่งเขียนหรือ diff ก่อน merge |
+| Review | `debugging-engineer` | เจอบั๊กที่ต้องหาสาเหตุ |
+| Testing | `testing-engineer` | วางแผนเทสต์และ test case |
+| Testing | `security-engineer`, `security-audit` (global) | ตรวจช่องโหว่ (เร็ว / ทั้งระบบ) |
+| Testing | `performance-engineer` | ระบบช้า หรือก่อนปล่อยฟีเจอร์ที่มีโหลดสูง |
+| Release | `production-readiness-engineer` | ประเมิน Go / No-Go ก่อนขึ้น Production และวางแผน deploy / rollback |
+| Operation | `incident-response-engineer` | ระบบบน Production มีปัญหา และเขียน Postmortem |
+
+`engineering-mindset` ใช้เป็นหลักคิดพื้นฐานทุก Phase
+
+ถ้างานต้องการความสามารถที่ไม่มีสกิลรองรับ ให้แจ้งผู้ใช้ตรงๆ ว่ายังไม่มีสกิลนี้ ห้ามอ้างชื่อสกิลที่ไม่มีอยู่
 
 ---
 
@@ -98,10 +115,10 @@ QUALITY GATES APPLIED: [ระบุข้อ Quality Gate (เช่น #06, F3
 ---
 
 ## 3. 🗺️ Layer 2: Engineering Execution Plan
-1. **Requirements Step**: 调用 `07 Requirements Analyst` ย่อยโจทย์เป็น Modules & User Stories
-2. **Architecture Step**: 调用 `06 Architecture Reviewer` วาง Data Flow & Structure
-3. **Technology Step**: 调用 `05 Technology Advisor` ประเมินและตัด Tech ที่ไม่จำเป็นออก
-4. **Planning Step**: 调用 `15 Project Manager` แตกงานเป็น TASK-001 ถึง TASK-XXX
+1. **Requirements Step**: เรียก `requirements-analyst` ย่อยโจทย์เป็น Modules & User Stories
+2. **Architecture Step**: เรียก `architecture-reviewer` วาง Data Flow & Structure
+3. **Technology Step**: เรียก `technology-advisor` ประเมินและตัด Tech ที่ไม่จำเป็นออก
+4. **Planning Step**: เรียก `project-manager-orchestrator` แตกงานเป็น TASK-001 ถึง TASK-XXX
 
 ---
 
@@ -113,6 +130,6 @@ QUALITY GATES APPLIED: [ระบุข้อ Quality Gate (เช่น #06, F3
 ---
 
 ## 5. 🚀 Next Immediate Action
-👉 **NEXT SKILL TO ROUTE**: `07 Requirements Analyst`  
+👉 **NEXT SKILL TO ROUTE**: `requirements-analyst`  
 👉 **REQUIRED USER INPUT**: [สิ่งที่ต้องการให้ผู้ใช้ยืนยันเพิ่มเติม]
 ```

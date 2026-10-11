@@ -27,8 +27,8 @@ description: สกิลพิเศษ (Master Skill) ที่ควบคุ
                                 YOU (Developer / Engineering Lead)
                                                  │
                                                  ▼
-                                     PROJECT ORCHESTRATOR 👔
-                                 (project-manager-orchestrator)
+                                     PROJECT ORCHESTRATOR 🎼
+                                     (project-orchestrator)
                                                  │
                         ┌────────────────────────┼────────────────────────┐
                         ▼                        ▼                        ▼
@@ -41,8 +41,16 @@ description: สกิลพิเศษ (Master Skill) ที่ควบคุ
                                      (system-design-interviewer)
                                                  │
                                                  ▼
+                                  Project Manager / Task Planner 👔
+                                  (project-manager-orchestrator)
+                                                 │
+                                                 ▼
                                      AI Developer / Builder 💻
-                                  (modern-web-guidance / ui-ux-pro-max / mcp-agent-dev)
+               (modern-web-guidance / ui-ux-pro-max / flutter-engineer / mcp-agent-dev)
+                                                 │
+                                                 ▼
+                                        Code Reviewer 🔍
+                                         (code-reviewer)
                                                  │
                                                  ▼
                                        Debugging Engineer 🐞

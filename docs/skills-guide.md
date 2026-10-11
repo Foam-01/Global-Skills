@@ -20,6 +20,7 @@
 | เขียน HTML/CSS/JS ให้ทันสมัยตามมาตรฐาน | `modern-web-guidance` |
 | สร้าง MCP server หรือเขียน agent skill | `mcp-agent-dev` |
 | ทำแอป Flutter (Android / iOS) หรือตรวจแอปมือถือ | `flutter-engineer` |
+| เขียนโค้ดเสร็จ อยากให้รีวิวก่อน commit / merge | `code-reviewer` |
 | เจอบั๊ก หาสาเหตุไม่เจอ | `debugging-engineer` |
 | ระบบช้า | `performance-engineer` |
 | SQL ช้า, ออกแบบตาราง, index, lock, migration | `senior-sql-engineer` |
@@ -108,6 +109,11 @@
 
 ## 🛡️ 4. QA, Security & Performance
 
+### `code-reviewer`
+**ทำอะไร:** รีวิวโค้ดที่เพิ่งเขียนหรือ diff / PR เรียงตรวจจากความถูกต้อง, ความปลอดภัย, ข้อมูล, error handling, contract, test และการดูแลต่อ ทุก finding ต้องมีหลักฐานและสถานการณ์ที่ทำให้พัง **ไม่แก้โค้ดจนกว่าจะได้รับอนุมัติ**
+**ใช้ตอนไหน:** ก่อน commit / merge ทุกครั้ง โดยเฉพาะโค้ดที่ AI เขียนให้
+**ตัวอย่าง:** "ใช้ code-reviewer รีวิว diff นี้ก่อน merge"
+
 ### `debugging-engineer`
 **ทำอะไร:** หาสาเหตุที่แท้จริงของบั๊ก (Root Cause Analysis) อย่างเป็นระบบ ทั้ง Frontend, Backend และ Database ห้ามเดาสุ่มแก้และห้ามซ่อนบั๊ก
 **ใช้ตอนไหน:** เจอบั๊กที่แก้แล้วไม่หาย หรือไม่รู้ว่าเกิดจากอะไร
@@ -160,7 +166,7 @@ project-orchestrator (คุมภาพรวม)
   → requirements-analyst → technology-advisor → system-design-interviewer / architecture-reviewer
   → project-manager-orchestrator (แตกงาน)
   → ui-ux-pro-max / Impeccable / modern-web-guidance / flutter-engineer / mcp-agent-dev (ลงมือสร้าง)
-  → testing-engineer → security-engineer → performance-engineer / senior-sql-engineer
+  → code-reviewer → testing-engineer → security-engineer → performance-engineer / senior-sql-engineer
   → production-readiness-engineer (Go / No-Go)
   → incident-response-engineer (เมื่อมีเหตุ)
 
