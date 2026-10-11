@@ -78,6 +78,9 @@ description: ใช้เมื่อทำงานกับ SQL / Database เ
 - มีปัญหา Data Integrity หรือไม่
 - Schema รองรับการเติบโตหรือไม่
 
+
+รายละเอียดการเลือก data type อยู่ใน [playbook/schema-design.md](playbook/schema-design.md) (SD-01)
+
 ---
 
 # 02 — SQL QUERY REVIEW
@@ -468,6 +471,7 @@ After
 |---|---|
 | [playbook/anti-patterns.md](playbook/anti-patterns.md) | รีวิว query หรือโค้ดที่เรียก database (subquery vs JOIN, N+1, EXISTS, IDOR, NOT IN + NULL) |
 | [playbook/indexing.md](playbook/indexing.md) | จะสร้าง / เลือก / ตรวจ index หรือวัดผล query (filter index, covering INCLUDE, ช่วงวันที่, logical reads, LIKE %คำ%, query คืนข้อมูลหลายล้านแถว) |
+| [playbook/schema-design.md](playbook/schema-design.md) | ออกแบบตาราง / เลือก data type / รีวิว migration ที่สร้างหรือแก้คอลัมน์ |
 
 เมื่อใช้คำแนะนำจาก playbook ให้อ้างรหัสหัวข้อ (เช่น AP-03, IX-02) ในรายงาน
 
