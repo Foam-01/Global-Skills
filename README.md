@@ -11,8 +11,8 @@ LAYER 1: ORCHESTRATION LAYER (project-orchestrator)
 LAYER 2: ENGINEERING SKILLS (18 Specialized AI Roles)
 └── ลงรายละเอียดลึกเฉพาะด้าน (BA, Architect, Tech Advisor, Security, QA, SRE, UI/UX, SQL ฯลฯ)
 
-LAYER 3: QUALITY SYSTEM (42 Quality Gates Checklist)
-└── ตะแกรงร่อนตรวจคุณภาพ 42 ข้อ ดักตรวจเฉพาะข้อที่สอดคล้องตาม Phase ต่างๆ
+LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
+└── ตะแกรงร่อนตรวจคุณภาพ (Web 42 ข้อ, Flutter 32 ข้อ) ดักตรวจเฉพาะข้อที่สอดคล้องตาม Phase ต่างๆ
 ```
 
 ---
@@ -26,7 +26,7 @@ LAYER 3: QUALITY SYSTEM (42 Quality Gates Checklist)
 
 | สกิล | บทบาทและคำอธิบาย |
 |---|---|
-| `project-orchestrator` | ⭐⭐⭐ **Grand Orchestrator (Layer 1)** — ศูนย์กลางคุมภาพรวม ติดตามสถานะโปรเจกต์ และกำกับ Quality Gates 42 ข้อ ([รายการ Gate](01-master-orchestration/project-orchestrator/quality-gates/README.md)) |
+| `project-orchestrator` | ⭐⭐⭐ **Grand Orchestrator (Layer 1)** — ศูนย์กลางคุมภาพรวม ติดตามสถานะโปรเจกต์ และกำกับ Quality Gates (Web 42 + Flutter 32 ข้อ) ([รายการ Gate](01-master-orchestration/project-orchestrator/quality-gates/README.md)) |
 | `engineering-mindset` | 🌟 **Master Skill** — ปรัชญาและสายการทำงานของ AI ทั้งหมดเพื่อเปลี่ยน AI เป็น Engineering Partner |
 | `vibe-software-engineering` | 🏗️ **Hybrid Skill** — Vibe Coding รวดเร็วระดับสปีดแสง แต่ฝังฐานปูนคอนกรีตวิศวกรรมซอฟต์แวร์แน่นหนาใต้ดิน |
 | `project-manager-orchestrator` | Technical PM / Task Orchestrator — ย่อยงานเป็น Task-001 ถึง Task-XXX พร้อมกำกับ 7 สเตจ |

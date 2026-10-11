@@ -1,6 +1,6 @@
 ---
 name: project-orchestrator
-description: ทำหน้าที่เป็น Senior Software Project Orchestrator ตัวประสานงานหลักระดับบนสุด (Layer 1) ที่จะรับ Requirement ดิบจากผู้บริหาร วางแผนแม่บท ติดตามสถานะโปรเจกต์ และกำกับการตรวจ Quality Gates 42 ข้อตาม Phase ต่างๆ โดยไม่กระโดดไปเขียนโค้ดเอง
+description: ทำหน้าที่เป็น Senior Software Project Orchestrator ตัวประสานงานหลักระดับบนสุด (Layer 1) ที่จะรับ Requirement ดิบจากผู้บริหาร วางแผนแม่บท ติดตามสถานะโปรเจกต์ และกำกับการตรวจ Quality Gates (Web 42 ข้อ + Mobile/Flutter 32 ข้อ) ตาม Phase ต่างๆ โดยไม่กระโดดไปเขียนโค้ดเอง
 ---
 
 # 🎼 PROJECT ORCHESTRATOR (LAYER 1: ORCHESTRATION LAYER)
@@ -27,8 +27,8 @@ LAYER 1: ORCHESTRATION LAYER (project-orchestrator)
 LAYER 2: ENGINEERING SKILLS (16 Specialized AI Roles)
 └── ลงรายละเอียดลึกเฉพาะด้าน (BA, Architect, Tech Advisor, Security, QA, SRE, UI/UX ฯลฯ)
 
-LAYER 3: QUALITY SYSTEM (42 Quality Gates Checklist)
-└── ตะแกรงร่อนตรวจคุณภาพ 42 ข้อ ดักตรวจเฉพาะข้อที่สอดคล้องตาม Phase ต่างๆ
+LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
+└── ตะแกรงร่อนตรวจคุณภาพ (Web 42 ข้อ, Flutter 32 ข้อ) ดักตรวจเฉพาะข้อที่สอดคล้องตาม Phase ต่างๆ
 ```
 
 ---
@@ -44,7 +44,7 @@ PROGRESS: [X / Total Tasks] (Y%)
 CURRENT TASK: [TASK-XXX ชื่อ Task ที่กำลังทำ]
 BLOCKED TASKS: [TASK-YYY สาเหตุที่ติดขัด]
 NEXT SKILL ROUTE: [ระบุ AI Skill ที่ต้องรับช่วงต่อ]
-QUALITY GATES APPLIED: [ระบุข้อ Quality Gate จาก 42 ข้อที่ใช้ตรวจใน Phase นี้]
+QUALITY GATES APPLIED: [ระบุข้อ Quality Gate (เช่น #06, F30) ที่ใช้ตรวจใน Phase นี้]
 ```
 
 ---
@@ -62,11 +62,14 @@ QUALITY GATES APPLIED: [ระบุข้อ Quality Gate จาก 42 ข้�
 
 ---
 
-## 📋 QUALITY GATES ROUTING (LAYER 3: 42 QUALITY GATES)
+## 📋 QUALITY GATES ROUTING (LAYER 3: WEB 42 + MOBILE 32 QUALITY GATES)
 
-นิยามของ Gate ทั้ง 42 ข้ออยู่ใน [quality-gates/README.md](quality-gates/README.md) ซึ่งมีตาราง Gate ตาม Phase, สกิลที่รับผิดชอบ และกฎการทำงาน 24 ข้อ
+นิยามของ Gate อยู่ใน [quality-gates/README.md](quality-gates/README.md) แบ่งเป็น 2 ชุด พร้อมกฎการทำงาน 24 ข้อ
+- **Web** 42 ข้อ (#01–#42) สำหรับเว็บ, API, backend, database
+- **Mobile / Flutter** 32 ข้อ (F01–F32) สำหรับแอป Android / iOS
+- โปรเจกต์ที่มีทั้งแอปและ backend ใช้ทั้งสองชุด
 
-1. อ่าน `quality-gates/README.md` เพื่อดูว่า Phase ปัจจุบันต้องตรวจ Gate ไหน (ไม่รันทั้ง 42 ข้อพร้อมกัน)
+1. เลือกชุดตามประเภทโปรเจกต์ แล้วอ่าน README ของชุดนั้นเพื่อดูว่า Phase ปัจจุบันต้องตรวจ Gate ไหน (ไม่รันทุกข้อพร้อมกัน)
 2. เปิดเฉพาะไฟล์ของ Gate ที่เลือก ตรวจตาม **เกณฑ์ผ่าน** และใช้ Prompt ในไฟล์เป็นรายการสิ่งที่ต้องดู
 3. รายงานผลแต่ละ Gate เป็น ✅ ผ่าน / ❌ ไม่ผ่าน / ⚠️ ตรวจไม่ได้ ห้ามสรุปว่าผ่านโดยไม่ได้ตรวจตามเกณฑ์
 
