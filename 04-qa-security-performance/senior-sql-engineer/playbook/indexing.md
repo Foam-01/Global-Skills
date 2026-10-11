@@ -179,3 +179,56 @@ WHERE Name LIKE N'บุญเพิ่ม%'
 - **`[year]` เป็น key แล้ว ไม่ต้องใส่ใน `INCLUDE` ซ้ำ** — SQL Server ไม่อนุญาตให้คอลัมน์เดียวกันเป็นทั้ง key และ included ในปกติจะ error ตอนสร้าง
 - `[year]` มีค่าต่างกันไม่กี่ค่า (selectivity ต่ำ) ถ้าเงื่อนไขคืนข้อมูลสัดส่วนใหญ่ของตาราง index แบบ B-tree จะได้ประโยชน์น้อย (ดู IX-01) — columnstore / partition เหมาะกว่า
 - เก็บ `[year]`, `[month]`, `[day]` แยกคู่กับ `[timestamp]` เป็นข้อมูลซ้ำ ใช้ได้ในตาราง analytics ที่ตั้งใจ denormalize แต่ต้องมั่นใจว่าค่าตรงกันเสมอ ถ้าไม่จำเป็นให้ค้นด้วยช่วงของ `[timestamp]` (IX-03)
+
+## IX-07 — Filtered Index / Partial Index: ทำ index เฉพาะกลุ่มข้อมูลที่ถูกค้นบ่อย
+
+```sql
+-- SQL Server: Filtered Index
+CREATE NONCLUSTERED INDEX IX_Orders_Pending_CreatedAt
+ON Orders (CreatedAt)
+INCLUDE (CustomerID, Total)
+WHERE Status = 'pending';
+
+-- PostgreSQL / Supabase: Partial Index
+CREATE INDEX CONCURRENTLY ix_orders_pending_created_at
+ON orders (created_at) INCLUDE (customer_id, total)
+WHERE status = 'pending';
+```
+
+**เหมาะเมื่อ** query ส่วนใหญ่สนใจ **กลุ่มย่อยที่คงที่และเล็ก** ของตาราง:
+- คิวงานที่ยังไม่ทำ: `WHERE processed = 0` / `status = 'pending'` (แถวที่ทำเสร็จแล้วมีเป็นล้าน แต่ไม่มีใครค้น)
+- soft delete: `WHERE deleted_at IS NULL`
+- คอลัมน์ที่ส่วนใหญ่เป็น NULL: `WHERE external_id IS NOT NULL`
+- unique เฉพาะแถวที่ใช้งาน: `CREATE UNIQUE INDEX … (email) WHERE deleted_at IS NULL` (ผู้ใช้ที่ถูกลบแล้วสมัครอีเมลเดิมได้)
+
+**ตัวอย่างผลจริง** (SQL Server, `EcommerceProcessed`, query `category = 'Electronics' AND brand = 'Google' AND price < 1000` ได้ 362,657 แถว):
+
+| Index | logical reads | CPU | elapsed | ขนาด index |
+|---|---|---|---|---|
+| `(category) INCLUDE (title, brand, price)` ทั้งตาราง | 62,238 | 2,078 ms | 2,434 ms | 2,016 MB |
+| เหมือนเดิม + `WHERE category = 'Electronics' AND brand = 'Google' AND price < 1000` | 3,596 | 343 ms | 2,113 ms | 28 MB |
+
+- reads / CPU / ขนาด ลดลงมาก แต่ **elapsed แทบเท่าเดิม** — เพราะยังส่งผลลัพธ์ 3.6 แสนแถวไปที่ client (IX-06)
+
+### ⚠️ ตัวอย่างนี้เป็นวิธีใช้ที่ไม่ควรทำตาม
+
+- **filter ผูกกับค่าของ query เดียว** (`brand = 'Google'`, `price < 1000`) → index นี้ช่วยได้ **เฉพาะ query ที่มีเงื่อนไขครอบคลุมช่วงนี้เท่านั้น** ถ้าผู้ใช้ค้น `brand = 'Apple'` หรือ `price < 2000` index จะไม่ถูกใช้เลย — ต้องสร้าง index แยกต่อทุกแบรนด์ / ทุกช่วงราคา ซึ่งเป็นไปไม่ได้
+- **filter ควรเป็นเงื่อนไขทางธุรกิจที่คงที่** (status, deleted, active) **ไม่ใช่ค่าที่ผู้ใช้เลือกได้** — ค่าที่เปลี่ยนตาม input ให้อยู่ใน **key ของ index** แทน เช่น `ON (brand, price) WHERE category = 'Electronics'` ถ้าทั้งระบบค้นเฉพาะ Electronics จริง
+- **key `category` ซ้ำซ้อน:** เมื่อ filter บังคับ `category = 'Electronics'` แล้ว ทุกแถวใน index มี category เดียวกัน key นี้แทบไม่มีประโยชน์ ควรใช้คอลัมน์ที่ยังต้องค้น / เรียง (เช่น `price`)
+- `brand` อยู่ใน INCLUDE ทั้งที่ถูก filter เป็นค่าเดียวแล้ว (SQL Server ต้องการคอลัมน์ใน filter ถ้า query ส่งคอลัมน์นั้นออกมา — ตรวจด้วย plan ว่ามี Key Lookup หรือไม่)
+
+### ข้อจำกัดที่ต้องรู้
+
+**SQL Server**
+- query ที่ใช้ **parameter** (`WHERE status = @status`) อาจ **ไม่ใช้ filtered index** เพราะ plan ต้องใช้ได้กับทุกค่าของ parameter — ใช้ค่าคงที่ในเงื่อนไข (`WHERE status = 'pending'`) หรือ `OPTION (RECOMPILE)`
+- ต้องตั้ง SET options ให้ถูก (`ANSI_NULLS`, `QUOTED_IDENTIFIER` เป็น ON ฯลฯ) ไม่อย่างนั้น `INSERT` / `UPDATE` ลงตารางนั้นจะ **error** — ตรวจกับ connection ของแอปก่อน deploy
+- filter รองรับเงื่อนไขแบบง่ายเท่านั้น (เปรียบเทียบ, `IN`, `IS NULL`) ใช้ฟังก์ชัน / คอลัมน์คำนวณไม่ได้
+
+**PostgreSQL**
+- query ต้องมีเงื่อนไขที่ planner พิสูจน์ได้ว่าอยู่ในช่วงของ partial index — prepared statement แบบ generic plan กับ parameter อาจไม่ใช้ partial index
+- ยืนยันด้วย `EXPLAIN` ว่าเลือก index นี้จริง
+
+### ประโยชน์จริง (อธิบายให้ถูก)
+- index เล็กลง → ใช้พื้นที่ disk และ buffer pool น้อยลง (อ่านเร็วขึ้น, cache ได้มากขึ้น)
+- แถวที่ไม่ตรง filter **ไม่ต้องอัปเดต index** ตอน insert / update → ต้นทุนการเขียนลดลง
+- statistics ของ index แม่นขึ้นสำหรับกลุ่มนั้น
