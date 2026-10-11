@@ -10,7 +10,7 @@
 | | AP-04 | IDOR — query ด้วย id อย่างเดียว ไม่ผูกเจ้าของ |
 | [indexing.md](indexing.md) | IX-01 | Index คอลัมน์ที่ใช้กรอง (selectivity, tipping point, ต้นทุน write) |
 | | IX-02 | Covering index ด้วย `INCLUDE` + ตัวอย่างตัวเลขจริง 803,786 → 7,341 reads |
-| | IX-03 | ช่วงวันที่: ห้าม `BETWEEN` กับคอลัมน์ที่มีเวลา, sargable |
+| | IX-03 | ช่วงวันที่: ห้าม `YEAR()` / ฟังก์ชันครอบคอลัมน์ และห้าม `BETWEEN` กับ datetime + ตัวเลขจริง (YEAR() 22,959 vs range 7,341 reads, BETWEEN ทำข้อมูลหาย 3,594 แถว) |
 | | IX-04 | วัดผล query: logical reads, plan, statistics (และ logical reads ≠ RAM) |
 
 ## วิธีเพิ่มบทเรียนใหม่
