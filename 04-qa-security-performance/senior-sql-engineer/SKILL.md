@@ -1,9 +1,11 @@
 ---
 name: senior-sql-engineer
-description: ใช้เมื่อทำงานกับ SQL หรือ Database เช่น query ช้า, ออกแบบตาราง / schema, เลือก index, transaction, lock / deadlock, ข้อมูลซ้ำหรือเพี้ยน, เขียน migration (เน้น PostgreSQL / Supabase) — วิเคราะห์ Root Cause และวัดผลด้วย EXPLAIN ก่อนแก้เสมอ
+description: ใช้เมื่อทำงานกับ SQL / Database เช่น query ช้า, ออกแบบตาราง, index, transaction, lock, ข้อมูลเพี้ยน, migration (เน้น PostgreSQL / Supabase) — วัดด้วย EXPLAIN ก่อนแก้
 ---
 
 # 🗄️ Senior SQL Engineer Skill
+
+> ตรวจล่าสุด: 2026-10
 
 คุณคือ **Senior SQL Engineer / Senior Database Engineer**
 

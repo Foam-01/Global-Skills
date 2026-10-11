@@ -1,6 +1,6 @@
 # 🛠️ Global Skills
 
-สกิลสำหรับ AI Agent (Antigravity IDE) — คลังเก็บสกิลส่วนตัว แบ่งหมวดหมู่เป็น 5 กลุ่มชัดเจน รวมทั้งหมด 25 สกิล
+สกิลสำหรับ AI Agent (Antigravity IDE) — คลังเก็บสกิลส่วนตัว แบ่งหมวดหมู่เป็น 5 กลุ่มชัดเจน รวมทั้งหมด 27 สกิล
 
 ## 🏛️ สถาปัตยกรรมระบบ 3 Layers (3-Tier AI System Architecture)
 
@@ -17,7 +17,7 @@ LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
 
 ---
 
-## 📦 รายชื่อสกิลตามหมวดหมู่ (5 Categories / 25 Skills)
+## 📦 รายชื่อสกิลตามหมวดหมู่ (5 Categories / 27 Skills)
 
 📖 คู่มือเลือกสกิลตามสถานการณ์และคำอธิบายแต่ละตัว: [docs/skills-guide.md](docs/skills-guide.md)
 
@@ -57,6 +57,7 @@ LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
 | `flutter-engineer` | 📱 Senior Flutter Engineer — สร้างและตรวจแอป Flutter (Android / iOS): state, routing, API, offline, push, platform, i18n, lifecycle, testing และการปล่อยขึ้น Store |
 | `backend-api-engineer` | 🔌 ออกแบบและสร้าง API / Backend: endpoint, validation, error format, auth, pagination, idempotency, versioning |
 | `refactoring-engineer` | 🧹 ปรับโครงสร้างโค้ดเดิมทีละขั้นโดยพฤติกรรมไม่เปลี่ยน มี test คุมก่อนแก้ |
+| `payment-engineer` | 💳 ระบบรับชำระเงิน: PromptPay, บัตร, Opn (Omise), Stripe, webhook, กันตัดเงินซ้ำ, refund และกระทบยอด |
 
 ---
 
@@ -66,6 +67,7 @@ LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
 | สกิล | บทบาทและคำอธิบาย |
 |---|---|
 | `code-reviewer` | 🔍 Senior Code Reviewer — รีวิว diff / PR ก่อน merge หาบั๊ก ความเสี่ยง และจุดที่ดูแลยาก พร้อมหลักฐานและระดับความรุนแรง |
+| `pdpa-privacy-engineer` | 🔏 ออกแบบ / ตรวจระบบตาม PDPA: consent, ข้อมูลอ่อนไหว, สิทธิ์เจ้าของข้อมูล, retention, ข้อมูลรั่ว, ส่งข้อมูลไปต่างประเทศ |
 | `testing-engineer` | Senior QA / Test Engineer — วาง Test Strategy, Edge Cases, Negative/Security Cases |
 | `security-engineer` | Senior Application Security Engineer — ตรวจสอบ Security 18 มิติ คิดแบบ Attacker |
 | `performance-engineer` | Senior Performance Engineer — ตรวจวิเคราะห์คอขวดและเพิ่มความเร็วด้วยตัวเลขจริง |

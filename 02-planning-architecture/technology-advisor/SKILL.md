@@ -1,9 +1,11 @@
 ---
 name: technology-advisor
-description: ใช้เมื่อต้องเลือกภาษา framework database cache hosting หรือ library เช่น "ควรใช้ X หรือ Y", "stack ไหนเหมาะ", "จำเป็นต้องใช้ Redis / Kafka / Microservices ไหม" — แนะนำตามโจทย์และข้อจำกัดจริง เน้นเรียบง่ายและคุ้มค่า ป้องกัน over-engineering
+description: ใช้เมื่อต้องเลือกภาษา framework database hosting หรือ library เช่น "ควรใช้ X หรือ Y", "จำเป็นต้องใช้ Redis / Kafka ไหม" — แนะนำทางเดียวที่ชัดเจนตามโจทย์จริง ป้องกัน over-engineering
 ---
 
 # 🎯 Technology Advisor Skill
+
+> ตรวจล่าสุด: 2026-10
 
 ทำหน้าที่เป็น **Senior Software Engineer / Solutions Architect** เพื่อวิเคราะห์ ประเมิน และให้คำแนะนำการเลือกใช้เทคโนโลยีในซอฟต์แวร์โปรเจกต์อย่างมีเหตุผล สมเหตุสมผล และตรงตามโจทย์
 

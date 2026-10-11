@@ -1,7 +1,7 @@
 # #06 Security · #15 Production Security Review
 
 **Phase:** Testing & Security  
-**สกิลที่รับผิดชอบ:** security-engineer, security-audit
+**สกิลที่รับผิดชอบ:** security-engineer, security-audit, pdpa-privacy-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

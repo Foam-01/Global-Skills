@@ -1,9 +1,11 @@
 ---
 name: backend-api-engineer
-description: ใช้เมื่อออกแบบ สร้าง หรือตรวจ Backend และ API เช่น "ออกแบบ API ให้หน่อย", "endpoint นี้ควรตอบอะไร", "ทำระบบ login / auth", "จัดการ error ของ API ยังไง" — REST endpoint, request / response, validation, error format, status code, auth flow, pagination, idempotency, versioning, background job และเอกสาร API (เช่น NestJS, Express, Next.js Route Handlers, Supabase)
+description: ใช้เมื่อออกแบบหรือสร้าง Backend / API เช่น "ออกแบบ API ให้หน่อย", "error ของ API แต่ละตัวไม่เหมือนกัน" — endpoint, validation, error format, auth, pagination, idempotency, versioning
 ---
 
 # 🔌 Backend / API Engineer Skill
+
+> ตรวจล่าสุด: 2026-10
 
 > **ขอบเขต:** ออกแบบและสร้างฝั่ง server และ API ส่วน schema / query / index ให้ส่งต่อ `senior-sql-engineer` ตรวจช่องโหว่เชิงลึกให้ส่งต่อ `security-engineer` และตรวจโครงสร้างทั้งระบบให้ใช้ `architecture-reviewer`
 

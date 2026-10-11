@@ -1,9 +1,11 @@
 ---
 name: vibe-software-engineering
-description: ใช้เมื่ออยากสร้างแอปหรือ MVP ให้เร็วแบบ vibe coding แต่จะเอาไปใช้จริง เช่น "สร้างแอป X ให้หน่อย", "ทำ prototype ที่ต่อยอดได้" — ส่วนที่มองเห็นทำเร็ว แต่บังคับวางรากฐาน 6 ด้าน (Clean Architecture, Schema, Security, Type/Test, Observability) เพื่อไม่ให้พังเมื่อขึ้น Production
+description: ใช้เมื่ออยากสร้างแอปหรือ MVP ให้เร็วแต่จะใช้จริง เช่น "สร้างแอป X แบบเร็วๆ" — ส่วนที่มองเห็นทำเร็ว แต่วางรากฐาน architecture, schema, security, test และ observability ให้แข็งแรง
 ---
 
 # 🏗️ Vibe Software Engineering (Speed Above Ground, Concrete Underground)
+
+> ตรวจล่าสุด: 2026-10
 
 > 💡 **ปรัชญาหลัก**: *"ตึกข้างบนต้องสวยงามสร้างได้ไว (Vibe Coding Speed) แต่ฐานใต้ดินต้องเป็นคอนกรีตเสริมเหล็กที่ไม่มีวันถล่ม (Software Engineering Foundation)"*
 

@@ -1,7 +1,7 @@
 # F26 Business Logic
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** flutter-engineer, requirements-analyst, testing-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, payment-engineer, requirements-analyst, testing-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

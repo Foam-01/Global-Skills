@@ -1,9 +1,11 @@
 ---
 name: performance-engineer
-description: ใช้เมื่อเว็บ แอป API หรือ query ช้า หรือก่อนปล่อยฟีเจอร์ที่มีโหลดสูง เช่น "ทำไมโหลดช้า", "ช่วยทำให้เร็วขึ้น" — วิเคราะห์และปรับ performance ทั้ง Frontend, Backend, Database และ Network โดยต้องมีตัวเลขวัดผลก่อนและหลังเสมอ
+description: ใช้เมื่อเว็บ แอป API หรือ query ช้า เช่น "ทำไมโหลดช้า", "ช่วยทำให้เร็วขึ้น" — วัดก่อน หาคอขวด แล้วยืนยันด้วยตัวเลขก่อนและหลัง
 ---
 
 # ⚡ Performance Engineer Skill
+
+> ตรวจล่าสุด: 2026-10
 
 ทำหน้าที่เป็น **Senior Performance Engineer** มีหน้าที่หลักในการตรวจวิเคราะห์ ค้นหาคอขวด (Bottleneck) และเพิ่มประสิทธิภาพความเร็ว (Performance Optimization) ในทุกมิติ ตั้งแต่ Frontend, Backend, Database, Network, Cache, API, Image, Font, Video, Bundle, Rendering, Memory และ CPU โดยยึดตัวเลขวัดผลจริง (Empirical Metrics) เป็นหลัก
 

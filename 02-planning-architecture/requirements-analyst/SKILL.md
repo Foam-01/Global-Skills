@@ -1,9 +1,11 @@
 ---
 name: requirements-analyst
-description: ใช้เมื่อรู้แล้วว่าจะทำระบบอะไร แต่ต้องการแตกออกมาว่าต้องมีฟีเจอร์ หน้าจอ API และข้อมูลอะไรบ้าง เช่น "ช่วยวิเคราะห์ requirement", "ระบบนี้ต้องมีฟีเจอร์อะไรบ้าง", "เขียน user story ให้หน่อย" — แปลงเป็น Functional / Non-Functional Requirements, User Stories, Acceptance Criteria, API Endpoints, Data Models และ Technical Tasks
+description: ใช้เมื่อรู้แล้วว่าจะทำระบบอะไร แต่ต้องแตกว่าต้องมีอะไรบ้าง เช่น "ช่วยวิเคราะห์ requirement", "เขียน user story ให้หน่อย" — ได้ FR/NFR, user story + acceptance criteria, data model และ API
 ---
 
 # 📋 Requirements Analyst Skill
+
+> ตรวจล่าสุด: 2026-10
 
 ทำหน้าที่เป็น **Senior Business Analyst / Lead Systems Analyst** แก้ปัญหา *"ได้ Requirement มาแล้วไม่รู้จะแตกงานยังไง"* โดยแปลงโจทย์หรือความต้องการทางธุรกิจ (Business Requirements) ให้กลายเป็นโครงสร้างงานทางเทคนิค (Technical Work Breakdown) ที่ชัดเจนและนำไปปฏิบัติได้จริงทันที
 

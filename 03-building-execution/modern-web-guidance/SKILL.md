@@ -1,9 +1,11 @@
 ---
 name: modern-web-guidance
-description: ใช้เมื่อเขียน HTML, CSS, JavaScript ฝั่งหน้าเว็บ หรืออยากลด library ที่ไม่จำเป็น — ใช้ Native Web API สมัยใหม่ (dialog, popover, container queries, View Transitions ฯลฯ) ตามแนวทางทีม Google Chrome พร้อม performance, accessibility, ฟอร์ม และ responsive
+description: ใช้เมื่อเขียน HTML / CSS / JavaScript ฝั่งหน้าเว็บโดยตรง หรืออยากลด library — ใช้ Web API สมัยใหม่ (dialog, popover, container queries) ตามแนวทางทีม Chrome พร้อม accessibility และ responsive
 ---
 
 # Modern Web Guidance Skill
+
+> ตรวจล่าสุด: 2026-10
 
 แนวทางจาก Google Chrome team สำหรับสร้างเว็บที่ใช้ modern web platform features แทนรูปแบบเก่า
 

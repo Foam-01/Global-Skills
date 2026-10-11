@@ -1,9 +1,11 @@
 ---
 name: devops-engineer
-description: ใช้เมื่อตั้งค่าหรือแก้ปัญหาการ build, deploy และ environment เช่น "deploy ขึ้น server ยังไง", "เขียน Dockerfile ให้หน่อย", "ตั้ง CI/CD", "แยก dev / staging / prod", "เก็บ secret ยังไง", "deploy แล้วพัง rollback ยังไง" — Docker, GitHub Actions, environment variables / secrets, hosting (Vercel, Netlify, VPS, Supabase, Cloud Run), migration ตอน deploy, rollback และ build แอปมือถือใน CI
+description: ใช้เมื่อตั้งค่าหรือแก้ปัญหา build / deploy / environment เช่น "ตั้ง CI/CD", "เขียน Dockerfile", "เก็บ secret ยังไง", "deploy แล้วพัง rollback ยังไง"
 ---
 
 # 🚀 DevOps / Deployment Engineer Skill
+
+> ตรวจล่าสุด: 2026-10
 
 > **ขอบเขต:** ลงมือตั้งค่าการ build / deploy / environment ส่วนการประเมิน Go / No-Go ก่อนขึ้น Production ให้ใช้ `production-readiness-engineer` และเมื่อ Production มีเหตุให้ใช้ `incident-response-engineer`
 

@@ -26,7 +26,7 @@
 | 03 | [UX & User Flow](03-ux-flow.md) | Development & UI | impeccable (`critique`) |
 | 04 | [Responsive Design](04-responsive.md) | Development & UI | impeccable (`adapt`), modern-web-guidance |
 | 05 | [Performance](05-performance.md) | Pre-Production & Release | performance-engineer |
-| 06 | [Security](06-security.md) | Testing & Security | security-engineer, security-audit |
+| 06 | [Security](06-security.md) | Testing & Security | security-engineer, security-audit, pdpa-privacy-engineer |
 | 07 | [Database](07-database.md) | Planning & Architecture | senior-sql-engineer |
 | 08 | [Code Quality & Architecture](08-code-quality-maintainability.md) | Planning & Architecture | architecture-reviewer, refactoring-engineer |
 | 09 | [Testing & Quality Assurance](09-testing.md) | Testing & Security | testing-engineer |
@@ -35,7 +35,7 @@
 | 12 | [Cache & Redis Strategy](12-cache.md) | Development & UI | performance-engineer |
 | 13 | [Deployment & Production Readiness](13-production-readiness.md) | Pre-Production & Release | production-readiness-engineer, devops-engineer |
 | 14 | [Scalability](14-scalability.md) | Planning & Architecture | architecture-reviewer, system-design-interviewer |
-| 15 | [Production Security Review](06-security.md) | Testing & Security | security-engineer, security-audit |
+| 15 | [Production Security Review](06-security.md) | Testing & Security | security-engineer, security-audit, pdpa-privacy-engineer |
 | 16 | [Maintainability Review](08-code-quality-maintainability.md) | Planning & Architecture | architecture-reviewer, refactoring-engineer |
 | 17 | [Edge Case / Boundary Case Review](17-edge-cases.md) | Testing & Security | testing-engineer |
 | 18 | [Data Flow Review](18-data-flow.md) | Development & UI | backend-api-engineer, architecture-reviewer |
@@ -43,7 +43,7 @@
 | 20 | [API Design Review](20-api-design.md) | Development & UI | backend-api-engineer, security-engineer |
 | 21 | [Dependency / Package Review](21-dependencies.md) | Development & UI | security-engineer |
 | 22 | [Cost / Resource Efficiency Review](22-cost.md) | Planning & Architecture | technology-advisor |
-| 23 | [Business Logic Review](23-business-logic.md) | Development & UI | backend-api-engineer, requirements-analyst, testing-engineer |
+| 23 | [Business Logic Review](23-business-logic.md) | Development & UI | backend-api-engineer, payment-engineer, requirements-analyst, testing-engineer |
 | 24 | [Architecture & Technology Recommendation Review](24-architecture-tech-choice.md) | Planning & Architecture | technology-advisor, architecture-reviewer |
 | 25 | [Diagram & System Visualization](25-diagrams.md) | Planning & Architecture | architecture-reviewer, documentation-engineer |
 | 26 | [Testing Strategy Review](09-testing.md) | Testing & Security | testing-engineer |

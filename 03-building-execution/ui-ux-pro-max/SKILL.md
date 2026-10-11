@@ -1,9 +1,11 @@
 ---
 name: ui-ux-pro-max
-description: ใช้เมื่อออกแบบหน้าตา UI ใหม่ เช่นหน้าเว็บ, landing page, dashboard หรือแอป แล้วต้องเลือกสไตล์ สี ฟอนต์ layout และ animation ให้เข้ากับประเภทธุรกิจ — มีชุดสไตล์ (Minimal, Glassmorphism, Neubrutalism, Dark Premium ฯลฯ) และขั้นตอนสร้าง design system
+description: ใช้เมื่อเริ่มออกแบบหน้าตา UI ใหม่ (landing page, dashboard, แอป) และต้องเลือกสไตล์ สี ฟอนต์ layout ให้เข้ากับประเภทธุรกิจ
 ---
 
 # UI UX Pro Max — Design Intelligence Skill
+
+> ตรวจล่าสุด: 2026-10
 
 > **ขอบเขต:** ใช้ตอนเริ่มออกแบบ UI ใหม่เพื่อเลือกสไตล์ สี ฟอนต์ และ pattern ส่วนการวิจารณ์ ตรวจ และขัดเกลาหน้าที่มีอยู่แล้ว ให้ใช้ `impeccable` (ติดตั้งแบบ global)
 

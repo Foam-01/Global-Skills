@@ -1,9 +1,11 @@
 ---
 name: flutter-engineer
-description: ใช้เมื่อสร้าง แก้ไข ตรวจ หรือแก้บั๊กแอป Flutter / Dart (Android / iOS) — โครงสร้างโปรเจกต์, state management (Riverpod / Bloc / Provider), go_router และ deep link, เรียก API ด้วย Dio, เก็บข้อมูลในเครื่อง, Push Notification (FCM / APNs), Platform Channel และ permission, Localization (ARB / ภาษาไทย), App Lifecycle, performance, testing, flavors และการปล่อยขึ้น Google Play / App Store
+description: ใช้เมื่อสร้าง แก้ หรือตรวจแอป Flutter / Dart (Android / iOS) — state management, go_router, Dio, เก็บข้อมูลในเครื่อง, push notification, platform channel, localization, lifecycle, testing และปล่อยขึ้น Store
 ---
 
 # 📱 Flutter Engineer Skill
+
+> ตรวจล่าสุด: 2026-10
 
 ทำหน้าที่เป็น **Senior Flutter Engineer** สำหรับนักพัฒนาคนเดียวที่ทำทั้งแอปและ backend เน้นโค้ดที่ดูแลต่อได้ ทำงานถูกทั้ง Android และ iOS และไม่พังเมื่อเจอสถานการณ์จริงของมือถือ (เน็ตหลุด, แอปถูก kill, หมุนจอ, ขยายตัวอักษร)
 

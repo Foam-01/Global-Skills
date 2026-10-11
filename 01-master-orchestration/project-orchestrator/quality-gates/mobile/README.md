@@ -28,7 +28,7 @@
 | F05 | [Mobile Performance](F05-mobile-performance.md) | Pre-Production & Release | flutter-engineer, performance-engineer |
 | F06 | [Mobile Security](F06-mobile-security.md) | Testing & Security | flutter-engineer, security-engineer, security-audit |
 | F07 | [Local Data / Storage](F07-local-data.md) | Development & UI | flutter-engineer, senior-sql-engineer |
-| F08 | [Production / Store Readiness](F08-store-readiness.md) | Pre-Production & Release | flutter-engineer, production-readiness-engineer |
+| F08 | [Production / Store Readiness](F08-store-readiness.md) | Pre-Production & Release | flutter-engineer, production-readiness-engineer, pdpa-privacy-engineer |
 | F09 | [Code Quality & Architecture](F09-code-quality-architecture.md) | Planning & Architecture | flutter-engineer, architecture-reviewer, refactoring-engineer |
 | F10 | [Testing & QA](F10-testing.md) | Testing & Security | flutter-engineer, testing-engineer |
 | F11 | [Error Handling & Crash Reporting](F11-error-handling.md) | Testing & Security | flutter-engineer, debugging-engineer |
@@ -46,7 +46,7 @@
 | F23 | [Accessibility](F23-accessibility.md) | Development & UI | flutter-engineer, impeccable (`audit`) |
 | F24 | [Localization / i18n](F24-localization.md) | Development & UI | flutter-engineer |
 | F25 | [Edge Case / Boundary Case](F25-edge-cases.md) | Testing & Security | flutter-engineer, testing-engineer |
-| F26 | [Business Logic](F26-business-logic.md) | Development & UI | flutter-engineer, requirements-analyst, testing-engineer |
+| F26 | [Business Logic](F26-business-logic.md) | Development & UI | flutter-engineer, payment-engineer, requirements-analyst, testing-engineer |
 | F27 | [App Lifecycle & Background](F27-app-lifecycle.md) | Development & UI | flutter-engineer, debugging-engineer |
 | F28 | [Resource Efficiency (Memory / Battery / App Size)](F28-resource-efficiency.md) | Pre-Production & Release | flutter-engineer, performance-engineer |
 | F29 | [Reliability / Backup / Data Recovery](F29-reliability-backup.md) | Pre-Production & Release | flutter-engineer, incident-response-engineer |

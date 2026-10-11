@@ -1,9 +1,11 @@
 ---
 name: project-manager-orchestrator
-description: ใช้เมื่อมีฟีเจอร์หรืองานก้อนใหญ่ที่ต้องแตกเป็นงานย่อยและติดตามความคืบหน้า เช่น "แตกงานให้หน่อย", "วางแผนทำฟีเจอร์นี้", "ตอนนี้ทำถึงไหนแล้ว" — แตกงานเป็น Epic → Feature → Task → Subtask พร้อม dependency และสถานะ สำหรับนักพัฒนาคนเดียว
+description: ใช้เมื่อต้องแตกฟีเจอร์หรืองานก้อนใหญ่เป็นงานย่อยและติดตามความคืบหน้า เช่น "แตกงานให้หน่อย", "ตอนนี้ทำถึงไหนแล้ว" — Epic → Feature → Task พร้อม dependency, สถานะ และ acceptance criteria
 ---
 
 # 👔 Project Manager / Task Orchestrator Skill
+
+> ตรวจล่าสุด: 2026-10
 
 > **ขอบเขต:** แตกงานและติดตามสถานะในระดับ Feature / Task เท่านั้น ถ้าต้องการภาพรวมทั้งโปรเจกต์, เลือกสกิล หรือ Quality Gates ให้ใช้ `project-orchestrator`
 

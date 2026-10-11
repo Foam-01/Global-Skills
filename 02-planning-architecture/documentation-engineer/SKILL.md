@@ -1,9 +1,11 @@
 ---
 name: documentation-engineer
-description: ใช้เมื่อเขียนหรือตรวจเอกสารโปรเจกต์และบันทึกการตัดสินใจ เช่น "เขียน README ให้หน่อย", "คนใหม่ setup ไม่ได้", "บันทึกว่าทำไมเลือก X", "เขียน ADR", "เอกสาร API / database", "ทำ onboarding guide" — README, setup guide, environment docs, ADR (Architecture Decision Record) และ Developer Experience (scripts, lint, onboarding)
+description: ใช้เมื่อเขียนหรือตรวจเอกสาร เช่น "เขียน README", "คนใหม่ setup ไม่ได้", "เขียน ADR ว่าทำไมเลือก X" — README, setup guide, env docs, ADR และ Developer Experience
 ---
 
 # 📝 Documentation & ADR Engineer Skill
+
+> ตรวจล่าสุด: 2026-10
 
 > **ขอบเขต:** เขียนและตรวจเอกสาร, ADR และ Developer Experience ส่วนการตัดสินใจเลือกเทคโนโลยีเองให้ใช้ `technology-advisor` (แล้วค่อยบันทึกผลเป็น ADR ด้วยสกิลนี้) และการตั้งค่า CI/CD ให้ใช้ `devops-engineer`
 

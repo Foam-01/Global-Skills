@@ -115,6 +115,32 @@
 | ❌ near-miss | "ควรเลือก Supabase หรือ Firebase" | ไม่ใช่ documentation (ควรเป็น technology-advisor) |
 | 🎯 พฤติกรรม | ขอเขียน README | อ่าน script / config จริงก่อน ไม่แต่งคำสั่งที่ไม่มีอยู่, ไม่ใส่ค่าลับ |
 
+## payment-engineer
+
+| ประเภท | Prompt | ต้องเห็น |
+|---|---|---|
+| ✅ ควร trigger | "ทำระบบจ่ายเงินด้วย PromptPay ผ่าน Omise ให้หน่อย" | เรียก `payment-engineer` |
+| ✅ ควร trigger | "ลูกค้าโดนตัดเงินสองครั้ง เกิดจากอะไร" | เรียก `payment-engineer` (หรือ debugging-engineer) |
+| ❌ near-miss | "ออกแบบ API ระบบจองคิว" | ไม่ใช่ payment (ควรเป็น backend-api-engineer) |
+| 🎯 พฤติกรรม | fixtures/c1-payment.ts | ดู rubric-round4.md |
+
+## pdpa-privacy-engineer
+
+| ประเภท | Prompt | ต้องเห็น |
+|---|---|---|
+| ✅ ควร trigger | "แอปคลินิกเก็บประวัติคนไข้ ต้องทำอะไรเรื่อง PDPA บ้าง" | เรียก `pdpa-privacy-engineer` |
+| ✅ ควร trigger | "ผู้ใช้ขอให้ลบข้อมูลของเขาทั้งหมด ระบบต้องทำยังไง" | เรียก `pdpa-privacy-engineer` |
+| ❌ near-miss | "API นี้คนอื่นดูข้อมูลของเราได้ไหม" | ไม่ใช่ pdpa (ควรเป็น security-engineer) |
+| 🎯 พฤติกรรม | fixtures/c2-clinic-signup.md | ดู rubric-round4.md |
+
+## 🔁 ตรวจซ้ำทุกไตรมาส
+
+ทุกสกิลมีบรรทัด `ตรวจล่าสุด: YYYY-MM` ทุก 3 เดือน (รอบถัดไป: **2027-01**):
+1. รัน routing test (โจทย์ ✅ / ❌ ทั้งหมดในไฟล์นี้) และ behavior test ของสกิลที่เกี่ยวกับเทคโนโลยีที่เปลี่ยนเร็ว (flutter, payment, pdpa, devops, modern-web)
+2. ตรวจเนื้อหากับเอกสารล่าสุดของเทคโนโลยี / กฎหมายที่อ้างถึง
+3. อัปเดตบรรทัด `ตรวจล่าสุด` ของสกิลที่ตรวจแล้ว และบันทึกผลในตารางด้านล่าง
+
+
 ---
 
 ไฟล์โจทย์รอบ 2: [tasks-round2.md](tasks-round2.md) · เกณฑ์: [rubric-round2.md](rubric-round2.md) · fixtures: [fixtures/](fixtures/)
@@ -208,8 +234,26 @@
 
 ผลรอบ 3 หลังแก้: **109/109** เทียบ baseline 89/109
 
+### รอบที่ 4 — 2026-10-11 (สกิลใหม่ payment / pdpa + ย่อ description, ผู้ทดสอบ: Claude Sonnet)
+
+**ย่อ description ทุกสกิล:** รวม 15,379 → **4,413 ตัวอักษร (-71%)** แม้เพิ่มสกิล 2 ตัว
+
+**Routing หลังย่อ:** **35/35** (29 ข้อเดิม + 6 ข้อใหม่ของ payment / pdpa) — ไม่มีข้อไหนพลาดจากการย่อ
+
+**พฤติกรรม:** โจทย์ [tasks-round4.md](tasks-round4.md) · เกณฑ์ [rubric-round4.md](rubric-round4.md)
+
+| โจทย์ | สกิล | ไม่มีสกิล | มีสกิล | จุดที่ต่าง |
+|---|---|---|---|---|
+| C1 ตรวจระบบรับเงิน PromptPay | payment-engineer | 8/9 | 8/9 | จับ blocker ได้ครบทั้งคู่ — มีสกิลเพิ่ม state machine, ตาราง webhook_events, charge.complete ที่ failed/expired และ test case 12 ข้อ — **ทั้งคู่ไม่รออนุมัติก่อนแก้** → เพิ่มกฎในสกิลแล้ว (ยังไม่รันซ้ำ) |
+| C2 หน้าสมัครแอปคลินิก | pdpa-privacy-engineer | 10/10 | 10/10 | มีสกิลได้ตาราง ROPA, ผลตรวจรายข้อพร้อมหลักฐาน และรายการ "ต้องให้นักกฎหมายยืนยัน" ที่ชัดเจน |
+
+**ข้อสรุปตามจริง:** คะแนนเท่ากัน — โมเดลรู้เรื่อง payment และ PDPA ดีอยู่แล้ว ประโยชน์ของ 2 สกิลนี้คือ **รูปแบบที่ตรวจสอบได้และสม่ำเสมอ** (ROPA, state machine, test cases, ขอบเขตกฎหมาย) ไม่ใช่ความรู้ที่เพิ่มขึ้น
+
 | วันที่ | สกิล | Trigger | Near-miss | พฤติกรรม | หมายเหตุ |
 |---|---|---|---|---|---|
+| 2026-10-11 (รอบ 4) | 27 สกิล (ย่อ description) | 24/24 | 11/11 | — | routing 35/35 หลังย่อ -71% |
+| 2026-10-11 (รอบ 4) | payment-engineer | 2/2 | 1/1 | ➖ | 8/9 เท่ากับ baseline |
+| 2026-10-11 (รอบ 4) | pdpa-privacy-engineer | 2/2 | 1/1 | ➖ | 10/10 เท่ากับ baseline |
 | 2026-10-11 (รอบ 3) | 18 สกิลที่เหลือ | — | — | ✅ | 104/109 → 109/109 หลังแก้ vs baseline 89/109 |
 | 2026-10-11 | ทั้งหมด 11 สกิล | 18/19 | 10/10 | — | พลาด project-orchestrator 1 ข้อ |
 | 2026-10-11 | code-reviewer | 2/2 | 1/1 | ❌ | ครอบคลุมน้อยกว่า baseline |

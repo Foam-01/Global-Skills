@@ -1,9 +1,11 @@
 ---
 name: project-orchestrator
-description: ใช้เมื่อเริ่มโปรเจกต์ใหม่จากโจทย์ดิบ เช่น "อยากทำระบบ X เริ่มยังไงดี", "มีไอเดียแอปนี้ ต้องทำอะไรก่อนหลัง" หรืออยากรู้ภาพรวมว่าโปรเจกต์อยู่ Phase ไหน ต้องทำอะไรต่อ ควรใช้สกิลไหน และต้องผ่าน Quality Gate ข้อใด (Web 42 ข้อ / Flutter 32 ข้อ) — เป็นผู้ประสานงานระดับบนสุด วางแผนแม่บท ส่งงานให้สกิลเฉพาะทาง และไม่เขียนโค้ดเอง
+description: ใช้เมื่อเริ่มโปรเจกต์ใหม่จากโจทย์ดิบ เช่น "อยากทำระบบ X เริ่มยังไงดี" หรืออยากรู้ว่าโปรเจกต์อยู่ Phase ไหน ต้องใช้สกิลไหนต่อ และต้องผ่าน Quality Gate ข้อใด (Web / Flutter) — คุมภาพรวม ไม่เขียนโค้ดเอง
 ---
 
 # 🎼 PROJECT ORCHESTRATOR (LAYER 1: ORCHESTRATION LAYER)
+
+> ตรวจล่าสุด: 2026-10
 
 > **ขอบเขต:** คุมภาพรวมทั้งโปรเจกต์ (Phase, สกิลที่ต้องใช้, Quality Gates) ส่วนการแตกงานละเอียดเป็น Task และติดตามสถานะรายงาน ให้ส่งต่อ `project-manager-orchestrator`
 
@@ -69,11 +71,13 @@ QUALITY GATES APPLIED: [ระบุข้อ Quality Gate (เช่น #06, F3
 | Development | `modern-web-guidance`, `ui-ux-pro-max`, `impeccable` (global) | สร้างหน้าเว็บ / UI |
 | Development | `flutter-engineer` | สร้างแอป Flutter (Android / iOS) |
 | Development | `mcp-agent-dev` | สร้าง MCP server หรือ agent skill |
+| Development | `payment-engineer` | ระบบรับชำระเงิน, webhook, refund, กระทบยอด |
 | Development | `refactoring-engineer` | ปรับโครงสร้างโค้ดเดิมโดยพฤติกรรมไม่เปลี่ยน |
 | Review | `code-reviewer` | รีวิวโค้ดที่เพิ่งเขียนหรือ diff ก่อน merge |
 | Review | `debugging-engineer` | เจอบั๊กที่ต้องหาสาเหตุ |
 | Testing | `testing-engineer` | วางแผนเทสต์และ test case |
 | Testing | `security-engineer`, `security-audit` (global) | ตรวจช่องโหว่ (เร็ว / ทั้งระบบ) |
+| Testing | `pdpa-privacy-engineer` | ระบบที่เก็บข้อมูลส่วนบุคคล / ข้อมูลอ่อนไหวของคนไทย |
 | Testing | `performance-engineer` | ระบบช้า หรือก่อนปล่อยฟีเจอร์ที่มีโหลดสูง |
 | Release | `devops-engineer` | ตั้งค่า environment, secrets, Docker, CI/CD, deploy และ rollback |
 | Release | `documentation-engineer` | README, setup guide และ Developer Experience |
