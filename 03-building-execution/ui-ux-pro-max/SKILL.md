@@ -1,9 +1,11 @@
 ---
 name: ui-ux-pro-max
-description: Design intelligence สำหรับสร้าง UI/UX ระดับมืออาชีพ ใช้เมื่อออกแบบหน้าเว็บ, landing page, dashboard, mobile app หรือ UI ใดๆ ที่ต้องการดีไซน์สวย สี ฟอนต์ layout และ animation ที่เหมาะกับประเภทธุรกิจ
+description: ใช้เมื่อออกแบบหน้าตา UI ใหม่ เช่นหน้าเว็บ, landing page, dashboard หรือแอป แล้วต้องเลือกสไตล์ สี ฟอนต์ layout และ animation ให้เข้ากับประเภทธุรกิจ — มีชุดสไตล์ (Minimal, Glassmorphism, Neubrutalism, Dark Premium ฯลฯ) และขั้นตอนสร้าง design system
 ---
 
 # UI UX Pro Max — Design Intelligence Skill
+
+> **ขอบเขต:** ใช้ตอนเริ่มออกแบบ UI ใหม่เพื่อเลือกสไตล์ สี ฟอนต์ และ pattern ส่วนการวิจารณ์ ตรวจ และขัดเกลาหน้าที่มีอยู่แล้ว ให้ใช้ `impeccable` (ติดตั้งแบบ global)
 
 > ดัดแปลงจาก [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) (MIT License)
 

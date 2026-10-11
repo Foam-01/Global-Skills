@@ -1,6 +1,6 @@
 ---
 name: vibe-software-engineering
-description: สกิลพิเศษสายผสมผสาน "Vibe Coding + Software Engineering" — สั่ง AI สร้างระบบรวดเร็วด้วย Vibe (Speed/UI) แต่บังคับฝังรากฐานวิศวกรรมซอฟต์แวร์ที่แข็งแกร่ง (Architecture, Security, Test, DB Schema, Clean Code) เพื่อไม่ให้ระบบถล่มเมื่อนำไปใช้จริงบน Production
+description: ใช้เมื่ออยากสร้างแอปหรือ MVP ให้เร็วแบบ vibe coding แต่จะเอาไปใช้จริง เช่น "สร้างแอป X ให้หน่อย", "ทำ prototype ที่ต่อยอดได้" — ส่วนที่มองเห็นทำเร็ว แต่บังคับวางรากฐาน 6 ด้าน (Clean Architecture, Schema, Security, Type/Test, Observability) เพื่อไม่ให้พังเมื่อขึ้น Production
 ---
 
 # 🏗️ Vibe Software Engineering (Speed Above Ground, Concrete Underground)

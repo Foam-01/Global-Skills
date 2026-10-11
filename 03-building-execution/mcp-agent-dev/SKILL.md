@@ -1,6 +1,6 @@
 ---
 name: mcp-agent-dev
-description: แนวทางการพัฒนาและใช้งาน Model Context Protocol (MCP) servers, AI agent skills, และ agentic workflows ใช้เมื่อสร้าง MCP server, เขียน agent skills, หรือ integrate AI agents เข้ากับระบบ
+description: ใช้เมื่อสร้าง MCP (Model Context Protocol) server, เขียน agent skill (SKILL.md) หรือเชื่อม AI agent เข้ากับระบบและเครื่องมือภายนอก — โครงสร้าง server, tools / resources, การตั้งค่า, ความปลอดภัย และแนวทางเขียน skill ที่ดี
 ---
 
 # MCP & AI Agent Development Skill

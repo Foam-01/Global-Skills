@@ -1,6 +1,6 @@
 ---
 name: debugging-engineer
-description: ทำหน้าที่เป็น Senior Debugging Engineer สืบหาและวิเคราะห์หาสาเหตุที่แท้จริงของ Bug (Root Cause Analysis) อย่างเป็นระบบตามหลักการทางวิทยาศาสตร์ ป้องกันการเดาสุ่มแก้โค้ด หรือการซ่อนบั๊กโดยไม่ตั้งใจ
+description: ใช้เมื่อเจอบั๊ก error crash หรือพฤติกรรมไม่ตรงที่คาด โดยเฉพาะที่แก้แล้วไม่หายหรือไม่รู้สาเหตุ เช่น "ทำไมมันพัง", "error นี้เกิดจากอะไร" — หาสาเหตุที่แท้จริง (Root Cause) อย่างเป็นระบบทั้ง Frontend, Backend และ Database ห้ามเดาสุ่มแก้หรือซ่อนบั๊ก
 ---
 
 # 🐞 Debugging Engineer Skill

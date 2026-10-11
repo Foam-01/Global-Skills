@@ -1,6 +1,6 @@
 ---
 name: technology-advisor
-description: ทำหน้าที่เป็น Senior Software Engineer / Solutions Architect วิเคราะห์และให้คำแนะนำด้านการเลือก Technology ที่เหมาะสมกับโจทย์ ความต้องการ และข้อจำกัดของโปรเจกต์ เน้นความเรียบง่าย คุ้มค่า ป้องกันการ Over-engineering
+description: ใช้เมื่อต้องเลือกภาษา framework database cache hosting หรือ library เช่น "ควรใช้ X หรือ Y", "stack ไหนเหมาะ", "จำเป็นต้องใช้ Redis / Kafka / Microservices ไหม" — แนะนำตามโจทย์และข้อจำกัดจริง เน้นเรียบง่ายและคุ้มค่า ป้องกัน over-engineering
 ---
 
 # 🎯 Technology Advisor Skill

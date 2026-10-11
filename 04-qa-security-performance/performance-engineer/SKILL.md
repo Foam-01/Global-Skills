@@ -1,6 +1,6 @@
 ---
 name: performance-engineer
-description: ทำหน้าที่เป็น Senior Performance Engineer ตรวจสอบ วิเคราะห์ และปรับแต่งประสิทธิภาพ (Performance Optimization) ของทั้งระบบ โดยอาศัยตัววัดผลจริง (Metrics) และห้ามอ้างว่าเร็วขึ้นโดยไม่มีหลักฐานหรือตัวเลขเปรียบเทียบก่อน-หลัง
+description: ใช้เมื่อเว็บ แอป API หรือ query ช้า หรือก่อนปล่อยฟีเจอร์ที่มีโหลดสูง เช่น "ทำไมโหลดช้า", "ช่วยทำให้เร็วขึ้น" — วิเคราะห์และปรับ performance ทั้ง Frontend, Backend, Database และ Network โดยต้องมีตัวเลขวัดผลก่อนและหลังเสมอ
 ---
 
 # ⚡ Performance Engineer Skill

@@ -1,6 +1,6 @@
 # 🛠️ Global Skills
 
-สกิลสำหรับ AI Agent (Antigravity IDE) — คลังเก็บสกิลส่วนตัว แบ่งหมวดหมู่เป็น 5 กลุ่มชัดเจน รวมทั้งหมด 20 สกิล
+สกิลสำหรับ AI Agent (Antigravity IDE) — คลังเก็บสกิลส่วนตัว แบ่งหมวดหมู่เป็น 5 กลุ่มชัดเจน รวมทั้งหมด 21 สกิล
 
 ## 🏛️ สถาปัตยกรรมระบบ 3 Layers (3-Tier AI System Architecture)
 
@@ -17,7 +17,7 @@ LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
 
 ---
 
-## 📦 รายชื่อสกิลตามหมวดหมู่ (5 Categories / 20 Skills)
+## 📦 รายชื่อสกิลตามหมวดหมู่ (5 Categories / 21 Skills)
 
 📖 คู่มือเลือกสกิลตามสถานการณ์และคำอธิบายแต่ละตัว: [docs/skills-guide.md](docs/skills-guide.md)
 
@@ -51,7 +51,7 @@ LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
 | สกิล | บทบาทและคำอธิบาย |
 |---|---|
 | `modern-web-guidance` | มาตรฐานการพัฒนาเว็บด้วย Web APIs สมัยใหม่จาก Google Chrome Team |
-| `ui-ux-pro-max` | Design intelligence — สร้าง UI/UX ระดับมืออาชีพ ตาม 192 ประเภทธุรกิจ |
+| `ui-ux-pro-max` | Design intelligence — เลือกสไตล์ (8 แบบ), ชุดสี (6 กลุ่มธุรกิจ), คู่ฟอนต์ และ landing page pattern สำหรับ UI ใหม่ |
 | `mcp-agent-dev` | คู่มือสร้างและพัฒนา MCP Server และ Agent Skill Workflows |
 | `flutter-engineer` | 📱 Senior Flutter Engineer — สร้างและตรวจแอป Flutter (Android / iOS): state, routing, API, offline, push, platform, i18n, lifecycle, testing และการปล่อยขึ้น Store |
 

@@ -1,6 +1,6 @@
 ---
 name: senior-sql-engineer
-description: ทำหน้าที่เป็น Senior SQL Engineer / Senior Database Engineer วิเคราะห์ ออกแบบ ตรวจสอบ แก้ไข และปรับปรุง SQL และ Database (PostgreSQL, Index, Query Performance, Concurrency, Lock, Data Integrity, Migration) เน้นการวิเคราะห์ Root Cause และวัดผลจริงก่อนแก้ไขเสมอ
+description: ใช้เมื่อทำงานกับ SQL หรือ Database เช่น query ช้า, ออกแบบตาราง / schema, เลือก index, transaction, lock / deadlock, ข้อมูลซ้ำหรือเพี้ยน, เขียน migration (เน้น PostgreSQL / Supabase) — วิเคราะห์ Root Cause และวัดผลด้วย EXPLAIN ก่อนแก้เสมอ
 ---
 
 # 🗄️ Senior SQL Engineer Skill

@@ -1,6 +1,6 @@
 ---
 name: requirements-analyst
-description: ทำหน้าที่เป็น Senior Business Analyst / Lead Systems Analyst เปลี่ยนโจทย์ Business หรือ Requirement แบบกว้างๆ ให้กลายเป็น User Stories, Technical Tasks, API Endpoints, Data Models และ Acceptance Criteria ที่ทีมพัฒนาสามารถนำไปซอยงานและลงมือทำได้ทันที
+description: ใช้เมื่อมีแค่ไอเดียหรือโจทย์ธุรกิจกว้างๆ แล้วต้องการรู้ว่าต้องสร้างอะไรบ้าง เช่น "อยากทำระบบ X", "ช่วยวิเคราะห์ requirement" — แปลงเป็น Functional / Non-Functional Requirements, User Stories, Acceptance Criteria, API Endpoints, Data Models และ Technical Tasks
 ---
 
 # 📋 Requirements Analyst Skill

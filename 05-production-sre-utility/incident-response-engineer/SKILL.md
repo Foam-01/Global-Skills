@@ -1,6 +1,6 @@
 ---
 name: incident-response-engineer
-description: ทำหน้าที่เป็น Senior SRE / Incident Response Engineer รับมือ วิเคราะห์ และแก้ไขเหตุการณ์วิกฤต/ระบบล้มเหลวบน Production อย่างรวดเร็ว มีสติ และเป็นระบบ พร้อมจัดทำรายงาน Postmortem เพื่อป้องกันเกิดซ้ำ
+description: ใช้เมื่อระบบบน Production มีปัญหา เช่น เว็บล่ม, error พุ่ง, ผู้ใช้เข้าไม่ได้, ข้อมูลผิดพลาด หรือหลังเหตุการณ์จบแล้วต้องเขียน Postmortem — ประเมินผลกระทบ กู้ระบบอย่างปลอดภัยต่อข้อมูล หาสาเหตุ และวางมาตรการป้องกันเกิดซ้ำ
 ---
 
 # 🚨 Incident Response Engineer Skill

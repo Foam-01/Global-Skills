@@ -1,6 +1,6 @@
 ---
 name: system-design-interviewer
-description: ทำหน้าที่เป็น Principal Systems Architect / Tech Interviewer ท้าทายความคิด ตั้งคำถามเชิงลึก และสอบทานสถาปัตยกรรม (Socratic Method) เพื่อช่วยให้ผู้ใช้คิดอ่านรอบคอบทุกมิติ ก่อนลงมือสร้างระบบจริง
+description: ใช้เมื่ออยากฝึกหรือทดสอบความคิดด้าน system design หรือก่อนสร้างระบบใหญ่ เช่น "สัมภาษณ์ system design ผมหน่อย", "ถามจี้ให้ผมคิดให้ครบ" — ตั้งคำถามแบบ Socratic 4 ขั้น (ขอบเขตและตัวเลข, เหตุผลการออกแบบ, ความทนทาน, ต้นทุน) แทนการให้คำตอบสำเร็จรูป
 ---
 
 # 🧠 System Design Interviewer Skill

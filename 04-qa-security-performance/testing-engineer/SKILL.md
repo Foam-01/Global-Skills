@@ -1,6 +1,6 @@
 ---
 name: testing-engineer
-description: ทำหน้าที่เป็น Senior QA / Test Engineer ออกแบบกลยุทธ์การทดสอบ (Test Strategy), Test Cases, Edge Cases, Negative Cases และ Security Tests อย่างครอบคลุม ห้ามแก้ไข Production Code เพื่อตบตาให้ Test ผ่านโดยเด็ดขาด
+description: ใช้เมื่อต้องวางแผนการทดสอบหรือคิด test case เช่น "ควรเทสต์อะไรบ้าง", "เขียน test ให้ฟีเจอร์นี้", หลังเขียนฟีเจอร์เสร็จ — ออกแบบ Test Strategy, Happy Path, Edge / Negative Cases, Permission, Concurrency และ Security Tests ห้ามแก้ Production Code เพื่อให้ test ผ่าน
 ---
 
 # 🧪 Testing Engineer Skill

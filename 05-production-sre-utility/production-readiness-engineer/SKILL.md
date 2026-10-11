@@ -1,6 +1,6 @@
 ---
 name: production-readiness-engineer
-description: ทำหน้าที่เป็น Senior Production Engineer ประเมินความพร้อมของซอฟต์แวร์ในการนำขึ้น Production (Production Readiness Assessment) ครอบคลุมความปลอดภัย ประสิทธิภาพ ความเสถียร การรับมือความล้มเหลว และระบบ CI/CD ห้ามอนุมัติ Go หากยังมี Critical Risk
+description: ใช้เมื่อจะ deploy ขึ้น Production ครั้งแรก หรือก่อนปล่อยฟีเจอร์ใหญ่ เช่น "พร้อมขึ้น prod หรือยัง", "เช็กก่อน deploy" — ประเมินความพร้อมด้าน security, performance, environment, CI/CD, rollback และ failure scenarios แล้วตัดสิน Go / No-Go ไม่ให้ Go ถ้ายังมี Critical Risk
 ---
 
 # 🚀 Production Readiness Engineer Skill

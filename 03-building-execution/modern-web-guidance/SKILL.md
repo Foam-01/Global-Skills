@@ -1,6 +1,6 @@
 ---
 name: modern-web-guidance
-description: แนวทางการพัฒนาเว็บสมัยใหม่ตามมาตรฐาน Google Chrome team ใช้เมื่อสร้าง HTML, CSS, JavaScript ที่ต้องการ modern web platform features, best practices, browser compatibility และ performance optimization
+description: ใช้เมื่อเขียน HTML, CSS, JavaScript ฝั่งหน้าเว็บ หรืออยากลด library ที่ไม่จำเป็น — ใช้ Native Web API สมัยใหม่ (dialog, popover, container queries, View Transitions ฯลฯ) ตามแนวทางทีม Google Chrome พร้อม performance, accessibility, ฟอร์ม และ responsive
 ---
 
 # Modern Web Guidance Skill
