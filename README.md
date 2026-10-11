@@ -113,6 +113,12 @@ npx skills add https://github.com/cloudflare/security-audit-skill --skill securi
 
 ---
 
+## 🧪 ทดสอบสกิล
+
+ชุดทดสอบว่าสกิลถูกเรียกใช้ถูกจังหวะและทำตามกฎจริง: [evals/README.md](evals/README.md)
+
+---
+
 ## 🛠️ วิธีใช้
 
 คัดลอกโฟลเดอร์สกิลที่ต้องการจากหมวดหมู่เข้าไปในโปรเจกต์:
