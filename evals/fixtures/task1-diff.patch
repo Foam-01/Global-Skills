@@ -1,0 +1,18 @@
+--- a/src/orders/orderService.ts
++++ b/src/orders/orderService.ts
+@@ -12,10 +12,18 @@ export async function createOrder(userId: string, items: CartItem[]) {
+-  const order = await db.orders.insert({ userId, items, status: "pending" });
+-  return order;
++  const tmp = await db.orders.insert({ userId, items, status: "pending" });
++  const total = items.reduce((s, i) => s + i.price * i.qty, 0);
++  await db.orders.update(tmp.id, { total });
++  return tmp;
++}
++
++export async function cancelOrder(orderId: string) {
++  const order = await db.orders.findById(orderId);
++  if (order.status === "paid") throw new Error("cannot cancel paid order");
++  db.orders.update(orderId, { status: "cancelled" });
++  await notifyUser(order.userId, "Your order was cancelled");
++  return { ok: true };
+ }
