@@ -1,7 +1,7 @@
 # F09 Code Quality & Architecture
 
 **Phase:** Planning & Architecture  
-**สกิลที่รับผิดชอบ:** flutter-engineer, architecture-reviewer
+**สกิลที่รับผิดชอบ:** flutter-engineer, architecture-reviewer, refactoring-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

@@ -1,7 +1,7 @@
 # #23 Business Logic Review
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** requirements-analyst, testing-engineer
+**สกิลที่รับผิดชอบ:** backend-api-engineer, requirements-analyst, testing-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

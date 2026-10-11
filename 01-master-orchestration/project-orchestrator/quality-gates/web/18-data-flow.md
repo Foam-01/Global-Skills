@@ -1,7 +1,7 @@
 # #18 Data Flow Review
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** architecture-reviewer
+**สกิลที่รับผิดชอบ:** backend-api-engineer, architecture-reviewer
 
 ## ✅ เกณฑ์ผ่าน
 

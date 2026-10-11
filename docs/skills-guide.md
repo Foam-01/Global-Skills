@@ -13,6 +13,7 @@
 | มีงานก้อนใหญ่ อยากแตกเป็นงานย่อยและติดตามสถานะ | `project-manager-orchestrator` |
 | มีไอเดียหรือโจทย์ธุรกิจกว้างๆ อยากได้ User Story, API, Data Model | `requirements-analyst` |
 | ลังเลว่าจะใช้ภาษา, framework หรือ database ตัวไหน | `technology-advisor` |
+| อยากบันทึกว่าทำไมเลือกเทคโนโลยี / ออกแบบแบบนี้ (ADR), เขียน README | `documentation-engineer` |
 | อยากให้มีคนถามจี้ให้คิดออกแบบระบบให้รอบคอบ | `system-design-interviewer` |
 | อยากให้ตรวจโครงสร้างระบบที่มีอยู่ หาคอขวดและจุดเสี่ยง | `architecture-reviewer` |
 | อยากสร้างเร็วแบบ vibe coding แต่ไม่อยากให้ระบบพังทีหลัง | `vibe-software-engineering` |
@@ -20,6 +21,8 @@
 | เขียน HTML/CSS/JS ให้ทันสมัยตามมาตรฐาน | `modern-web-guidance` |
 | สร้าง MCP server หรือเขียน agent skill | `mcp-agent-dev` |
 | ทำแอป Flutter (Android / iOS) หรือตรวจแอปมือถือ | `flutter-engineer` |
+| ออกแบบ / สร้าง API หรือระบบหลังบ้าน, auth, error format | `backend-api-engineer` |
+| โค้ดเดิมรก ไฟล์ใหญ่ อยากจัดใหม่โดยไม่ให้พัง | `refactoring-engineer` |
 | เขียนโค้ดเสร็จ อยากให้รีวิวก่อน commit / merge | `code-reviewer` |
 | เจอบั๊ก หาสาเหตุไม่เจอ | `debugging-engineer` |
 | ระบบช้า | `performance-engineer` |
@@ -28,6 +31,7 @@
 | ตรวจช่องโหว่ทั้งระบบ ออกรายงานเป็นไฟล์ | `security-audit` (global) |
 | วางแผนการเทสต์, คิด test case | `testing-engineer` |
 | จะขึ้น Production อยากรู้ว่าพร้อมหรือยัง | `production-readiness-engineer` |
+| ตั้ง deploy, Docker, CI/CD, environment, secrets | `devops-engineer` |
 | ระบบบน Production ล่ม | `incident-response-engineer` |
 | อยากให้ AI ตอบเป็นภาษาไทยเสมอ | `thai-response` |
 | ทุกงาน (ปรัชญาการคิดพื้นฐาน) | `engineering-mindset` |
@@ -80,6 +84,11 @@
 **ใช้ตอนไหน:** ระบบเริ่มใหญ่ หรือก่อน scale
 **ตัวอย่าง:** "ใช้ architecture-reviewer ตรวจโครงสร้างโปรเจกต์นี้"
 
+### `documentation-engineer`
+**ทำอะไร:** เขียนและตรวจ README, setup guide, environment docs, Developer Experience (scripts, lint, onboarding) และ ADR บันทึกการตัดสินใจสำคัญพร้อมทางเลือก เหตุผล และเงื่อนไขที่ควรทบทวน
+**ใช้ตอนไหน:** หลังตัดสินใจเรื่องสำคัญ (ใช้คู่กับ technology-advisor), ก่อนส่งต่อโปรเจกต์ หรือเมื่อ setup ยาก
+**ตัวอย่าง:** "ใช้ documentation-engineer เขียน ADR ว่าทำไมเลือก Supabase"
+
 ---
 
 ## 💻 3. Building & Execution
@@ -104,6 +113,16 @@
 **ทำอะไร:** สร้าง ตรวจ และแก้บั๊กแอป Flutter ครอบคลุมโครงสร้างโปรเจกต์, state management, go_router / deep link, Dio, ข้อมูลในเครื่อง / offline, Push Notification, Platform Channel / permission, Localization (รวมภาษาไทย), App Lifecycle, performance, testing, flavors และการปล่อยขึ้น Store
 **ใช้ตอนไหน:** ทำแอปมือถือด้วย Flutter หรือตรวจแอปตาม Quality Gates ชุด Mobile (F01–F32)
 **ตัวอย่าง:** "ใช้ flutter-engineer ตรวจระบบ push notification ของแอปนี้"
+
+### `backend-api-engineer`
+**ทำอะไร:** ออกแบบและสร้าง API / Backend: endpoint, validation, รูปแบบ error และ status code, auth, pagination, idempotency, versioning, background job และเอกสาร API **ห้ามเปลี่ยน API contract ที่ client ใช้อยู่โดยไม่ได้รับอนุญาต**
+**ใช้ตอนไหน:** สร้าง API ใหม่ หรือ API เดิมใช้ยาก / ไม่สม่ำเสมอ
+**ตัวอย่าง:** "ใช้ backend-api-engineer ออกแบบ API ระบบจองคิว"
+
+### `refactoring-engineer`
+**ทำอะไร:** ปรับโครงสร้างโค้ดเดิมทีละขั้นเล็กๆ โดยพฤติกรรมต้องเหมือนเดิม 100% มี test คุมก่อนแก้ และไม่ผสมการแก้บั๊กหรือเพิ่มฟีเจอร์
+**ใช้ตอนไหน:** โค้ดรก ไฟล์ใหญ่ แก้ทีไรพังที่อื่น
+**ตัวอย่าง:** "ใช้ refactoring-engineer แยกไฟล์ OrderService ที่ยาว 900 บรรทัด"
 
 ---
 
@@ -143,6 +162,11 @@
 
 ## 🚀 5. Production, SRE & Utility
 
+### `devops-engineer`
+**ทำอะไร:** ตั้งค่า environment และ secrets, Docker, CI/CD (GitHub Actions), migration ตอน deploy, rollback และ build แอปมือถือใน CI เลือกทางที่เรียบง่ายที่สุดที่พอกับงาน **ไม่รันคำสั่งที่กระทบ Production โดยไม่ได้รับอนุมัติ**
+**ใช้ตอนไหน:** ตั้งระบบ deploy ครั้งแรก, deploy แล้วพัง, ย้าย hosting
+**ตัวอย่าง:** "ใช้ devops-engineer ตั้ง GitHub Actions deploy ขึ้น Vercel"
+
 ### `production-readiness-engineer`
 **ทำอะไร:** ประเมินว่าพร้อมขึ้น Production หรือยัง (security, performance, ความเสถียร, environment, CI/CD, failure scenarios) แล้วตัดสิน Go / No-Go **ไม่ให้ Go ถ้ายังมีความเสี่ยงร้ายแรง**
 **ใช้ตอนไหน:** ก่อน deploy จริงครั้งแรก หรือก่อนปล่อยฟีเจอร์ใหญ่
@@ -164,10 +188,12 @@
 ```
 project-orchestrator (คุมภาพรวม)
   → requirements-analyst → technology-advisor → system-design-interviewer / architecture-reviewer
+  → documentation-engineer (บันทึก ADR)
   → project-manager-orchestrator (แตกงาน)
-  → ui-ux-pro-max / Impeccable / modern-web-guidance / flutter-engineer / mcp-agent-dev (ลงมือสร้าง)
+  → backend-api-engineer / ui-ux-pro-max / Impeccable / modern-web-guidance / flutter-engineer / mcp-agent-dev (ลงมือสร้าง)
+  → refactoring-engineer (เมื่อโค้ดเริ่มรก)
   → code-reviewer → testing-engineer → security-engineer → performance-engineer / senior-sql-engineer
-  → production-readiness-engineer (Go / No-Go)
+  → devops-engineer (ตั้ง deploy / CI/CD) → production-readiness-engineer (Go / No-Go)
   → incident-response-engineer (เมื่อมีเหตุ)
 
 debugging-engineer ใช้ได้ทุกช่วงที่เจอบั๊ก

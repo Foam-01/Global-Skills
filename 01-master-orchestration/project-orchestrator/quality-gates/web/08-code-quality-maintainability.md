@@ -1,7 +1,7 @@
 # #08 Code Quality & Architecture · #16 Maintainability Review · #34 Maintainability Review
 
 **Phase:** Planning & Architecture  
-**สกิลที่รับผิดชอบ:** architecture-reviewer
+**สกิลที่รับผิดชอบ:** architecture-reviewer, refactoring-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

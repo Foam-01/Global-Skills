@@ -1,6 +1,6 @@
 # 🛠️ Global Skills
 
-สกิลสำหรับ AI Agent (Antigravity IDE) — คลังเก็บสกิลส่วนตัว แบ่งหมวดหมู่เป็น 5 กลุ่มชัดเจน รวมทั้งหมด 21 สกิล
+สกิลสำหรับ AI Agent (Antigravity IDE) — คลังเก็บสกิลส่วนตัว แบ่งหมวดหมู่เป็น 5 กลุ่มชัดเจน รวมทั้งหมด 25 สกิล
 
 ## 🏛️ สถาปัตยกรรมระบบ 3 Layers (3-Tier AI System Architecture)
 
@@ -17,7 +17,7 @@ LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
 
 ---
 
-## 📦 รายชื่อสกิลตามหมวดหมู่ (5 Categories / 21 Skills)
+## 📦 รายชื่อสกิลตามหมวดหมู่ (5 Categories / 25 Skills)
 
 📖 คู่มือเลือกสกิลตามสถานการณ์และคำอธิบายแต่ละตัว: [docs/skills-guide.md](docs/skills-guide.md)
 
@@ -40,6 +40,7 @@ LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
 |---|---|
 | `requirements-analyst` | Senior Systems Analyst — แตก Requirement กว้างๆ เป็น User Stories และ API Specs |
 | `technology-advisor` | Senior Architect Advisor — วิเคราะห์ว่าควรใช้/ไม่ควรใช้เทคโนโลยีใดเมื่อไหร่ |
+| `documentation-engineer` | 📝 README, setup guide, Developer Experience และ ADR (บันทึกการตัดสินใจทางสถาปัตยกรรม) |
 | `architecture-reviewer` | Senior Architect Reviewer — ตรวจสอบ Architecture หา Bottleneck/SPOF |
 | `system-design-interviewer` | Principal Architect Interviewer — เปลี่ยน AI เป็นผู้ท้าทายความคิด (Socratic Method) |
 
@@ -54,6 +55,8 @@ LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
 | `ui-ux-pro-max` | Design intelligence — เลือกสไตล์ (8 แบบ), ชุดสี (6 กลุ่มธุรกิจ), คู่ฟอนต์ และ landing page pattern สำหรับ UI ใหม่ |
 | `mcp-agent-dev` | คู่มือสร้างและพัฒนา MCP Server และ Agent Skill Workflows |
 | `flutter-engineer` | 📱 Senior Flutter Engineer — สร้างและตรวจแอป Flutter (Android / iOS): state, routing, API, offline, push, platform, i18n, lifecycle, testing และการปล่อยขึ้น Store |
+| `backend-api-engineer` | 🔌 ออกแบบและสร้าง API / Backend: endpoint, validation, error format, auth, pagination, idempotency, versioning |
+| `refactoring-engineer` | 🧹 ปรับโครงสร้างโค้ดเดิมทีละขั้นโดยพฤติกรรมไม่เปลี่ยน มี test คุมก่อนแก้ |
 
 ---
 
@@ -79,6 +82,7 @@ LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
 | `production-readiness-engineer` | Senior Production Engineer — ประเมินความพร้อมและ Failure Scenarios ก่อนขึ้น Prod |
 | `incident-response-engineer` | Senior SRE / Incident Response — รับมือและกู้คืนระบบล่มบน Prod อย่างปลอดภัยต่อข้อมูล |
 | `thai-response` | บังคับตอบภาษาไทยอย่างสุภาพและถูกต้อง |
+| `devops-engineer` | 🚀 Environment, secrets, Docker, CI/CD, migration ตอน deploy และ rollback (เว็บและแอปมือถือ) |
 
 ---
 

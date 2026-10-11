@@ -29,7 +29,7 @@
 | F06 | [Mobile Security](F06-mobile-security.md) | Testing & Security | flutter-engineer, security-engineer, security-audit |
 | F07 | [Local Data / Storage](F07-local-data.md) | Development & UI | flutter-engineer, senior-sql-engineer |
 | F08 | [Production / Store Readiness](F08-store-readiness.md) | Pre-Production & Release | flutter-engineer, production-readiness-engineer |
-| F09 | [Code Quality & Architecture](F09-code-quality-architecture.md) | Planning & Architecture | flutter-engineer, architecture-reviewer |
+| F09 | [Code Quality & Architecture](F09-code-quality-architecture.md) | Planning & Architecture | flutter-engineer, architecture-reviewer, refactoring-engineer |
 | F10 | [Testing & QA](F10-testing.md) | Testing & Security | flutter-engineer, testing-engineer |
 | F11 | [Error Handling & Crash Reporting](F11-error-handling.md) | Testing & Security | flutter-engineer, debugging-engineer |
 | F12 | [Observability (Logging / Analytics / Crash)](F12-observability.md) | Pre-Production & Release | flutter-engineer, incident-response-engineer |
@@ -41,7 +41,7 @@
 | F18 | [Offline / Sync / Cache Strategy](F18-offline-sync.md) | Development & UI | flutter-engineer, architecture-reviewer |
 | F19 | [Push Notification](F19-push-notification.md) | Development & UI | flutter-engineer |
 | F20 | [Dependency / Package Review](F20-dependencies.md) | Development & UI | flutter-engineer, security-engineer |
-| F21 | [Build Config / Flavors / Environment](F21-build-flavors.md) | Pre-Production & Release | flutter-engineer, production-readiness-engineer |
+| F21 | [Build Config / Flavors / Environment](F21-build-flavors.md) | Pre-Production & Release | flutter-engineer, devops-engineer, production-readiness-engineer |
 | F22 | [Platform Integration (Android / iOS)](F22-platform-integration.md) | Development & UI | flutter-engineer |
 | F23 | [Accessibility](F23-accessibility.md) | Development & UI | flutter-engineer, impeccable (`audit`) |
 | F24 | [Localization / i18n](F24-localization.md) | Development & UI | flutter-engineer |
@@ -52,7 +52,7 @@
 | F29 | [Reliability / Backup / Data Recovery](F29-reliability-backup.md) | Pre-Production & Release | flutter-engineer, incident-response-engineer |
 | F30 | [Authentication & Session](F30-auth-session.md) | Testing & Security | flutter-engineer, security-engineer |
 | F31 | [Architecture & Technology Recommendation](F31-architecture-tech-choice.md) | Planning & Architecture | flutter-engineer, technology-advisor, architecture-reviewer |
-| F32 | [Maintainability / Documentation / DX](F32-maintainability-docs.md) | Pre-Production & Release | flutter-engineer |
+| F32 | [Maintainability / Documentation / DX](F32-maintainability-docs.md) | Pre-Production & Release | flutter-engineer, documentation-engineer |
 
 ---
 

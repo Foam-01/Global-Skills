@@ -1,7 +1,7 @@
 # #13 Deployment & Production Readiness · #40 PRODUCTION READINESS
 
 **Phase:** Pre-Production & Release  
-**สกิลที่รับผิดชอบ:** production-readiness-engineer
+**สกิลที่รับผิดชอบ:** production-readiness-engineer, devops-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

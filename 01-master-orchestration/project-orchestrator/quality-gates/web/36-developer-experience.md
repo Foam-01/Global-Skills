@@ -1,7 +1,7 @@
 # #36 Developer Experience (DX) Review
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** —
+**สกิลที่รับผิดชอบ:** documentation-engineer, devops-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

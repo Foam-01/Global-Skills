@@ -1,7 +1,7 @@
 # #25 Diagram & System Visualization
 
 **Phase:** Planning & Architecture  
-**สกิลที่รับผิดชอบ:** architecture-reviewer
+**สกิลที่รับผิดชอบ:** architecture-reviewer, documentation-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

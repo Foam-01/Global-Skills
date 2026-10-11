@@ -1,7 +1,7 @@
 # #33 System Reliability Review
 
 **Phase:** Testing & Security  
-**สกิลที่รับผิดชอบ:** production-readiness-engineer
+**สกิลที่รับผิดชอบ:** backend-api-engineer, production-readiness-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

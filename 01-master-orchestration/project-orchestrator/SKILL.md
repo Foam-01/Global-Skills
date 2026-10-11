@@ -63,16 +63,21 @@ QUALITY GATES APPLIED: [ระบุข้อ Quality Gate (เช่น #06, F3
 | Architecture | `architecture-reviewer` | วาง / ตรวจ Data Flow, Module Boundaries, คอขวด และ SPOF |
 | Architecture | `senior-sql-engineer` | ออกแบบ schema, index, migration |
 | Planning | `project-manager-orchestrator` | แตกงานเป็น Epic → Feature → Task พร้อม Dependencies และติดตามสถานะรายงาน |
+| Architecture | `documentation-engineer` | บันทึกการตัดสินใจสำคัญเป็น ADR |
+| Development | `backend-api-engineer` | ออกแบบ / สร้าง API, auth, error format, idempotency |
 | Development | `vibe-software-engineering` | ต้องการ MVP เร็วแต่ต้องวางรากฐานให้แข็งแรง |
 | Development | `modern-web-guidance`, `ui-ux-pro-max`, `impeccable` (global) | สร้างหน้าเว็บ / UI |
 | Development | `flutter-engineer` | สร้างแอป Flutter (Android / iOS) |
 | Development | `mcp-agent-dev` | สร้าง MCP server หรือ agent skill |
+| Development | `refactoring-engineer` | ปรับโครงสร้างโค้ดเดิมโดยพฤติกรรมไม่เปลี่ยน |
 | Review | `code-reviewer` | รีวิวโค้ดที่เพิ่งเขียนหรือ diff ก่อน merge |
 | Review | `debugging-engineer` | เจอบั๊กที่ต้องหาสาเหตุ |
 | Testing | `testing-engineer` | วางแผนเทสต์และ test case |
 | Testing | `security-engineer`, `security-audit` (global) | ตรวจช่องโหว่ (เร็ว / ทั้งระบบ) |
 | Testing | `performance-engineer` | ระบบช้า หรือก่อนปล่อยฟีเจอร์ที่มีโหลดสูง |
-| Release | `production-readiness-engineer` | ประเมิน Go / No-Go ก่อนขึ้น Production และวางแผน deploy / rollback |
+| Release | `devops-engineer` | ตั้งค่า environment, secrets, Docker, CI/CD, deploy และ rollback |
+| Release | `documentation-engineer` | README, setup guide และ Developer Experience |
+| Release | `production-readiness-engineer` | ประเมิน Go / No-Go ก่อนขึ้น Production |
 | Operation | `incident-response-engineer` | ระบบบน Production มีปัญหา และเขียน Postmortem |
 
 `engineering-mindset` ใช้เป็นหลักคิดพื้นฐานทุก Phase

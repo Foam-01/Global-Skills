@@ -1,7 +1,7 @@
 # #20 API Design Review · #30 API Design Review
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** architecture-reviewer, security-engineer
+**สกิลที่รับผิดชอบ:** backend-api-engineer, security-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

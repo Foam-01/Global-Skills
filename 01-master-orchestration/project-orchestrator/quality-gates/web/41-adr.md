@@ -1,7 +1,7 @@
 # #41 ARCHITECTURE DECISION RECORD (ADR)
 
 **Phase:** Planning & Architecture  
-**สกิลที่รับผิดชอบ:** — (ยังไม่มีสกิล)
+**สกิลที่รับผิดชอบ:** documentation-engineer, technology-advisor
 
 ## ✅ เกณฑ์ผ่าน
 

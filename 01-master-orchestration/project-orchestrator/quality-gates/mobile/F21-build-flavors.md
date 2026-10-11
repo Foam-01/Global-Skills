@@ -1,7 +1,7 @@
 # F21 Build Config / Flavors / Environment
 
 **Phase:** Pre-Production & Release  
-**สกิลที่รับผิดชอบ:** flutter-engineer, production-readiness-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, devops-engineer, production-readiness-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

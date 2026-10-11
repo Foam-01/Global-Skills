@@ -1,7 +1,7 @@
 # #35 Project Documentation Review
 
 **Phase:** Pre-Production & Release  
-**สกิลที่รับผิดชอบ:** —
+**สกิลที่รับผิดชอบ:** documentation-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

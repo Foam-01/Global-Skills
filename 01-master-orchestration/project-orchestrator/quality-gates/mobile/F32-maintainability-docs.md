@@ -1,7 +1,7 @@
 # F32 Maintainability / Documentation / DX
 
 **Phase:** Pre-Production & Release  
-**สกิลที่รับผิดชอบ:** flutter-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, documentation-engineer
 
 ## ✅ เกณฑ์ผ่าน
 
