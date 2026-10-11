@@ -107,3 +107,52 @@ WHERE NOT EXISTS (
 - `IN` แบบบวก (ไม่มี NOT) ไม่มีปัญหานี้ — NULL แค่ไม่ match
 - ระวังรายการค่าจากแอปด้วย เช่น `WHERE id NOT IN (:ids)` ถ้าอาร์เรย์มี `null` จะเกิดปัญหาเดียวกัน
 - **เมื่อรีวิว:** เจอ `NOT IN (subquery)` บนคอลัมน์ที่ nullable ให้จัดเป็นบั๊กความถูกต้อง (High) ไม่ใช่แค่เรื่อง style — และทุกครั้งที่แก้ query ให้เทียบจำนวนแถวก่อน/หลัง
+
+## AP-06 — RIGHT JOIN ปนกับ LEFT JOIN และกับดักของ LEFT JOIN หลายชั้น
+
+**แนวทางเขียน:** ใช้ `LEFT JOIN` ทิศทางเดียวทั้ง query — ตารางหลัก (ตารางที่ต้องการ "เก็บทุกแถว") อยู่ใน `FROM` บนสุด แล้วต่อตารางรองลงมา อ่านจากบนลงล่างแล้วรู้ทันทีว่าผลลัพธ์อิงตารางไหน ทุก `RIGHT JOIN` เขียนเป็น `LEFT JOIN` ได้โดยสลับลำดับตาราง
+
+### ⚠️ เปลี่ยน RIGHT เป็น LEFT ≠ แก้แค่คำว่า RIGHT
+
+```sql
+-- เดิม: ... LEFT JOIN Orders o ... RIGHT JOIN Shippers s ON o.ShipperID = s.ShipperID ...
+-- RIGHT JOIN Shippers = "เก็บ shipper ทุกเจ้า" แม้ไม่มี order
+
+-- ❌ แค่เปลี่ยนคำ → shipper ที่ไม่มี order หายไป (ผลลัพธ์เปลี่ยน)
+FROM Customers c
+LEFT JOIN Orders o   ON o.CustomerID = c.CustomerID
+LEFT JOIN Shippers s ON s.ShipperID  = o.ShipperID
+```
+
+- ต้อง **ย้ายตารางที่ต้องการเก็บทุกแถวขึ้นไปเป็น `FROM`** แล้วจัดลำดับใหม่ ไม่ใช่แค่เปลี่ยนคำ
+- query ที่มี RIGHT ปน LEFT หลายตัว มักไม่มีใครรู้ว่าตั้งใจให้เก็บทุกแถวของตารางไหน — **ถามผู้ใช้ว่า "รายงานนี้ต้องแสดงทุกอะไร"** (ลูกค้าทุกคน? shipper ทุกเจ้า?) แล้วเขียนใหม่ตามคำตอบ
+- ก่อน / หลังแก้ **เทียบจำนวนแถวและตัวอย่างข้อมูล** ถ้าต่างกันต้องอธิบายได้ว่าทำไม
+
+### กับดัก 1 — WHERE บนตารางฝั่งขวาทำให้ LEFT JOIN กลายเป็น INNER JOIN
+
+```sql
+-- ❌ ลูกค้าที่ไม่มี order หายหมด (o.Status เป็น NULL → ไม่ผ่าน WHERE)
+FROM Customers c
+LEFT JOIN Orders o ON o.CustomerID = c.CustomerID
+WHERE o.Status = 'paid'
+
+-- ✅ ย้ายเงื่อนไขของตารางฝั่งขวาไปไว้ใน ON
+FROM Customers c
+LEFT JOIN Orders o ON o.CustomerID = c.CustomerID AND o.Status = 'paid'
+```
+
+- เช่นเดียวกัน: ต่อ `INNER JOIN` กับตารางที่อยู่ "หลัง" LEFT JOIN (เช่น `LEFT JOIN Orders o … INNER JOIN Shippers s ON s.ShipperID = o.ShipperID`) จะตัดแถวที่ไม่มี order ทิ้งด้วย
+
+### กับดัก 2 — LEFT JOIN หลายตาราง 1-ต่อ-หลาย ทำให้แถวซ้ำ (fan-out)
+
+```sql
+FROM Orders o
+LEFT JOIN Payments p ON p.OrderID = o.OrderID   -- 1 order มีได้หลาย payment
+LEFT JOIN OrderItems i ON i.OrderID = o.OrderID -- 1 order มีได้หลาย item
+-- order ที่มี 2 payment × 3 item → ได้ 6 แถว → SUM(p.Amount) เกินจริง 3 เท่า
+```
+
+- ถ้าต้องรวมยอด ให้ **aggregate แต่ละตารางลูกก่อน** (subquery / CTE ที่ `GROUP BY OrderID`) แล้วค่อย join ผลรวม
+- ห้ามแก้ด้วย `DISTINCT` / `SUM(DISTINCT …)` แบบไม่คิด — ซ่อนปัญหา และผิดเมื่อมีค่าซ้ำจริง
+
+**เมื่อรีวิว:** เจอ RIGHT ปน LEFT → ขอให้เขียนใหม่เป็น LEFT ทิศเดียว (ระดับ Low ด้านความอ่านง่าย) · แต่เจอ WHERE บนตารางฝั่งขวา หรือ join 1-ต่อ-หลายหลายตัวแล้ว `SUM` → จัดเป็น **บั๊กความถูกต้อง (High)** · เงื่อนไข join ที่ดูแปลก (เช่น `Employees` join ด้วย `OrderID` แทน `o.EmployeeID = e.EmployeeID`) → ตรวจ schema ว่าความสัมพันธ์ถูกต้องหรือไม่
