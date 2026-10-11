@@ -79,10 +79,67 @@
 | ✅ ควร trigger | "API นี้คนอื่นดูข้อมูลของเราได้ไหม" | เรียก `security-engineer` |
 | 🎯 พฤติกรรม | ขอตรวจ endpoint | รายงานอย่างเดียว ไม่แก้โค้ด, ทุก finding มีหลักฐาน |
 
+## backend-api-engineer
+
+| ประเภท | Prompt | ต้องเห็น |
+|---|---|---|
+| ✅ ควร trigger | "ออกแบบ API ระบบจองคิวร้านตัดผมให้หน่อย" | เรียก `backend-api-engineer` |
+| ✅ ควร trigger | "API ของเราแต่ละ endpoint ตอบ error คนละแบบ ควรทำยังไง" | เรียก `backend-api-engineer` |
+| ❌ near-miss | "ตาราง bookings ควรมี index อะไรบ้าง" | ไม่ใช่ backend-api (ควรเป็น senior-sql-engineer) |
+| 🎯 พฤติกรรม | ขอเพิ่ม endpoint สร้างคำสั่งซื้อ | ตรวจสิทธิ์ที่ server, ไม่เชื่อราคาจาก client, กันการส่งซ้ำ (idempotency), error format สม่ำเสมอ |
+
+## refactoring-engineer
+
+| ประเภท | Prompt | ต้องเห็น |
+|---|---|---|
+| ✅ ควร trigger | "ไฟล์ OrderService ยาว 900 บรรทัด ช่วยจัดใหม่ แต่ห้ามพัง" | เรียก `refactoring-engineer` |
+| ✅ ควร trigger | "โค้ดตรงนี้ซ้ำกันหลายที่ ช่วยรวมหน่อย" | เรียก `refactoring-engineer` |
+| ❌ near-miss | "รีวิว PR นี้ก่อน merge" | ไม่ใช่ refactoring (ควรเป็น code-reviewer) |
+| 🎯 พฤติกรรม | ขอ refactor ฟังก์ชันที่มีบั๊กแฝง | เสนอแผนเป็นขั้นและ safety net ก่อน, แยกรายงานบั๊กไว้ ไม่แก้บั๊กปนกับ refactor |
+
+## devops-engineer
+
+| ประเภท | Prompt | ต้องเห็น |
+|---|---|---|
+| ✅ ควร trigger | "ตั้ง GitHub Actions ให้ deploy ขึ้น Vercel อัตโนมัติ" | เรียก `devops-engineer` |
+| ✅ ควร trigger | "เผลอ push ไฟล์ .env ขึ้น GitHub ทำไงดี" | เรียก `devops-engineer` (หรือ security-engineer) |
+| ❌ near-miss | "เว็บล่มอยู่ตอนนี้ 500 ทุกหน้า" | ไม่ใช่ devops (ควรเป็น incident-response-engineer) |
+| 🎯 พฤติกรรม | "เผลอ push .env ที่มี API key" | บอกให้ **เปลี่ยน key ใหม่ทันที** ไม่ใช่แค่ลบไฟล์หรือลบจาก history |
+
+## documentation-engineer
+
+| ประเภท | Prompt | ต้องเห็น |
+|---|---|---|
+| ✅ ควร trigger | "เขียน ADR ว่าทำไมเราเลือก Supabase" | เรียก `documentation-engineer` |
+| ✅ ควร trigger | "คนใหม่ clone โปรเจกต์แล้วรันไม่ได้ ช่วยทำ README" | เรียก `documentation-engineer` |
+| ❌ near-miss | "ควรเลือก Supabase หรือ Firebase" | ไม่ใช่ documentation (ควรเป็น technology-advisor) |
+| 🎯 พฤติกรรม | ขอเขียน README | อ่าน script / config จริงก่อน ไม่แต่งคำสั่งที่ไม่มีอยู่, ไม่ใส่ค่าลับ |
+
 ---
 
 ## 📋 ผลการรัน
 
+### รอบที่ 1 — 2026-10-11 (ผู้ทดสอบ: Claude Sonnet แยกจากผู้เขียนสกิล)
+
+**Routing (เลือกสกิลจาก description อย่างเดียว):** ถูก 28/29 ข้อ
+
+| ข้อที่พลาด | เลือก | ควรเป็น | แก้แล้ว |
+|---|---|---|---|
+| "อยากทำระบบสต็อกสินค้าร้านเล็กๆ เริ่มยังไงดี" | requirements-analyst | project-orchestrator | ✅ เอาตัวอย่าง "อยากทำระบบ X" ออกจาก requirements-analyst และใส่ "เริ่มยังไงดี" ใน project-orchestrator (ยังไม่ได้รันซ้ำ) |
+
+**พฤติกรรม (เทียบ มีสกิล vs ไม่มีสกิล):**
+
+| สกิล | ไม่มีสกิล | มีสกิล | สรุป |
+|---|---|---|---|
+| code-reviewer | เจอปัญหา 7 ข้อ รวมสถานะ shipped/cancelled ยกเลิกซ้ำได้ และ notify ล้มเหลวหลังบันทึก แต่รายงานชื่อ `tmp` เป็นข้อเล็กน้อย | รูปแบบดีกว่า (ตำแหน่ง + สถานการณ์ที่พังทุกข้อ, ไม่รายงานเรื่องรสนิยม, ระบุว่าไม่แก้โค้ด) แต่ **เจอน้อยกว่า**: ลดเรื่องสถานะเป็นแค่ข้อสังเกต, พลาดเรื่อง notify, ให้ IDOR แค่ High | ❌ แพ้ด้านความครอบคลุม → แก้สกิลแล้ว: เพิ่มเช็ก state transition แบบ allowlist และ side effect หลังเขียนข้อมูล, ห้ามลดระดับปัญหาที่ยืนยันได้, IDOR / แก้ราคาเองได้ = Critical (ยังไม่ได้รันซ้ำ) |
+| devops-engineer | ให้ rotate key ก่อน, ล้าง history ทีหลัง, เปิด push protection | เหมือนกันเกือบทั้งหมด และย้ำว่าไม่รันคำสั่งที่กระทบ production เอง | ➖ เสมอ — โมเดลรู้เรื่องนี้ดีอยู่แล้ว |
+| refactoring-engineer | เสนอแผนก่อน, characterization test, ไม่แก้บั๊กยอดติดลบเงียบๆ | เหมือนกัน แต่เป็นขั้นตอนชัดกว่า มีความเสี่ยงแต่ละขั้น และแยกรายการบั๊กชัดเจน | ➕ ดีกว่าเล็กน้อยด้านโครงสร้าง |
+
+**ข้อสรุปรอบนี้:** โมเดลรุ่นใหม่ทำงานพื้นฐานเหล่านี้ได้ดีอยู่แล้ว สกิลช่วยเรื่อง **ความสม่ำเสมอและรูปแบบรายงาน** มากกว่าความสามารถ และกฎที่เข้มเรื่อง "ห้ามรายงานเกิน" อาจทำให้รายงาน **น้อยเกินไป** ได้ ต้องรันซ้ำหลังแก้เพื่อยืนยัน
+
 | วันที่ | สกิล | Trigger | Near-miss | พฤติกรรม | หมายเหตุ |
 |---|---|---|---|---|---|
-| | | | | | |
+| 2026-10-11 | ทั้งหมด 11 สกิล | 18/19 | 10/10 | — | พลาด project-orchestrator 1 ข้อ |
+| 2026-10-11 | code-reviewer | 2/2 | 1/1 | ❌ | ครอบคลุมน้อยกว่า baseline |
+| 2026-10-11 | devops-engineer | 2/2 | 1/1 | ✅ | เท่ากับ baseline |
+| 2026-10-11 | refactoring-engineer | 2/2 | 1/1 | ✅ | ดีกว่า baseline เล็กน้อย |

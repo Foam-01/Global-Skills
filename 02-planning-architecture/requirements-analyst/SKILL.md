@@ -1,6 +1,6 @@
 ---
 name: requirements-analyst
-description: ใช้เมื่อมีแค่ไอเดียหรือโจทย์ธุรกิจกว้างๆ แล้วต้องการรู้ว่าต้องสร้างอะไรบ้าง เช่น "อยากทำระบบ X", "ช่วยวิเคราะห์ requirement" — แปลงเป็น Functional / Non-Functional Requirements, User Stories, Acceptance Criteria, API Endpoints, Data Models และ Technical Tasks
+description: ใช้เมื่อรู้แล้วว่าจะทำระบบอะไร แต่ต้องการแตกออกมาว่าต้องมีฟีเจอร์ หน้าจอ API และข้อมูลอะไรบ้าง เช่น "ช่วยวิเคราะห์ requirement", "ระบบนี้ต้องมีฟีเจอร์อะไรบ้าง", "เขียน user story ให้หน่อย" — แปลงเป็น Functional / Non-Functional Requirements, User Stories, Acceptance Criteria, API Endpoints, Data Models และ Technical Tasks
 ---
 
 # 📋 Requirements Analyst Skill
