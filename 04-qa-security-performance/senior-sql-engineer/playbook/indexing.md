@@ -44,7 +44,7 @@ CREATE INDEX ix_posts_creation_date ON posts (creation_date) INCLUDE (title);
 ```
 
 - **Key** = คอลัมน์ที่ใช้ค้นหา / กรอง / เรียง (`WHERE`, `JOIN`, `ORDER BY`) · **INCLUDE** = คอลัมน์ที่แค่ต้องแสดงผล
-- **SQL Server:** clustered key (เช่น `Id` ที่เป็น PK แบบ clustered) **ถูกเก็บในทุก nonclustered index อยู่แล้ว** ไม่ต้อง `INCLUDE (Id)` ซ้ำ
+- **SQL Server:** ถ้าตารางมี **clustered index** (เช่น `Id` ที่เป็น PK แบบ clustered) clustered key **ถูกเก็บในทุก nonclustered index อยู่แล้ว** ไม่ต้อง `INCLUDE (Id)` ซ้ำ — แต่ถ้าตารางเป็น **heap** (ไม่มี clustered index, ใน plan จะเห็น `Table Scan` / `RID Lookup`) ต้อง `INCLUDE (Id)` ถ้า query ต้องการ `Id` · ตาราง OLTP ส่วนใหญ่ควรมี clustered index ตั้งแต่แรก — เจอ heap ใน production ให้แจ้งด้วย
 - **อย่า INCLUDE คอลัมน์ใหญ่** (เช่น `Body`, `NVARCHAR(MAX)`, JSON) — index จะบวม กิน memory / disk และทำให้ write ช้า ถ้าต้องใช้คอลัมน์ใหญ่ ปล่อยให้ lookup เฉพาะแถวที่ได้ไม่กี่แถวดีกว่า
 - Covering index ผูกกับรูปแบบ query — ถ้าเปลี่ยน `SELECT` ไปขอคอลัมน์ที่ไม่อยู่ใน index ก็กลับไป lookup เหมือนเดิม (อีกเหตุผลที่ไม่ควรใช้ `SELECT *`)
 - **PostgreSQL:** จะเป็น Index Only Scan ได้จริงเมื่อ visibility map เป็นปัจจุบัน (ตาราง vacuum สม่ำเสมอ) ดูใน `EXPLAIN` ว่า `Heap Fetches` ต่ำ
@@ -134,6 +134,21 @@ OPTION (RECOMPILE);   -- ใช้ตอนทดสอบเท่านั้�
 - **ได้ 1,000 แถว แต่อ่าน 140,798 หน้า** (~1.1 GB ของงานอ่าน) = เฉลี่ย **~140 หน้าต่อ 1 แถว** → กำลัง scan ตารางเพื่อหาแถวที่ตรงเงื่อนไข ไม่มี index ที่ seek ได้บน `CommentCount`
 - **Scan count 13 + CPU (423 ms) > elapsed (295 ms)** → รันแบบขนานหลาย thread ซึ่งเป็นสัญญาณว่า database ต้องทำงานหนัก (query ง่ายๆ ไม่ควรต้องขนาน)
 - query ที่ดี: reads ใกล้เคียงกับจำนวนหน้าที่ต้องใช้จริง (แถวน้อยควรอ่านแค่หลักหน่วย–หลักร้อยหน้า) — ถ้า reads มากกว่าจำนวนแถวที่ได้หลายสิบเท่าขึ้นไป ให้เปิด plan (EP-01) หาจุดที่ scan หรือ lookup
+**ก่อน / หลังสร้าง index ที่ตรงกับ query** (`CREATE NONCLUSTERED INDEX … ON Posts (CommentCount) INCLUDE (Id, FavoriteCount)`):
+
+| | ก่อน | หลัง |
+|---|---|---|
+| Plan | Table Scan (Posts เป็น heap) + Parallelism · ข้อความ Missing Index (Impact 83%) | Index Seek (NonClustered) → Top |
+| Scan count | 13 (ขนาน) | 1 |
+| logical reads | 141,570 | **7** |
+| CPU time | 578 ms | 0 ms |
+| elapsed | 251 ms | 97 ms |
+
+- reads ลดจาก 141,570 เหลือ 7 (ประมาณ 20,000 เท่า) และไม่ต้องรันขนาน = query "เทพ" — อ่านแค่หน้าที่จำเป็นสำหรับ 1,000 แถว
+- elapsed 97 ms ทั้งที่ CPU 0 ms → เวลาที่เหลือคือการส่งผลลัพธ์ไป client ไม่ใช่งานของ database (IX-06)
+- `4430 of 1000 (443%)` บน Table Scan ก่อนสร้าง index ไม่ได้แปลว่าประเมินผิดร้ายแรง — มี `TOP` อยู่ optimizer จึงประเมินแค่ว่าต้องอ่านกี่แถวถึงจะได้ครบ 1,000 (row goal) แต่ต้องอ่านจริงมากกว่า
+- `TOP` ใน query นี้ยังไม่มี `ORDER BY` (ดูหมายเหตุด้านล่าง) — ถ้าเติม `ORDER BY` ด้วยคอลัมน์อื่น index นี้อาจต้อง sort เพิ่ม ให้วัดใหม่
+
 - ใช้เป็น **สัญญาณให้ไปตรวจต่อ** ไม่ใช่เกณฑ์ตายตัว — query ที่ต้อง aggregate ข้อมูลเยอะ (เช่น `SUM` ทั้งปี) อ่านเยอะแต่คืน 1 แถวได้โดยไม่ผิด
 
 **หมายเหตุจาก query ตัวอย่าง**
