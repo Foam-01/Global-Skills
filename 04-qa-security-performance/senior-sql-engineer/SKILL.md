@@ -466,7 +466,7 @@ After
 
 | ไฟล์ | เปิดเมื่อ |
 |---|---|
-| [playbook/anti-patterns.md](playbook/anti-patterns.md) | รีวิว query หรือโค้ดที่เรียก database (subquery vs JOIN, N+1, EXISTS, IDOR) |
+| [playbook/anti-patterns.md](playbook/anti-patterns.md) | รีวิว query หรือโค้ดที่เรียก database (subquery vs JOIN, N+1, EXISTS, IDOR, NOT IN + NULL) |
 | [playbook/indexing.md](playbook/indexing.md) | จะสร้าง / เลือก / ตรวจ index หรือวัดผล query (filter index, covering INCLUDE, ช่วงวันที่, logical reads, LIKE %คำ%, query คืนข้อมูลหลายล้านแถว) |
 
 เมื่อใช้คำแนะนำจาก playbook ให้อ้างรหัสหัวข้อ (เช่น AP-03, IX-02) ในรายงาน

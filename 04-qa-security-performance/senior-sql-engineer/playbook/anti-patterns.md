@@ -73,3 +73,37 @@ WHERE id = $1
 - PostgreSQL / Supabase: เสริมด้วย **Row Level Security** เป็นชั้นป้องกันที่สอง (แต่ยังต้องเช็กในแอปด้วย)
 - เลี่ยง `SELECT *` — เลือกเฉพาะคอลัมน์ที่ต้องส่งออกไป
 - ช่องโหว่นี้เป็นเรื่อง authorization ถ้าเจอในการรีวิวให้จัดเป็น 🔴 Critical และแนะนำส่งต่อ `security-engineer`
+
+## AP-05 — `NOT IN` กับ subquery ที่มี NULL: ไม่ error แต่ได้ผลลัพธ์ว่าง
+
+```sql
+-- ❌ ถ้า DimCustomerBlacklist.CustomerKey มี NULL แม้แต่แถวเดียว → ได้ 0 แถวเสมอ
+SELECT COUNT(1) AS CustomerCount
+FROM DimCustomer
+WHERE CustomerKey NOT IN (SELECT CustomerKey FROM DimCustomerBlacklist);
+-- ผลจริง: 0  (ควรได้ 18,385)
+
+-- ✅ NOT EXISTS
+SELECT COUNT(1) AS CustomerCount
+FROM DimCustomer C
+WHERE NOT EXISTS (
+  SELECT 1 FROM DimCustomerBlacklist B WHERE B.CustomerKey = C.CustomerKey
+);
+-- ผลจริง: 18,385
+```
+
+**ทำไม:** `x NOT IN (a, b, NULL)` = `x <> a AND x <> b AND x <> NULL` และ `x <> NULL` ได้ **UNKNOWN** (ไม่ใช่ TRUE) ทั้งเงื่อนไขจึงไม่มีทางเป็น TRUE → ทุกแถวถูกตัดทิ้ง
+
+**ทางเลือกที่ถูกต้อง:**
+- `NOT EXISTS` (แนะนำ) — database ส่วนใหญ่ทำเป็น anti-join ได้ดี
+- `LEFT JOIN … WHERE B.CustomerKey IS NULL` — ให้ผลเหมือน `NOT EXISTS`
+- ถ้าจำเป็นต้องใช้ `NOT IN` ให้กรอง NULL ใน subquery: `… NOT IN (SELECT CustomerKey FROM DimCustomerBlacklist WHERE CustomerKey IS NOT NULL)`
+
+**"ปลอดภัย 100%" มีข้อยกเว้น — ความหมายของ NOT EXISTS ต่างจาก NOT IN ที่กรอง NULL แล้ว 1 จุด:**
+- แถวในตารางหลัก (`DimCustomer`) ที่ `CustomerKey` เป็น **NULL** จะ **ถูกนับ** ใน `NOT EXISTS` (เพราะหาคู่ไม่เจอ) แต่ **ไม่ถูกนับ** ใน `NOT IN` แบบกรอง NULL — ส่วนใหญ่เป็นผลที่ต้องการ แต่ต้องตรวจให้ตรงกับกฎธุรกิจ
+
+**แก้ที่ต้นเหตุด้วย:**
+- คอลัมน์ที่ไม่ควรว่าง (เช่น key ใน blacklist) ควรเป็น `NOT NULL` + foreign key — ถ้า NULL หลุดเข้าไปได้ นั่นคือปัญหา data integrity (ดูหมวด 07 ใน SKILL.md)
+- `IN` แบบบวก (ไม่มี NOT) ไม่มีปัญหานี้ — NULL แค่ไม่ match
+- ระวังรายการค่าจากแอปด้วย เช่น `WHERE id NOT IN (:ids)` ถ้าอาร์เรย์มี `null` จะเกิดปัญหาเดียวกัน
+- **เมื่อรีวิว:** เจอ `NOT IN (subquery)` บนคอลัมน์ที่ nullable ให้จัดเป็นบั๊กความถูกต้อง (High) ไม่ใช่แค่เรื่อง style — และทุกครั้งที่แก้ query ให้เทียบจำนวนแถวก่อน/หลัง
