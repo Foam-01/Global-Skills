@@ -2,6 +2,82 @@
 
 สกิลสำหรับ AI Agent (Antigravity IDE) — คลังเก็บสกิลส่วนตัว แบ่งหมวดหมู่เป็น 5 กลุ่มชัดเจน รวมทั้งหมด 27 สกิล
 
+## 📥 วิธีดึงสกิลไปใช้ในโปรเจกต์ (สำหรับ AI Agent)
+
+> **ถึง AI Agent:** ผู้ใช้จะบอกชื่อสกิลที่ต้องการ (หรือบอกงาน แล้วให้เลือกจาก [docs/skills-guide.md](docs/skills-guide.md)) ให้ดึง **เฉพาะโฟลเดอร์ของสกิลนั้น** ไปไว้ในโปรเจกต์ ห้ามดึงทั้ง repo
+
+**ปลายทาง**
+- Claude Code → `<project>/.claude/skills/<skill-name>/`
+- Antigravity → `<project>/.agents/skills/<skill-name>/`
+- วางโฟลเดอร์สกิลไว้ใต้ `skills/` ตรงๆ **ไม่ต้องมีโฟลเดอร์หมวด** (`01-...`) คั่น
+- ไม่ต้องดึง `docs/`, `evals/`, `README.md` (ใช้ดูแลสกิล ไม่ได้ใช้ตอนทำงาน)
+
+**วิธีที่ 1 — degit (แนะนำ, ต้องมี Node.js)** รันที่ root ของโปรเจกต์ ทีละสกิล:
+
+```bash
+npx degit Foam-01/Global-Skills/<path> .claude/skills/<skill-name>
+```
+
+ตัวอย่าง:
+
+```bash
+npx degit Foam-01/Global-Skills/04-qa-security-performance/code-reviewer .claude/skills/code-reviewer
+npx degit Foam-01/Global-Skills/01-master-orchestration/project-orchestrator .claude/skills/project-orchestrator
+```
+
+**วิธีที่ 2 — git (ไม่มี Node.js)**
+
+```bash
+git clone --depth 1 https://github.com/Foam-01/Global-Skills.git /tmp/global-skills
+mkdir -p .claude/skills
+cp -r /tmp/global-skills/<path> .claude/skills/
+rm -rf /tmp/global-skills
+```
+
+**ตาราง path ของทุกสกิล**
+
+| สกิล | path ใน repo |
+|---|---|
+| `engineering-mindset` | `01-master-orchestration/engineering-mindset` |
+| `project-manager-orchestrator` | `01-master-orchestration/project-manager-orchestrator` |
+| `project-orchestrator` | `01-master-orchestration/project-orchestrator` |
+| `vibe-software-engineering` | `01-master-orchestration/vibe-software-engineering` |
+| `architecture-reviewer` | `02-planning-architecture/architecture-reviewer` |
+| `documentation-engineer` | `02-planning-architecture/documentation-engineer` |
+| `requirements-analyst` | `02-planning-architecture/requirements-analyst` |
+| `system-design-interviewer` | `02-planning-architecture/system-design-interviewer` |
+| `technology-advisor` | `02-planning-architecture/technology-advisor` |
+| `backend-api-engineer` | `03-building-execution/backend-api-engineer` |
+| `flutter-engineer` | `03-building-execution/flutter-engineer` |
+| `mcp-agent-dev` | `03-building-execution/mcp-agent-dev` |
+| `modern-web-guidance` | `03-building-execution/modern-web-guidance` |
+| `payment-engineer` | `03-building-execution/payment-engineer` |
+| `refactoring-engineer` | `03-building-execution/refactoring-engineer` |
+| `ui-ux-pro-max` | `03-building-execution/ui-ux-pro-max` |
+| `code-reviewer` | `04-qa-security-performance/code-reviewer` |
+| `debugging-engineer` | `04-qa-security-performance/debugging-engineer` |
+| `pdpa-privacy-engineer` | `04-qa-security-performance/pdpa-privacy-engineer` |
+| `performance-engineer` | `04-qa-security-performance/performance-engineer` |
+| `security-engineer` | `04-qa-security-performance/security-engineer` |
+| `senior-sql-engineer` | `04-qa-security-performance/senior-sql-engineer` |
+| `testing-engineer` | `04-qa-security-performance/testing-engineer` |
+| `devops-engineer` | `05-production-sre-utility/devops-engineer` |
+| `incident-response-engineer` | `05-production-sre-utility/incident-response-engineer` |
+| `production-readiness-engineer` | `05-production-sre-utility/production-readiness-engineer` |
+| `thai-response` | `05-production-sre-utility/thai-response` |
+
+**ข้อควรรู้**
+- `project-orchestrator` ต้องดึง **ทั้งโฟลเดอร์** เพราะมี `quality-gates/` (Web 42 + Flutter 32 ข้อ) ที่สกิลต้องอ่าน
+- ถ้าปลายทางมีโฟลเดอร์ชื่อเดียวกันอยู่แล้ว ให้ถามผู้ใช้ก่อนเขียนทับ
+- สกิลภายนอก (`impeccable`, `security-audit`) ไม่อยู่ใน repo นี้ ดูวิธีติดตั้งในหัวข้อ "สกิลภายนอกที่ติดตั้งแบบ Global"
+- หลังดึงเสร็จ ต้องเปิด session ใหม่ สกิลถึงจะถูกโหลด
+
+**ประโยคสั่ง AI ที่ใช้ได้เลย**
+
+> ดึงสกิล code-reviewer, flutter-engineer และ backend-api-engineer จาก https://github.com/Foam-01/Global-Skills มาใส่ในโปรเจกต์นี้ ตามวิธีในหัวข้อ "วิธีดึงสกิลไปใช้ในโปรเจกต์" ของ README
+
+---
+
 ## 🏛️ สถาปัตยกรรมระบบ 3 Layers (3-Tier AI System Architecture)
 
 ```text
@@ -127,12 +203,4 @@ npx skills add https://github.com/cloudflare/security-audit-skill --skill securi
 
 ## 🛠️ วิธีใช้
 
-คัดลอกโฟลเดอร์สกิลที่ต้องการจากหมวดหมู่เข้าไปในโปรเจกต์:
-
-```
-โปรเจกต์/
-└── .agents/
-    └── skills/
-        └── <skill-name>/
-            └── SKILL.md
-```
+ดูหัวข้อ [📥 วิธีดึงสกิลไปใช้ในโปรเจกต์](#-วิธีดึงสกิลไปใช้ในโปรเจกต์-สำหรับ-ai-agent) ด้านบน
