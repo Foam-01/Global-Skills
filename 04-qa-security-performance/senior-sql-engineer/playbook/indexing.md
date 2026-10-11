@@ -50,6 +50,20 @@ CREATE INDEX ix_posts_creation_date ON posts (creation_date) INCLUDE (title);
 - **PostgreSQL:** จะเป็น Index Only Scan ได้จริงเมื่อ visibility map เป็นปัจจุบัน (ตาราง vacuum สม่ำเสมอ) ดูใน `EXPLAIN` ว่า `Heap Fetches` ต่ำ
 - ยืนยันผลด้วย plan: SQL Server ต้องไม่มี **Key Lookup** แล้ว / PostgreSQL ต้องเป็น **Index Only Scan**
 
+**ตัวอย่างผลจริง** (ตาราง `Posts` ~3.7 ล้านแถว, query ปี 2009 ได้ **1,285,380 แถว** ≈ 35% ของตาราง, SQL Server):
+
+| Index | Plan ที่ได้ | logical reads | ข้อมูลที่ต้องอ่าน (reads × 8 KB) |
+|---|---|---|---|
+| `(CreationDate)` ไม่มี INCLUDE | ไม่ใช้ index เลย → **scan ทั้ง clustered index แบบขนาน** (Scan count 13) | 803,786 | ~6.1 GB |
+| `(CreationDate) INCLUDE (Title)` | range scan บน index อย่างเดียว | 7,341 | ~57 MB |
+
+**อ่านตัวเลขนี้ให้ถูก:**
+- ทำไมแบบไม่มี INCLUDE ถึงไม่ใช้ index ที่สร้างไว้: แถวที่ตรงเงื่อนไขมี 1.28 ล้านแถว ถ้าใช้ index ต้อง Key Lookup กลับไปตารางทีละแถว 1.28 ล้านครั้ง optimizer จึงเลือก scan ทั้งตารางแทน (tipping point — ดู IX-01) ผลคือ index นั้น **ไม่ช่วยอะไรเลย** สำหรับ query นี้
+- INCLUDE แก้ได้เพราะทุกคอลัมน์ที่ query ต้องการอยู่ใน index แล้ว จึงอ่านเฉพาะช่วงปี 2009 ของ index ซึ่งเล็กกว่าตารางมาก (index ไม่มีคอลัมน์ใหญ่อย่าง `Body`)
+- **logical reads ≠ RAM ที่ใช้:** logical read = การอ่าน 1 หน้า (8 KB) จาก buffer pool หน้าเดิมถูกนับซ้ำได้ ตัวเลข `reads × 8 KB` คือ **ปริมาณงานอ่าน** ไม่ใช่ RAM ที่ query จองไว้ — อย่าเขียนในรายงานว่า "กิน RAM 6 GB"
+- ผลกระทบด้านหน่วยความจำที่เกิดขึ้นจริง: การ scan ทั้งตารางบ่อยๆ ดึงหน้าข้อมูลทั้งตารางเข้า buffer pool และ **ไล่ข้อมูลอื่นที่ใช้บ่อยออกจาก cache** (buffer pool pressure) ทำให้ query อื่นช้าลงตามไปด้วย ดูได้จาก page life expectancy / cache hit ratio
+- **ถามก่อนว่าต้องดึง 1.28 ล้านแถวจริงไหม:** ถ้าเป็นหน้าจอแสดงผล ควรแบ่งหน้า (pagination) หรือสรุปผล (aggregate) ใน database — การดึงข้อมูลน้อยลงมักได้ผลมากกว่าการเพิ่ม index
+
 ## IX-03 — เงื่อนไขช่วงวันที่: อย่าใช้ `BETWEEN` กับคอลัมน์ที่มีเวลา
 
 ```sql
@@ -63,3 +77,27 @@ WHERE CreationDate >= '2009-01-01' AND CreationDate < '2010-01-01'
 
 - ห้ามครอบคอลัมน์ด้วยฟังก์ชันในเงื่อนไข เช่น `WHERE YEAR(CreationDate) = 2009` เพราะ index บน `CreationDate` ใช้ไม่ได้ (non-sargable) — ใช้ช่วงแบบด้านบนแทน
 - ระวัง timezone: เก็บเป็น UTC และแปลงขอบเขตช่วงก่อน query
+
+## IX-04 — วัดผล query ด้วยตัวเลขที่ถูกต้อง
+
+ก่อนและหลังแก้ทุกครั้ง ให้เก็บตัวเลขชุดเดียวกัน:
+
+```sql
+-- SQL Server
+SET STATISTICS IO, TIME ON;
+-- รัน query แล้วดูแท็บ Messages + Actual Execution Plan
+
+-- PostgreSQL
+EXPLAIN (ANALYZE, BUFFERS) SELECT ...;
+```
+
+| ตัวเลข | ความหมาย | ใช้ตัดสินอะไร |
+|---|---|---|
+| **logical reads** (SQL Server) / **shared hit + read** (PostgreSQL) | จำนวนหน้า 8 KB ที่ query อ่าน | ตัวชี้วัดหลัก — คงที่กว่าเวลา ไม่ขึ้นกับ cache อุ่น / เย็น |
+| physical reads / `read=` | หน้าที่ต้องอ่านจาก disk จริง | บอกว่า cache เย็นหรือข้อมูลไม่พอดีกับ memory |
+| CPU time vs elapsed time | CPU > elapsed แปลว่า query รันขนาน (parallel) | ถ้า query ง่ายแต่รันขนาน มักแปลว่ากำลัง scan ข้อมูลเยอะ |
+| Scan count | จำนวนครั้งที่เข้าไปอ่าน object นั้น | > 1 อาจเป็น parallel scan หรือ nested loop |
+| rows ใน plan (estimated vs actual) | optimizer ประเมินจำนวนแถวถูกไหม | ต่างกันมาก = statistics เก่า → `UPDATE STATISTICS` / `ANALYZE` |
+
+- เทียบเวลาให้ยุติธรรม: รันหลายครั้งแล้วดูค่ากลาง หรือเทียบตอน cache อุ่นทั้งคู่ — ห้ามเทียบรันแรก (cache เย็น) กับรันหลัง
+- รายงานเป็น "logical reads ลดจาก X เหลือ Y" พร้อม plan ก่อน/หลัง แทนการบอกว่า "เร็วขึ้น N เท่า" อย่างเดียว
