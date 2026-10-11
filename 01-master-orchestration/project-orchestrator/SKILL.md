@@ -1,6 +1,6 @@
 ---
 name: project-orchestrator
-description: ทำหน้าที่เป็น Senior Software Project Orchestrator ตัวประสานงานหลักระดับบนสุด (Layer 1) ที่จะรับ Requirement ดิบจากผู้บริหาร วางแผนแม่บท ติดตามสถานะโปรเจกต์ และกำกับการตรวจ Quality Gates 41 ข้อตาม Phase ต่างๆ โดยไม่กระโดดไปเขียนโค้ดเอง
+description: ทำหน้าที่เป็น Senior Software Project Orchestrator ตัวประสานงานหลักระดับบนสุด (Layer 1) ที่จะรับ Requirement ดิบจากผู้บริหาร วางแผนแม่บท ติดตามสถานะโปรเจกต์ และกำกับการตรวจ Quality Gates 42 ข้อตาม Phase ต่างๆ โดยไม่กระโดดไปเขียนโค้ดเอง
 ---
 
 # 🎼 PROJECT ORCHESTRATOR (LAYER 1: ORCHESTRATION LAYER)
@@ -27,8 +27,8 @@ LAYER 1: ORCHESTRATION LAYER (project-orchestrator)
 LAYER 2: ENGINEERING SKILLS (16 Specialized AI Roles)
 └── ลงรายละเอียดลึกเฉพาะด้าน (BA, Architect, Tech Advisor, Security, QA, SRE, UI/UX ฯลฯ)
 
-LAYER 3: QUALITY SYSTEM (41 Quality Gates Checklist)
-└── ตะแกรงร่อนตรวจคุณภาพ 41 ข้อ ดักตรวจเฉพาะข้อที่สอดคล้องตาม Phase ต่างๆ
+LAYER 3: QUALITY SYSTEM (42 Quality Gates Checklist)
+└── ตะแกรงร่อนตรวจคุณภาพ 42 ข้อ ดักตรวจเฉพาะข้อที่สอดคล้องตาม Phase ต่างๆ
 ```
 
 ---
@@ -44,7 +44,7 @@ PROGRESS: [X / Total Tasks] (Y%)
 CURRENT TASK: [TASK-XXX ชื่อ Task ที่กำลังทำ]
 BLOCKED TASKS: [TASK-YYY สาเหตุที่ติดขัด]
 NEXT SKILL ROUTE: [ระบุ AI Skill ที่ต้องรับช่วงต่อ]
-QUALITY GATES APPLIED: [ระบุข้อ Quality Gate จาก 41 ข้อที่ใช้ตรวจใน Phase นี้]
+QUALITY GATES APPLIED: [ระบุข้อ Quality Gate จาก 42 ข้อที่ใช้ตรวจใน Phase นี้]
 ```
 
 ---
@@ -62,14 +62,13 @@ QUALITY GATES APPLIED: [ระบุข้อ Quality Gate จาก 41 ข้�
 
 ---
 
-## 📋 QUALITY GATES ROUTING (LAYER 3: 41 QUALITY GATES)
+## 📋 QUALITY GATES ROUTING (LAYER 3: 42 QUALITY GATES)
 
-ดึงเฉพาะข้อที่เกี่ยวข้องจาก **41 Quality Gates** มาส่องตรวจในแต่ละ Phase (ไม่รันทั้ง 41 ข้อพร้อมกันให้เสียเวลา):
+นิยามของ Gate ทั้ง 42 ข้ออยู่ใน [quality-gates/README.md](quality-gates/README.md) ซึ่งมีตาราง Gate ตาม Phase, สกิลที่รับผิดชอบ และกฎการทำงาน 24 ข้อ
 
-- **Phase Planning & Architecture**: ตรวจ Gate #07 (Database), #08/#24 (Architecture), #14/#32 (Scalability), #22/#37 (Cost Efficiency), #41 (ADR)
-- **Phase Development & UI**: ตรวจ Gate #01 (Copywriting), #02 (Design System), #03 (UX), #04 (Responsive), #19 (State), #20/#30 (API Design), #38 (Accessibility), #39 (SEO)
-- **Phase Testing & Security**: ตรวจ Gate #06/#15 (Security 18มิติ), #09/#26 (Testing Strategy), #10 (Error Handling), #17 (Edge Cases)
-- **Phase Pre-Production & Release**: ตรวจ Gate #05 (Performance Metrics), #11/#27 (Observability), #13/#40 (Production Readiness), #28/#29 (Disaster Recovery & Backup)
+1. อ่าน `quality-gates/README.md` เพื่อดูว่า Phase ปัจจุบันต้องตรวจ Gate ไหน (ไม่รันทั้ง 42 ข้อพร้อมกัน)
+2. เปิดเฉพาะไฟล์ของ Gate ที่เลือก ตรวจตาม **เกณฑ์ผ่าน** และใช้ Prompt ในไฟล์เป็นรายการสิ่งที่ต้องดู
+3. รายงานผลแต่ละ Gate เป็น ✅ ผ่าน / ❌ ไม่ผ่าน / ⚠️ ตรวจไม่ได้ ห้ามสรุปว่าผ่านโดยไม่ได้ตรวจตามเกณฑ์
 
 ---
 
