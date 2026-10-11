@@ -67,7 +67,7 @@ rm -rf /tmp/global-skills
 | `thai-response` | `05-production-sre-utility/thai-response` |
 
 **ข้อควรรู้**
-- `project-orchestrator` ต้องดึง **ทั้งโฟลเดอร์** เพราะมี `quality-gates/` (Web 42 + Flutter 32 ข้อ) ที่สกิลต้องอ่าน
+- ดึง **ทั้งโฟลเดอร์ของสกิล** เสมอ (คำสั่งด้านบนทำแบบนั้นอยู่แล้ว) — บางสกิลมีไฟล์อ้างอิงข้างใน: `project-orchestrator` มี `quality-gates/`, `senior-sql-engineer` มี `playbook/`
 - ถ้าปลายทางมีโฟลเดอร์ชื่อเดียวกันอยู่แล้ว ให้ถามผู้ใช้ก่อนเขียนทับ
 - สกิลภายนอก (`impeccable`, `security-audit`) ไม่อยู่ใน repo นี้ ดูวิธีติดตั้งในหัวข้อ "สกิลภายนอกที่ติดตั้งแบบ Global"
 - หลังดึงเสร็จ ต้องเปิด session ใหม่ สกิลถึงจะถูกโหลด

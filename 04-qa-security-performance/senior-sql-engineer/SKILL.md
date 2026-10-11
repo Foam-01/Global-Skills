@@ -194,67 +194,7 @@ EXPLAIN ANALYZE
 และ:
 **Index นี้มี Trade-off อะไร?**
 
-## 4.1 — Index คอลัมน์ที่ใช้กรอง (Nonclustered Index)
-
-ตัวอย่าง: ตาราง `Posts` ~3.7 ล้านแถว หาโพสต์ที่ `FavoriteCount > 1000` (ได้ 113 แถว) ไม่มี index → scan ทั้งตาราง ~2.6 วินาที
-
-```sql
--- SQL Server
-CREATE NONCLUSTERED INDEX IX_Posts_FavoriteCount ON Posts (FavoriteCount);
--- PostgreSQL
-CREATE INDEX CONCURRENTLY ix_posts_favorite_count ON posts (favorite_count);
-```
-
-หลังสร้าง → index seek เหลือ ~0.1 วินาที
-
-**ทำไมได้ผลในเคสนี้:** เงื่อนไข **เลือกแถวได้น้อยมาก** (113 จาก 3.7 ล้าน = selectivity สูง) database กระโดดไปที่แถวที่ต้องการได้เลยแทนการอ่านทั้งตาราง
-
-**สิ่งที่ต้องบอกผู้ใช้ทุกครั้ง:**
-- **ไม่ได้เร็วขึ้นเสมอ:** ถ้าเงื่อนไขคืนข้อมูลจำนวนมาก (เช่น `FavoriteCount > 0` ได้ครึ่งตาราง) optimizer จะเลือก scan ทั้งตารางเหมือนเดิม เพราะการ seek + lookup ทีละแถวแพงกว่า (tipping point)
-- **`SELECT *` ทำให้ต้องกลับไปอ่านตารางจริงทุกแถว** (Key Lookup / Heap Fetch) ใช้ได้เมื่อแถวน้อย แต่ถ้าแถวเยอะจะช้า → ดูหัวข้อ 4.2
-- **วัดให้ยุติธรรม:** รันครั้งแรกมักช้ากว่าเพราะข้อมูลยังไม่อยู่ใน memory (cold cache) เทียบก่อน/หลังด้วย **logical reads** (`SET STATISTICS IO ON` / `EXPLAIN (ANALYZE, BUFFERS)`) และ execution plan ไม่ใช่เวลาอย่างเดียว
-- **ต้นทุนตอนเขียน:** ทุก `INSERT` / `UPDATE` คอลัมน์นั้น ต้องอัปเดต index ด้วย — คอลัมน์ที่เปลี่ยนบ่อยมาก (เช่น ยอด like ที่อัปเดตทุกครั้งที่กด) ต้องชั่งน้ำหนักกับจำนวน write
-- **สร้างบนตารางใหญ่ใน production:** ใช้ `CREATE INDEX CONCURRENTLY` (PostgreSQL) หรือ `WITH (ONLINE = ON)` (SQL Server รุ่นที่รองรับ) เพื่อไม่ล็อกตาราง และรันนอกช่วงที่คนใช้เยอะ
-- **ห้ามอ้างตัวเลข "เร็วขึ้น X เท่า" ก่อนวัดกับข้อมูลจริง** ตัวเลขขึ้นกับข้อมูล, การกระจาย, และ hardware
-
-## 4.2 — Covering Index ด้วย INCLUDE (ลด Key Lookup)
-
-Index ปกติเก็บแค่คอลัมน์ key ถ้า query ต้องการคอลัมน์อื่นด้วย database ต้องวิ่งกลับไปอ่านตารางจริงทุกแถว (**Key Lookup** ใน SQL Server / heap fetch ใน PostgreSQL) — `INCLUDE` ใส่คอลัมน์ที่ต้องแสดงผลไว้ในระดับ leaf ของ index เลย ทำให้ตอบ query จาก index ได้ทั้งหมด
-
-```sql
--- query
-SELECT Id, Title, CreationDate
-FROM Posts
-WHERE CreationDate >= '2009-01-01' AND CreationDate < '2010-01-01';
-
--- SQL Server
-CREATE NONCLUSTERED INDEX IX_Posts_CreationDate
-ON Posts (CreationDate)
-INCLUDE (Title);
--- PostgreSQL 11+
-CREATE INDEX ix_posts_creation_date ON posts (creation_date) INCLUDE (title);
-```
-
-- **Key** = คอลัมน์ที่ใช้ค้นหา / กรอง / เรียง (`WHERE`, `JOIN`, `ORDER BY`) · **INCLUDE** = คอลัมน์ที่แค่ต้องแสดงผล
-- **SQL Server:** clustered key (เช่น `Id` ที่เป็น PK แบบ clustered) **ถูกเก็บในทุก nonclustered index อยู่แล้ว** ไม่ต้อง `INCLUDE (Id)` ซ้ำ
-- **อย่า INCLUDE คอลัมน์ใหญ่** (เช่น `Body`, `NVARCHAR(MAX)`, JSON) — index จะบวม กิน memory / disk และทำให้ write ช้า ถ้าต้องใช้คอลัมน์ใหญ่ ปล่อยให้ lookup เฉพาะแถวที่ได้ไม่กี่แถวดีกว่า
-- Covering index ผูกกับรูปแบบ query — ถ้าเปลี่ยน `SELECT` ไปขอคอลัมน์ที่ไม่อยู่ใน index ก็กลับไป lookup เหมือนเดิม (อีกเหตุผลที่ไม่ควรใช้ `SELECT *`)
-- **PostgreSQL:** จะเป็น Index Only Scan ได้จริงเมื่อ visibility map เป็นปัจจุบัน (ตาราง vacuum สม่ำเสมอ) ดูใน `EXPLAIN` ว่า `Heap Fetches` ต่ำ
-- ยืนยันผลด้วย plan: SQL Server ต้องไม่มี **Key Lookup** แล้ว / PostgreSQL ต้องเป็น **Index Only Scan**
-
-## 4.3 — เงื่อนไขช่วงวันที่: อย่าใช้ `BETWEEN` กับคอลัมน์ที่มีเวลา
-
-```sql
--- ❌ ถ้าคอลัมน์เป็น datetime / timestamp จะพลาดข้อมูลของวันสุดท้ายหลังเที่ยงคืน
-WHERE CreationDate BETWEEN '2009-01-01' AND '2009-12-31'
--- '2009-12-31' = 2009-12-31 00:00:00 → แถวที่สร้าง 2009-12-31 10:30 หายไป
-
--- ✅ ช่วงปิดด้านล่าง เปิดด้านบน ใช้ index ได้เหมือนเดิม
-WHERE CreationDate >= '2009-01-01' AND CreationDate < '2010-01-01'
-```
-
-- ห้ามครอบคอลัมน์ด้วยฟังก์ชันในเงื่อนไข เช่น `WHERE YEAR(CreationDate) = 2009` เพราะ index บน `CreationDate` ใช้ไม่ได้ (non-sargable) — ใช้ช่วงแบบด้านบนแทน
-- ระวัง timezone: เก็บเป็น UTC และแปลงขอบเขตช่วงก่อน query
+รายละเอียดและตัวอย่างการสร้าง index อยู่ใน [playbook/indexing.md](playbook/indexing.md) (IX-01 filter index, IX-02 covering INCLUDE, IX-03 ช่วงวันที่)
 
 ---
 
@@ -520,79 +460,16 @@ After
 
 ---
 
-# 14.5 — ANTI-PATTERN PLAYBOOK (รูปแบบที่เจอบ่อยและวิธีแก้)
+# 14.5 — PLAYBOOK (ไฟล์อ้างอิง)
 
-ใช้เป็นรายการตรวจเมื่อรีวิว SQL ทุกข้อต้อง **ยืนยันด้วย EXPLAIN / ตัวเลขจริง** ก่อนสรุปว่าเป็นปัญหา และต้องบอก **ข้อยกเว้น** ไม่ใช่กฎตายตัว
+บทเรียนเชิงลึกพร้อมตัวอย่างอยู่ในโฟลเดอร์ [playbook/](playbook/README.md) **เปิดเฉพาะไฟล์ที่เกี่ยวกับงานตอนนั้น** ไม่ต้องอ่านทั้งหมด:
 
-## AP-01 — Correlated Subquery ใน SELECT แทน JOIN
+| ไฟล์ | เปิดเมื่อ |
+|---|---|
+| [playbook/anti-patterns.md](playbook/anti-patterns.md) | รีวิว query หรือโค้ดที่เรียก database (subquery vs JOIN, N+1, EXISTS, IDOR) |
+| [playbook/indexing.md](playbook/indexing.md) | จะสร้าง / เลือก / ตรวจ index (filter index, covering INCLUDE, ช่วงวันที่) |
 
-```sql
--- ❌ ดึงชื่อแผนกด้วย subquery ต่อแถว
-SELECT E.EmpName,
-       (SELECT D.DeptName FROM Departments D WHERE D.DeptID = E.DeptID) AS Department
-FROM Employees E;
-
--- ✅ เชื่อมด้วย JOIN
-SELECT E.EmpName, D.DeptName
-FROM Employees E
-LEFT JOIN Departments D ON D.DeptID = E.DeptID;
-```
-
-- **ปัญหาจริง:** subquery ใน SELECT ถูกประเมิน "ต่อแถว" ถ้า optimizer แปลงเป็น join ไม่ได้ (PostgreSQL มักรันเป็น SubPlan ต่อแถว) ข้อมูลยิ่งเยอะยิ่งช้า และอ่านยากเมื่อมีหลายคอลัมน์
-- **อย่าอธิบายผิด:** นี่ **ไม่ใช่** N+1 แบบที่แอปยิง 10,001 query ข้ามเครือข่าย — ทั้งหมดยังเป็น query เดียว และ SQL Server มักแปลงเป็น join ให้อัตโนมัติ ต้องดู execution plan ก่อนสรุปว่าช้า
-- **ระวังความหมายเปลี่ยน:** scalar subquery จะ **error** ถ้าเจอมากกว่า 1 แถว แต่ JOIN จะ **ทำให้แถวซ้ำ** — ก่อนเปลี่ยนต้องยืนยันว่าฝั่งที่ join เป็น unique (เช่น PK)
-- ใช้ `LEFT JOIN` เมื่อต้องการเก็บแถวที่ไม่มีคู่ (พฤติกรรมเดียวกับ subquery ที่คืน NULL) ใช้ `INNER JOIN` เมื่อต้องการเฉพาะแถวที่มีคู่
-
-## AP-02 — N+1 จริง (ยิง query ในลูปจากแอป / ORM)
-
-```ts
-// ❌ 1 query + 1 query ต่อแถว — ยิงข้ามเครือข่าย N+1 ครั้ง
-const emps = await db.employee.findMany();
-for (const e of emps) e.dept = await db.department.findUnique({ where: { id: e.deptId } });
-
-// ✅ query เดียวด้วย join / include หรือดึงทีเดียวด้วย IN
-const emps = await db.employee.findMany({ include: { department: true } });
-```
-
-- นี่คือ N+1 ตัวจริง: ต้นทุนหลักคือ **round-trip ต่อ query** (latency × N) — แก้ด้วย JOIN, `include` / eager loading, หรือ `WHERE id IN (...)` แล้วจับคู่ในหน่วยความจำ
-- ตรวจด้วยการเปิด query log ของ ORM แล้วนับจำนวน query ต่อ 1 request
-
-## AP-03 — `COUNT(*)` เพื่อเช็กว่า "มีข้อมูลไหม"
-
-```sql
--- ❌ นับทุกแถวที่ตรงเงื่อนไข ทั้งที่อยากรู้แค่ว่ามีหรือไม่
-IF (SELECT COUNT(*) FROM Users WHERE Email = @email) > 0 ...
-
--- ✅ หยุดทันทีที่เจอแถวแรก
-IF EXISTS (SELECT 1 FROM Users WHERE Email = @email) ...
--- PostgreSQL: SELECT EXISTS (SELECT 1 FROM users WHERE email = $1);
-```
-
-- `COUNT(*)` ต้องนับให้ครบทุกแถวที่ตรงเงื่อนไข ส่วน `EXISTS` หยุดเมื่อเจอแถวแรก ยิ่งตาราง/ผลลัพธ์ใหญ่ยิ่งต่างมาก
-- SQL Server บางกรณีแปลงรูปแบบ `COUNT(*) > 0` เป็น EXISTS ให้เอง แต่ไม่ควรพึ่ง — `EXISTS` สื่อเจตนาชัดกว่าและเร็วในทุก database
-- ใช้ `COUNT` เมื่อ **ต้องการจำนวนจริง** เท่านั้น
-- ฝั่ง ORM เช่นกัน: ใช้ `findFirst` / `exists` ไม่ใช่ `count() > 0` หรือดึงทั้ง list แล้วเช็ก `.length`
-
-## AP-04 — IDOR: query ด้วย id ที่ผู้ใช้ส่งมาอย่างเดียว
-
-```sql
--- ❌ ใครเปลี่ยน ?id=10 เป็น ?id=11 ก็เห็นบิลคนอื่น
-SELECT * FROM bills WHERE id = $1;
-
--- ✅ ผูกกับเจ้าของที่ได้จาก session / token ฝั่ง server เสมอ
-SELECT id, total, created_at
-FROM bills
-WHERE id = $1
-  AND owner_user_id = $2;   -- $2 = user id จาก session ห้ามรับจาก request
-```
-
-- `owner_user_id` ต้องมาจาก **session / token ที่ server ตรวจแล้ว** — ถ้ารับจาก query string / body ก็ปลอมได้เหมือนเดิม
-- ไม่เจอ → ตอบ **404** (ไม่บอกว่ามีบิลนี้อยู่แต่ไม่ใช่ของคุณ)
-- ใช้กับ **ทุก** query ที่อ่าน / แก้ / ลบข้อมูลของผู้ใช้ รวม `UPDATE` / `DELETE` (`WHERE id = $1 AND owner_user_id = $2` แล้วเช็กจำนวนแถวที่ถูกแก้)
-- ถ้าผู้ดูแลระบบต้องเห็นของทุกคน ให้แยกเส้นทางที่ตรวจ role ชัดเจน
-- PostgreSQL / Supabase: เสริมด้วย **Row Level Security** เป็นชั้นป้องกันที่สอง (แต่ยังต้องเช็กในแอปด้วย)
-- เลี่ยง `SELECT *` — เลือกเฉพาะคอลัมน์ที่ต้องส่งออกไป
-- ช่องโหว่นี้เป็นเรื่อง authorization ถ้าเจอในการรีวิวให้จัดเป็น 🔴 Critical และแนะนำส่งต่อ `security-engineer`
+เมื่อใช้คำแนะนำจาก playbook ให้อ้างรหัสหัวข้อ (เช่น AP-03, IX-02) ในรายงาน
 
 ---
 
