@@ -1,7 +1,7 @@
 # F27 App Lifecycle & Background
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** debugging-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, debugging-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

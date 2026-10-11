@@ -1,7 +1,7 @@
 # F28 Resource Efficiency (Memory / Battery / App Size)
 
 **Phase:** Pre-Production & Release  
-**สกิลที่รับผิดชอบ:** performance-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, performance-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

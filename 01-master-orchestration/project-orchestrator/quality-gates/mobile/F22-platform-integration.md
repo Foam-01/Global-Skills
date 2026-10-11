@@ -1,7 +1,7 @@
 # F22 Platform Integration (Android / iOS)
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** —
+**สกิลที่รับผิดชอบ:** flutter-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

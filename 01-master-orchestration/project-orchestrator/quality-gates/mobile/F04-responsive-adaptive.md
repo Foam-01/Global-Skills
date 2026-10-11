@@ -1,7 +1,7 @@
 # F04 Responsive / Adaptive UI
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** impeccable (`adapt`)
+**สกิลที่รับผิดชอบ:** flutter-engineer, impeccable (`adapt`)
 
 ## ✅ เกณฑ์ผ่าน
 

@@ -1,7 +1,7 @@
 # F25 Edge Case / Boundary Case
 
 **Phase:** Testing & Security  
-**สกิลที่รับผิดชอบ:** testing-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, testing-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

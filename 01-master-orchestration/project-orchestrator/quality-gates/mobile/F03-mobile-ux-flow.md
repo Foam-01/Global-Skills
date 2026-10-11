@@ -1,7 +1,7 @@
 # F03 Mobile UX / User Flow
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** impeccable (`critique`)
+**สกิลที่รับผิดชอบ:** flutter-engineer, impeccable (`critique`)
 
 ## ✅ เกณฑ์ผ่าน
 

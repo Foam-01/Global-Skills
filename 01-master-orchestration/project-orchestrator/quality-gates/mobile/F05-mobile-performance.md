@@ -1,12 +1,12 @@
 # F05 Mobile Performance
 
 **Phase:** Pre-Production & Release  
-**สกิลที่รับผิดชอบ:** performance-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, performance-engineer
 
 ## ✅ เกณฑ์ผ่าน
 
 - [ ] มีตัวเลขจาก Profile mode / DevTools ก่อนและหลังทุกการปรับ (ห้ามเดา)
-- [ ] Scroll และ animation หลักไม่มี jank ต่อเนื่อง (เฟรมส่วนใหญ่อยู่ในงบ 16ms)
+- [ ] Scroll และ animation หลักไม่มี jank ต่อเนื่องใน Profile mode บนเครื่องจริง (เฟรมส่วนใหญ่อยู่ในงบของจอ: 16ms ที่ 60Hz, 8ms ที่ 120Hz)
 - [ ] List ยาวใช้ builder / lazy loading ไม่ build ทั้งหมดทีเดียว
 
 ผ่านเมื่อครบทุกข้อ ถ้าข้อใดตรวจไม่ได้เพราะขาดข้อมูล ให้รายงานเป็น ⚠️ พร้อมระบุว่าขาดอะไร

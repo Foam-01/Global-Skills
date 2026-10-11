@@ -1,7 +1,7 @@
 # F01 UI Text / Copywriting
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** impeccable (`clarify`)
+**สกิลที่รับผิดชอบ:** flutter-engineer, impeccable (`clarify`)
 
 ## ✅ เกณฑ์ผ่าน
 

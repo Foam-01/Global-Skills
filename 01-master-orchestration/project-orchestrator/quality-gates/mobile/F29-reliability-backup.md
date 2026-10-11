@@ -1,7 +1,7 @@
 # F29 Reliability / Backup / Data Recovery
 
 **Phase:** Pre-Production & Release  
-**สกิลที่รับผิดชอบ:** incident-response-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, incident-response-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

@@ -1,7 +1,7 @@
 # F17 Forms & Validation
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** testing-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, testing-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

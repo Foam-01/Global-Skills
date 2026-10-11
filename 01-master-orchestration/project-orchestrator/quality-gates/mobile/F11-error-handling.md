@@ -1,7 +1,7 @@
 # F11 Error Handling & Crash Reporting
 
 **Phase:** Testing & Security  
-**สกิลที่รับผิดชอบ:** debugging-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, debugging-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

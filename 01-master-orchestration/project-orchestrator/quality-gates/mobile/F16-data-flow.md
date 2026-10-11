@@ -1,7 +1,7 @@
 # F16 Data Flow
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** architecture-reviewer
+**สกิลที่รับผิดชอบ:** flutter-engineer, architecture-reviewer
 
 ## ✅ เกณฑ์ผ่าน
 

@@ -1,7 +1,7 @@
 # F02 Design System / UI Consistency
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** impeccable (`audit`, `extract`)
+**สกิลที่รับผิดชอบ:** flutter-engineer, impeccable (`audit`, `extract`)
 
 ## ✅ เกณฑ์ผ่าน
 

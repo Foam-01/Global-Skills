@@ -19,6 +19,7 @@
 | ทำหน้าเว็บ อยากได้ดีไซน์สวยตามประเภทธุรกิจ | `ui-ux-pro-max` (หรือ Impeccable) |
 | เขียน HTML/CSS/JS ให้ทันสมัยตามมาตรฐาน | `modern-web-guidance` |
 | สร้าง MCP server หรือเขียน agent skill | `mcp-agent-dev` |
+| ทำแอป Flutter (Android / iOS) หรือตรวจแอปมือถือ | `flutter-engineer` |
 | เจอบั๊ก หาสาเหตุไม่เจอ | `debugging-engineer` |
 | ระบบช้า | `performance-engineer` |
 | SQL ช้า, ออกแบบตาราง, index, lock, migration | `senior-sql-engineer` |
@@ -98,6 +99,11 @@
 **ใช้ตอนไหน:** อยากให้ AI ต่อกับระบบหรือเครื่องมือของเรา หรือจะเขียนสกิลใหม่
 **ตัวอย่าง:** "ใช้ mcp-agent-dev สร้าง MCP server อ่านข้อมูลจาก Google Sheet"
 
+### `flutter-engineer`
+**ทำอะไร:** สร้าง ตรวจ และแก้บั๊กแอป Flutter ครอบคลุมโครงสร้างโปรเจกต์, state management, go_router / deep link, Dio, ข้อมูลในเครื่อง / offline, Push Notification, Platform Channel / permission, Localization (รวมภาษาไทย), App Lifecycle, performance, testing, flavors และการปล่อยขึ้น Store
+**ใช้ตอนไหน:** ทำแอปมือถือด้วย Flutter หรือตรวจแอปตาม Quality Gates ชุด Mobile (F01–F32)
+**ตัวอย่าง:** "ใช้ flutter-engineer ตรวจระบบ push notification ของแอปนี้"
+
 ---
 
 ## 🛡️ 4. QA, Security & Performance
@@ -153,7 +159,7 @@
 project-orchestrator (คุมภาพรวม)
   → requirements-analyst → technology-advisor → system-design-interviewer / architecture-reviewer
   → project-manager-orchestrator (แตกงาน)
-  → ui-ux-pro-max / Impeccable / modern-web-guidance / mcp-agent-dev (ลงมือสร้าง)
+  → ui-ux-pro-max / Impeccable / modern-web-guidance / flutter-engineer / mcp-agent-dev (ลงมือสร้าง)
   → testing-engineer → security-engineer → performance-engineer / senior-sql-engineer
   → production-readiness-engineer (Go / No-Go)
   → incident-response-engineer (เมื่อมีเหตุ)

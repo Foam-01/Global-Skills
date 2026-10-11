@@ -1,7 +1,7 @@
 # F30 Authentication & Session
 
 **Phase:** Testing & Security  
-**สกิลที่รับผิดชอบ:** security-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, security-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

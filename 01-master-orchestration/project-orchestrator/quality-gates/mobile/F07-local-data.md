@@ -1,7 +1,7 @@
 # F07 Local Data / Storage
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** senior-sql-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, senior-sql-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

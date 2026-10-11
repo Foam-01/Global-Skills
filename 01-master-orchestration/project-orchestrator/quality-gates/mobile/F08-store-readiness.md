@@ -1,7 +1,7 @@
 # F08 Production / Store Readiness
 
 **Phase:** Pre-Production & Release  
-**สกิลที่รับผิดชอบ:** production-readiness-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, production-readiness-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

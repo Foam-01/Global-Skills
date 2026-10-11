@@ -1,14 +1,14 @@
 # F06 Mobile Security
 
 **Phase:** Testing & Security  
-**สกิลที่รับผิดชอบ:** security-engineer, security-audit
+**สกิลที่รับผิดชอบ:** flutter-engineer, security-engineer, security-audit
 
 ## ✅ เกณฑ์ผ่าน
 
 - [ ] Token / ข้อมูลลับเก็บใน Secure Storage ไม่ใช่ SharedPreferences
 - [ ] ไม่มี API key / secret hard-code ในแอปหรือใน git history
 - [ ] ทุกการเชื่อมต่อเป็น HTTPS และ Log / Crash report ไม่มีข้อมูลสำคัญ
-- [ ] Release build เปิด obfuscation
+- [ ] Release build ไม่มีโค้ดหรือเมนู debug หลงเหลือ และถ้าเปิด obfuscation ต้องเก็บ symbol ไว้ถอด crash report
 
 ผ่านเมื่อครบทุกข้อ ถ้าข้อใดตรวจไม่ได้เพราะขาดข้อมูล ให้รายงานเป็น ⚠️ พร้อมระบุว่าขาดอะไร
 

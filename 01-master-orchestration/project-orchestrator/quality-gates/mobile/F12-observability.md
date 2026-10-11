@@ -1,13 +1,13 @@
 # F12 Observability (Logging / Analytics / Crash)
 
 **Phase:** Pre-Production & Release  
-**สกิลที่รับผิดชอบ:** incident-response-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, incident-response-engineer
 
 ## ✅ เกณฑ์ผ่าน
 
 - [ ] มี crash reporting (Crashlytics / Sentry) ใน release build
 - [ ] ไม่มี print / debugPrint ที่ log ข้อมูลสำคัญใน release
-- [ ] Analytics ขอ consent ตามกฎหมายก่อนเก็บข้อมูล
+- [ ] Analytics และ crash report ไม่ส่งข้อมูลส่วนบุคคลเกินจำเป็น และขอ consent ในกรณีที่กฎหมาย (เช่น PDPA) หรือ Store กำหนด
 
 ผ่านเมื่อครบทุกข้อ ถ้าข้อใดตรวจไม่ได้เพราะขาดข้อมูล ให้รายงานเป็น ⚠️ พร้อมระบุว่าขาดอะไร
 

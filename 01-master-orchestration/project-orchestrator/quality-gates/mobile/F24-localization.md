@@ -1,7 +1,7 @@
 # F24 Localization / i18n
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** —
+**สกิลที่รับผิดชอบ:** flutter-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

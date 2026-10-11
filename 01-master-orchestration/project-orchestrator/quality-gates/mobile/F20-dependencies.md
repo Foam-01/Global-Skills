@@ -1,7 +1,7 @@
 # F20 Dependency / Package Review
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** security-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, security-engineer
 
 ## ✅ เกณฑ์ผ่าน
 

@@ -1,7 +1,7 @@
 # F31 Architecture & Technology Recommendation
 
 **Phase:** Planning & Architecture  
-**สกิลที่รับผิดชอบ:** technology-advisor, architecture-reviewer
+**สกิลที่รับผิดชอบ:** flutter-engineer, technology-advisor, architecture-reviewer
 
 ## ✅ เกณฑ์ผ่าน
 

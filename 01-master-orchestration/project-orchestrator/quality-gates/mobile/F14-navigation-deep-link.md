@@ -1,7 +1,7 @@
 # F14 Navigation / Routing / Deep Link
 
 **Phase:** Development & UI  
-**สกิลที่รับผิดชอบ:** architecture-reviewer, security-engineer
+**สกิลที่รับผิดชอบ:** flutter-engineer, architecture-reviewer, security-engineer
 
 ## ✅ เกณฑ์ผ่าน
 
