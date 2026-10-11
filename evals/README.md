@@ -165,8 +165,52 @@
 - ผลแบบมีสกิลเป็นรายงานสรุปจาก agent บางจุดอาจละเอียดน้อยกว่าคำตอบเต็ม
 - ยังไม่ได้ทดสอบพฤติกรรมสกิลอื่นอีก 15 ตัว
 
+### รอบที่ 3 — 2026-10-11 (ทดสอบพฤติกรรม 18 สกิลที่เหลือ, ผู้ทดสอบ: Claude Sonnet)
+
+โจทย์: [tasks-round3.md](tasks-round3.md) · เกณฑ์และคะแนนรายข้อ: [rubric-round3.md](rubric-round3.md) (เขียนเกณฑ์ก่อนรัน, ให้คะแนน baseline ก่อนเห็นผลแบบมีสกิล)
+
+| # | สกิล | ไม่มีสกิล | มีสกิล | จุดที่ต่าง |
+|---|---|---|---|---|
+| A1 | engineering-mindset | 5/5 | 5/5 | เท่ากัน |
+| A2 | project-orchestrator | 2/6 | **6/6** | baseline ไม่มีสถานะ Phase, ไม่ส่งต่อสกิล, ไม่มี Quality Gates เลย |
+| A3 | project-manager-orchestrator | 3/6 | **5/6** | มีสกิลได้ Epic → Feature → TASK พร้อมสถานะ — ทั้งคู่ขาด acceptance criteria |
+| A4 | vibe-software-engineering | 6/7 | **7/7** | มีสกิลมีแผนเทสต์ (ผู้ใช้ A แก้ todo ของ B ไม่ได้) |
+| A5 | architecture-reviewer | 6/6 | 6/6 | เท่ากัน |
+| A6 | requirements-analyst | 3/6 | **6/6** | baseline ไม่มี user story, data model และ API |
+| A7 | system-design-interviewer | 4/4 | 3/4 ❌ | มีสกิลถามคำถาม 3 ขั้นรวดเดียว แทนที่จะถามทีละขั้น |
+| A8 | technology-advisor | 6/6 | 5/6 ❌ | มีสกิลตอบ "ทำได้ทั้งสองทาง เอียงไป Supabase" ไม่ฟันธงเท่า baseline |
+| A9 | mcp-agent-dev | 7/7 | 7/7 | มีสกิลมี confirm=true ก่อนเขียนจริง |
+| B1 | modern-web-guidance | 5/5 | 5/5 | มีสกิลใช้ API ใหม่กว่า (command/closedby, anchor positioning) |
+| B2 | ui-ux-pro-max | 7/7 | 7/7 | เท่ากัน |
+| B3 | debugging-engineer | 5/6 | **6/6** | มีสกิลเป็นขั้น อาการ → reproduce → หลักฐาน → root cause และรออนุมัติ |
+| B4 | performance-engineer | 5/7 | **7/7** | baseline เดาตัวเลขความเร็วก่อนวัด และให้วัดทีหลัง |
+| B5 | security-engineer | 5/7 | **6/7** | baseline แก้โค้ดเลยโดยไม่ถาม — ทั้งคู่จัด path traversal เป็น High แทน Critical |
+| B6 | testing-engineer | 7/7 | 7/7 | มีสกิลเป็นตาราง test case พร้อม priority |
+| B7 | incident-response-engineer | 4/6 | **5/6** | มีสกิลประเมินขอบเขตก่อน — ทั้งคู่ไม่พูดถึงการเก็บหลักฐานก่อน rollback |
+| B8 | production-readiness-engineer | 7/7 | 7/7 | ทั้งคู่ No-Go — มีสกิลมีคะแนนและ failure scenarios |
+| B9 | thai-response | 2/4 | **4/4** | baseline ตอบเป็นภาษาอังกฤษ |
+| | **รวม** | **89/109** | **104/109** | |
+
+**ข้อสรุปรอบ 3:**
+- สกิลที่ช่วย **มาก** คือสกิลที่กำหนด "กระบวนการและรูปแบบผลลัพธ์": project-orchestrator (+4), requirements-analyst (+3), project-manager-orchestrator (+2), performance-engineer (+2), thai-response (+2)
+- สกิลที่ช่วย **น้อย / เท่ากัน** คือเรื่องที่เป็นความรู้เทคนิค เช่น architecture, UI, testing, readiness — โมเดลทำได้ดีอยู่แล้ว ประโยชน์คือรูปแบบที่สม่ำเสมอ
+- **แย่ลง 2 สกิล** (A7, A8) และ **พลาดร่วมกัน 3 จุด** (acceptance criteria, ระดับ path traversal, เก็บหลักฐานก่อน rollback) → แก้สกิลแล้วทั้ง 5 จุด ผลการตรวจซ้ำอยู่ด้านล่าง
+
+**ตรวจซ้ำหลังแก้ (เฉพาะแบบมีสกิล):**
+
+| สกิล | ก่อนแก้ | หลังแก้ | สิ่งที่เปลี่ยน |
+|---|---|---|---|
+| system-design-interviewer | 3/4 | **4/4** | ถามเฉพาะขั้นที่ 1 (4 คำถาม) แล้วรอคำตอบ |
+| technology-advisor | 5/6 | **6/6** | ฟันธง "แนะนำ Supabase ภายใต้สมมติฐาน... ถ้า... ให้เปลี่ยนเป็น NestJS" แล้วค่อยถามเพิ่ม |
+| security-engineer | 6/7 | **7/7** | path traversal เป็น Critical |
+| incident-response-engineer | 5/6 | **6/6** | ขั้นแรกคือเก็บหลักฐานก่อน rollback |
+| project-manager-orchestrator | 5/6 | — | แก้แล้ว (บังคับ acceptance criteria ทุก task) แต่ยังไม่ได้รันซ้ำ |
+
+ผลรอบ 3 หลังแก้: **108/109** (ไม่นับ A3 ที่ยังไม่ได้รันซ้ำ) เทียบ baseline 89/109
+
 | วันที่ | สกิล | Trigger | Near-miss | พฤติกรรม | หมายเหตุ |
 |---|---|---|---|---|---|
+| 2026-10-11 (รอบ 3) | 18 สกิลที่เหลือ | — | — | ✅ | 104/109 → 108/109 หลังแก้ vs baseline 89/109 |
 | 2026-10-11 | ทั้งหมด 11 สกิล | 18/19 | 10/10 | — | พลาด project-orchestrator 1 ข้อ |
 | 2026-10-11 | code-reviewer | 2/2 | 1/1 | ❌ | ครอบคลุมน้อยกว่า baseline |
 | 2026-10-11 | devops-engineer | 2/2 | 1/1 | ✅ | เท่ากับ baseline |
