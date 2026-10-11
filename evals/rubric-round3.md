@@ -74,4 +74,4 @@ A7 4/4 (was 3/4) — asked Step 1 only (4 questions) and waited
 A8 6/6 (was 5/6) — "แนะนำ Supabase ภายใต้สมมติฐาน... ถ้า... ให้เปลี่ยนเป็น NestJS", questions after the recommendation
 B5 7/7 (was 6/7) — path traversal now Critical
 B7 6/6 (was 5/6) — step 1 is "เก็บหลักฐานก่อนแตะอะไร"
-A3 (acceptance criteria fix) not re-run
+A3 6/6 (was 5/6) — all 14 tasks have a ✅ AC line; Epic → Feature → TASK → Subtask, statuses, dependencies

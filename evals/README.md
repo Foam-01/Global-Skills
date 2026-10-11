@@ -204,13 +204,13 @@
 | technology-advisor | 5/6 | **6/6** | ฟันธง "แนะนำ Supabase ภายใต้สมมติฐาน... ถ้า... ให้เปลี่ยนเป็น NestJS" แล้วค่อยถามเพิ่ม |
 | security-engineer | 6/7 | **7/7** | path traversal เป็น Critical |
 | incident-response-engineer | 5/6 | **6/6** | ขั้นแรกคือเก็บหลักฐานก่อน rollback |
-| project-manager-orchestrator | 5/6 | — | แก้แล้ว (บังคับ acceptance criteria ทุก task) แต่ยังไม่ได้รันซ้ำ |
+| project-manager-orchestrator | 5/6 | **6/6** | ทุก task (14 งาน) มี acceptance criteria ที่ตรวจได้ |
 
-ผลรอบ 3 หลังแก้: **108/109** (ไม่นับ A3 ที่ยังไม่ได้รันซ้ำ) เทียบ baseline 89/109
+ผลรอบ 3 หลังแก้: **109/109** เทียบ baseline 89/109
 
 | วันที่ | สกิล | Trigger | Near-miss | พฤติกรรม | หมายเหตุ |
 |---|---|---|---|---|---|
-| 2026-10-11 (รอบ 3) | 18 สกิลที่เหลือ | — | — | ✅ | 104/109 → 108/109 หลังแก้ vs baseline 89/109 |
+| 2026-10-11 (รอบ 3) | 18 สกิลที่เหลือ | — | — | ✅ | 104/109 → 109/109 หลังแก้ vs baseline 89/109 |
 | 2026-10-11 | ทั้งหมด 11 สกิล | 18/19 | 10/10 | — | พลาด project-orchestrator 1 ข้อ |
 | 2026-10-11 | code-reviewer | 2/2 | 1/1 | ❌ | ครอบคลุมน้อยกว่า baseline |
 | 2026-10-11 | devops-engineer | 2/2 | 1/1 | ✅ | เท่ากับ baseline |
