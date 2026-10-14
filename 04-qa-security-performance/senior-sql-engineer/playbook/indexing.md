@@ -311,7 +311,48 @@ FROM pg_stat_user_indexes
 ORDER BY idx_scan ASC, pg_relation_size(indexrelid) DESC;
 ```
 
-- **ซ้ำซ้อน:** index `(A)` มักซ้ำกับ `(A, B)` (index ตัวหลังใช้แทนได้เกือบทุกกรณี) · index ที่ key เหมือนกันแต่ชื่อต่าง · missing index ที่ถูกสร้างตามคำแนะนำซ้ำๆ (EP-01 ข้อ 5)
+**อ่านผล usage stats — จัดกลุ่ม index** (ตัวอย่างจริงจาก SQL Server):
+
+| Index | seeks | updates | กลุ่ม | ควรทำ |
+|---|---|---|---|---|
+| `CIX_Users_Id` | 249 | 2 | **ลูกรัก** — ใช้อ่านเยอะ เขียนน้อย | เก็บไว้ |
+| `NCIX_Posts_CommentCount` | 101 | 110 | **ใช้หนักทั้งสองทาง** | ส่วนใหญ่ **ยังควรเก็บ** — query ใช้จริง ต้นทุนเขียนคือราคาที่จ่าย · ตรวจว่ารวมกับ index อื่นได้ไหม / INCLUDE เกินจำเป็นไหม |
+| `NCIX_Votes_PostId` | 0 | 240 | **ขยะ** — ไม่มีใครอ่าน แต่ต้องอัปเดตทุกครั้ง | ผู้สมัครลบอันดับแรก (ตามเงื่อนไขก่อนลบด้านล่าง) |
+
+- index ที่ seeks สูงและ updates สูง **ไม่ใช่ index ที่แย่** — ห้ามแนะนำให้ลบเพียงเพราะ updates สูง ให้ดูว่า query ที่ใช้มันสำคัญแค่ไหน
+- เก็บสถิติอย่างน้อย 1–2 สัปดาห์ก่อนตัดสิน แต่ถ้ามีงานรายเดือน / รายไตรมาส ต้องครอบคลุมรอบนั้นด้วย และสถิติหายเมื่อ restart
+
+### หา query ที่ควรได้ index (เริ่มจาก query ที่รันบ่อย + หนัก)
+
+ก่อนสร้าง index ให้หาว่า query ไหน **รันบ่อย** และ **หนักต่อครั้ง** — query ที่รันนานๆ ครั้ง (เช่น รายงานรายเดือน) มักไม่คุ้มที่จะสร้าง index ถาวร
+
+```sql
+-- SQL Server: query ที่ใช้ logical reads รวมมากที่สุด (ตั้งแต่ plan อยู่ใน cache)
+SELECT TOP (20)
+  qs.execution_count,
+  qs.total_logical_reads / qs.execution_count AS avg_logical_reads,
+  qs.total_worker_time / qs.execution_count / 1000 AS avg_cpu_ms,
+  SUBSTRING(st.text, qs.statement_start_offset / 2 + 1,
+    (CASE qs.statement_end_offset WHEN -1 THEN DATALENGTH(st.text)
+     ELSE qs.statement_end_offset END - qs.statement_start_offset) / 2 + 1) AS query_text,
+  qp.query_plan
+FROM sys.dm_exec_query_stats qs
+CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st
+CROSS APPLY sys.dm_exec_query_plan(qs.plan_handle) qp
+ORDER BY qs.total_logical_reads DESC;
+
+-- PostgreSQL / Supabase: ต้องเปิด extension pg_stat_statements
+SELECT calls, mean_exec_time, shared_blks_hit + shared_blks_read AS blocks, query
+FROM pg_stat_statements
+ORDER BY total_exec_time DESC
+LIMIT 20;
+```
+
+- เรียงตาม **ผลรวม** (บ่อย × หนัก) ไม่ใช่ค่าเฉลี่ยอย่างเดียว — query 2 ms ที่รันล้านครั้งอาจสำคัญกว่า query 5 วินาทีที่รันวันละครั้ง
+- ข้อมูลอยู่ใน cache: SQL Server หายเมื่อ plan ถูกล้าง / restart · PostgreSQL หายเมื่อ `pg_stat_statements_reset()` / restart (ขึ้นกับการตั้งค่า)
+- เอา query ที่เจอไปเปิด execution plan (EP-01) แล้วค่อยตัดสินใจเรื่อง index (IX-01, IX-02)
+
+- **ซ้ำซ้อน:** index `(A)` มักซ้ำกับ `(A, B)` (index ตัวหลังใช้แทนได้เกือบทุกกรณี) เช่น `Index_2 ON Posts(Id)` ซ้ำกับ `Index_1 ON Posts(Id, CommentCount)` — และถ้า `Id` เป็น clustered PK อยู่แล้ว ทั้งสองตัวแทบไม่มีประโยชน์ · index ที่ key เหมือนกันแต่ชื่อต่าง · missing index ที่ถูกสร้างตามคำแนะนำซ้ำๆ (EP-01 ข้อ 5)
 - **ก่อนลบ index:**
   - ดูสถิติให้ครอบคลุมรอบการใช้งานจริง (รายงานสิ้นเดือน / สิ้นปีอาจใช้ index ที่ปกติไม่มีใครแตะ) และสถิติหายเมื่อ restart
   - index ที่บังคับ **unique / primary key / foreign key lookup** ห้ามลบเพียงเพราะ seek น้อย
