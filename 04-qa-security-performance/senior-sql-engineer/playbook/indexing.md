@@ -115,8 +115,26 @@ EXPLAIN (ANALYZE, BUFFERS) SELECT ...;
 | **logical reads** (SQL Server) / **shared hit + read** (PostgreSQL) | จำนวนหน้า 8 KB ที่ query อ่าน | ตัวชี้วัดหลัก — คงที่กว่าเวลา ไม่ขึ้นกับ cache อุ่น / เย็น |
 | physical reads / `read=` | หน้าที่ต้องอ่านจาก disk จริง | บอกว่า cache เย็นหรือข้อมูลไม่พอดีกับ memory |
 | CPU time vs elapsed time | CPU > elapsed แปลว่า query รันขนาน (parallel) | ถ้า query ง่ายแต่รันขนาน มักแปลว่ากำลัง scan ข้อมูลเยอะ |
-| Scan count | จำนวนครั้งที่เข้าไปอ่าน object นั้น | > 1 อาจเป็น parallel scan หรือ nested loop |
+| Scan count | จำนวนครั้งที่เข้าไปอ่าน object นั้น (seek หรือ scan ก็นับ) | **ห้ามดูเดี่ยวๆ** — อ่านคู่กับ logical reads เสมอ (ดูหัวข้อ "อ่าน Scan count ให้ถูก" ด้านล่าง) |
 | rows ใน plan (estimated vs actual) | optimizer ประเมินจำนวนแถวถูกไหม | ต่างกันมาก = statistics เก่า → `UPDATE STATISTICS` / `ANALYZE` |
+
+### อ่าน Scan count ให้ถูก (ความเข้าใจผิดที่พบบ่อย)
+
+❌ **"Scan count 2534 = database อ่านตารางทั้งตาราง 2,534 รอบ"** — ไม่จริง
+✅ Scan count = **จำนวนครั้งที่เข้าไปที่ตาราง / index นั้น** แต่ละครั้งอาจเป็น seek ไม่กี่หน้า หรือ scan ทั้งตารางก็ได้ — ต้องหาร logical reads ด้วย scan count เพื่อดูว่าแต่ละครั้งหนักแค่ไหน
+
+| ตัวอย่างจริง | reads ต่อครั้ง | ความหมาย | ดีหรือไม่ |
+|---|---|---|---|
+| Scan count **2,534**, logical reads **8,064** (ได้ 2,534 แถว) | ~3 หน้า | seek 2,534 ครั้ง (Nested Loops ทีละแถว) ไม่ใช่อ่านทั้งตาราง 2,534 รอบ — ถ้าอ่านทั้งตารางจริงจะเป็นหลักล้าน–พันล้าน reads | ไม่แย่เสมอไป · ถ้าฝั่งนอกมีแถวเยอะ ลองดูว่า Hash / Merge Join ดีกว่าไหม หรือลดจำนวนแถวก่อน join |
+| Scan count **10**, logical reads **49** (IX-09) | ~5 หน้า | seek 10 ครั้ง | ✅ ดีมาก |
+| Scan count **13**, logical reads **~141,000** (IX-04) | — | 13 = จำนวน thread ที่ช่วยกัน scan ขนาน รวมแล้วอ่านทั้งตาราง | ❌ แย่ |
+| Scan count **1**, logical reads **3** | 3 หน้า | seek / scan ช่วงเล็กครั้งเดียว | ✅ ดี |
+| Scan count **1**, logical reads **800,000** | 800,000 หน้า | scan ทั้งตารางครั้งเดียว | ❌ แย่ — **scan count 1 ไม่ได้แปลว่าดี** |
+| Scan count **0** | — | ค้นหาด้วย key ของ unique / primary key index เจอแถวเดียว (singleton seek) — **ไม่ได้แปลว่า "เจอใน RAM แล้วเลยไม่ต้องอ่าน"** (การอ่านจาก RAM นับเป็น logical reads เสมอ) | ✅ ปกติ |
+
+- ตัวตัดสินหลักคือ **logical reads รวม** และ **reads ต่อแถวที่ได้** ส่วน scan count ใช้บอก **รูปแบบ** การเข้าถึง (seek ซ้ำหลายรอบ / scan ขนาน / ครั้งเดียว)
+- scan count สูง + reads ต่อครั้งน้อย = nested loop seek → ตรวจว่าฝั่งนอกมีแถวมากเกินไปไหม (EP-02)
+- scan count เท่ากับจำนวน thread + reads สูง = parallel scan → ขาด index ที่ seek ได้ (IX-01)
 
 ### ตัดสินเร็วๆ ว่า query "หนักเกินเหตุ" ไหม: เทียบ reads กับจำนวนแถวที่ได้
 
