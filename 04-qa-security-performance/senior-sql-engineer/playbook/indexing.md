@@ -364,3 +364,75 @@ LIMIT 20;
   - index ที่บังคับ **unique / primary key / foreign key lookup** ห้ามลบเพียงเพราะ seek น้อย
   - ลบทีละตัว เก็บคำสั่งสร้างกลับไว้ และวัด query สำคัญหลังลบ
 - **ก่อนเพิ่ม index ใหม่:** ดูว่ามี index เดิมที่ขยาย (เพิ่ม key / INCLUDE) แทนได้ไหม แทนการสร้างตัวใหม่ทุกครั้งที่เจอ query ช้า
+
+## IX-09 — สร้าง index บนคอลัมน์ Foreign Key (database ไม่ได้สร้างให้)
+
+**สิ่งที่หลายคนเข้าใจผิด:** ประกาศ `FOREIGN KEY` แล้ว database จะสร้าง index ให้ — **SQL Server และ PostgreSQL ไม่สร้างให้** (สร้างให้เฉพาะ PRIMARY KEY / UNIQUE) ส่วน MySQL InnoDB สร้างให้อัตโนมัติ — คอลัมน์ FK ฝั่งตารางลูก (เช่น `Posts.OwnerUserId`) จึงมักไม่มี index ทั้งที่ถูกใช้ join บ่อยที่สุด
+
+```sql
+-- query: 10 ผู้ใช้ พร้อมยอดวิวสูงสุดของโพสต์
+WITH PostViewCount AS (
+  SELECT OwnerUserId, MAX(ViewCount) AS ViewCount
+  FROM Posts
+  GROUP BY OwnerUserId
+)
+SELECT TOP (10) U.Id AS UserId, U.DisplayName, P.ViewCount
+FROM Users U
+LEFT JOIN PostViewCount P ON P.OwnerUserId = U.Id
+ORDER BY U.Id;   -- ตัวอย่างต้นฉบับไม่มี ORDER BY (ดูหมายเหตุ IX-04)
+
+-- SQL Server
+CREATE NONCLUSTERED INDEX NCIX_Posts_OwnerUserId ON Posts (OwnerUserId) INCLUDE (ViewCount);
+-- PostgreSQL / Supabase
+CREATE INDEX CONCURRENTLY ix_posts_owner_user_id ON posts (owner_user_id) INCLUDE (view_count);
+```
+
+**ตัวอย่างผลจริง** (SQL Server):
+
+| | Posts: scan count / logical reads | Users | CPU | elapsed |
+|---|---|---|---|---|
+| ไม่มี index บน `OwnerUserId` | 13 / ~800,000 (รันขนาน + Workfile) | 13 / ~1,370 | ~14,100 ms | ~5,060 ms |
+| มี `(OwnerUserId) INCLUDE (ViewCount)` | **10 / 49** | 1 / 14 | ต่ำมาก | ~53 ms |
+
+**ทำไมต่างมากขนาดนี้:**
+- ไม่มี index → database ต้อง `GROUP BY` **โพสต์ทั้งตาราง** เพื่อหา MAX ของทุกผู้ใช้ ทั้งที่ต้องการแค่ 10 คน
+- มี index ที่เรียงตาม `OwnerUserId` และมี `ViewCount` อยู่ใน index → optimizer เปลี่ยนแผนเป็น "อ่านผู้ใช้ 10 คน แล้ว seek เข้า index ทีละคน" — **Scan count 10 = seek 10 ครั้ง** ครั้งละไม่กี่หน้า (Nested Loops ที่เหมาะกับฝั่งนอกที่มีแถวน้อย — EP-02)
+- elapsed เร็วขึ้น ~95 เท่า ส่วน logical reads ลดลงหลายหมื่นเท่า — ตัวเลขแบบนี้เกิดเมื่อ query ต้องการข้อมูลส่วนน้อย (TOP 10) แต่ไม่มี index ให้กระโดดไปหา
+
+**อีกเหตุผลที่ต้อง index คอลัมน์ FK (คลิปไม่ได้พูดถึง แต่สำคัญ):**
+- เมื่อ **ลบ / แก้ key ของตารางแม่** (เช่น `DELETE FROM Users WHERE Id = …`) database ต้องเช็กว่ายังมีแถวลูกอ้างถึงไหม ถ้าคอลัมน์ FK ไม่มี index → **scan ตารางลูกทั้งตาราง ต่อการลบ 1 แถว** และถือ lock นาน — อาการ "ลบ user ทีเดียวช้ามาก / ค้าง" มักมาจากตรงนี้ (โดยเฉพาะ `ON DELETE CASCADE`)
+
+**แนวปฏิบัติ:**
+- เมื่อสร้าง FK ใหม่ ให้สร้าง index บนคอลัมน์ FK ฝั่งลูกพร้อมกันเป็นค่าเริ่มต้น เว้นแต่ตารางลูกเล็กมากหรือไม่เคย join / ลบแม่
+- ถ้ามี query ที่ใช้คอลัมน์อื่นคู่กับ FK เสมอ ให้ทำ index ผสมโดยเอา FK นำหน้า (เช่น `(OwnerUserId, CreationDate)`) แทนการมี index แยก
+- ยังต้องชั่งต้นทุนการเขียนตาม IX-08
+
+**หาคอลัมน์ FK ที่ยังไม่มี index:**
+
+```sql
+-- PostgreSQL: FK ที่คอลัมน์แรกไม่ได้นำหน้า index ใดเลย
+SELECT c.conrelid::regclass AS table_name, c.conname AS fk_name,
+       a.attname AS fk_column
+FROM pg_constraint c
+JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = c.conkey[1]
+WHERE c.contype = 'f'
+  AND NOT EXISTS (
+    SELECT 1 FROM pg_index i
+    WHERE i.indrelid = c.conrelid AND i.indkey[0] = c.conkey[1]
+  );
+
+-- SQL Server: FK ที่คอลัมน์แรกไม่ได้เป็นคอลัมน์แรกของ index ใดเลย
+SELECT OBJECT_NAME(fk.parent_object_id) AS table_name, fk.name AS fk_name,
+       COL_NAME(fkc.parent_object_id, fkc.parent_column_id) AS fk_column
+FROM sys.foreign_keys fk
+JOIN sys.foreign_key_columns fkc
+  ON fkc.constraint_object_id = fk.object_id AND fkc.constraint_column_id = 1
+WHERE NOT EXISTS (
+  SELECT 1 FROM sys.index_columns ic
+  WHERE ic.object_id = fkc.parent_object_id
+    AND ic.column_id = fkc.parent_column_id
+    AND ic.key_ordinal = 1
+);
+```
+
+- ตัวอย่างใน Stack Overflow database (ที่คลิปใช้) อาจไม่มี FK constraint ประกาศไว้จริง — หลักการเดียวกันใช้กับ "คอลัมน์ที่ใช้ join ไปหาตารางอื่น" ทุกตัว ไม่ว่าจะประกาศ FK หรือไม่

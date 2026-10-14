@@ -197,7 +197,7 @@ EXPLAIN ANALYZE
 และ:
 **Index นี้มี Trade-off อะไร?**
 
-รายละเอียดและตัวอย่างการสร้าง index อยู่ใน [playbook/indexing.md](playbook/indexing.md) (IX-01 filter index, IX-02 covering INCLUDE, IX-03 ช่วงวันที่, IX-04 วัดผล, IX-05 ช่องค้นหา LIKE, IX-06 index ไม่ช่วยเวลา, IX-07 filtered / partial index, IX-08 index มากเกินไป)
+รายละเอียดและตัวอย่างการสร้าง index อยู่ใน [playbook/indexing.md](playbook/indexing.md) (IX-01 filter index, IX-02 covering INCLUDE, IX-03 ช่วงวันที่, IX-04 วัดผล, IX-05 ช่องค้นหา LIKE, IX-06 index ไม่ช่วยเวลา, IX-07 filtered / partial index, IX-08 index มากเกินไป, IX-09 index บน FK)
 
 ---
 
