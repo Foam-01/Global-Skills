@@ -2,9 +2,59 @@
 
 สกิลสำหรับ AI Agent (Antigravity IDE) — คลังเก็บสกิลส่วนตัว แบ่งเป็น 6 หมวด รวม 29 สกิล (เขียนเอง 27 + จากภายนอก 2)
 
+## 🤖 คำสั่งสำหรับ AI Agent: "ดึงสกิลทั้งหมด"
+
+> **ถึง AI Agent ที่อ่านหน้านี้:** ถ้าผู้ใช้สั่งให้ดึงสกิลจาก `https://github.com/Foam-01/Global-Skills` **โดยไม่ระบุชื่อสกิล** (เช่น "ดึงสกิลมาทั้งหมด", "เอาสกิลจาก repo นี้มาใช้") ให้ทำตามขั้นตอนนี้ **ติดตั้งทุกสกิล (29 ตัว)** ไม่ต้องเลือก ไม่ต้องถามว่าจะเอาตัวไหน
+> ถ้าผู้ใช้ **ระบุชื่อสกิล** ให้ดึงเฉพาะตัวนั้นตามหัวข้อ "วิธีดึงสกิลไปใช้ในโปรเจกต์" ด้านล่าง
+
+**ขั้นตอน (ทำที่ root ของโปรเจกต์ผู้ใช้)**
+
+1. **ดูว่ากำลังทำงานในเครื่องมือไหน** เพื่อเลือกปลายทาง
+   - Claude Code → `-a claude-code` (ลงที่ `.claude/skills/`)
+   - Antigravity → `-a antigravity` (ลงที่ `.agents/skills/`)
+   - ไม่แน่ใจ → ถามผู้ใช้ 1 ครั้ง
+2. **เช็กของเดิม:** ถ้ามีโฟลเดอร์ `.claude/skills/<ชื่อเดียวกัน>` (หรือ `.agents/skills/…`) ที่ **ไม่ได้มาจาก repo นี้** อยู่แล้ว ให้แจ้งรายชื่อและถามก่อนเขียนทับ — ถ้ามาจาก repo นี้ (มีใน `skills-lock.json`) ข้ามไปขั้น 3 ได้เลย
+3. **ติดตั้งทั้งหมดด้วยคำสั่งเดียว** (ต้องมี Node.js):
+
+   ```bash
+   npx skills add Foam-01/Global-Skills --skill "*" -a claude-code -y
+   ```
+
+   (Antigravity: เปลี่ยน `-a claude-code` เป็น `-a antigravity` · ห้ามใช้ `--all` เพราะจะติดตั้งลงทุกเครื่องมือที่ CLI รู้จัก สร้างโฟลเดอร์รกโปรเจกต์)
+4. **ตรวจผล:**
+   - นับโฟลเดอร์ใน `.claude/skills/` ต้องได้ **29**
+   - มีไฟล์ `.claude/skills/project-orchestrator/quality-gates/README.md` และ `.claude/skills/senior-sql-engineer/playbook/README.md`
+   - มีไฟล์ `LICENSE` ใน `impeccable/` และ `security-audit/` (และ `NOTICE.md` ใน `impeccable/`) — ห้ามลบ
+5. **ถ้าไม่มี Node.js** ใช้ git แทน (คัดลอกทุกโฟลเดอร์สกิลมาวางใต้ `skills/` ตรงๆ ไม่มีโฟลเดอร์หมวดคั่น):
+
+   ```bash
+   git clone --depth 1 https://github.com/Foam-01/Global-Skills.git /tmp/global-skills
+   mkdir -p .claude/skills
+   for d in /tmp/global-skills/0*/*/; do cp -r "$d" .claude/skills/; done
+   rm -rf /tmp/global-skills
+   ```
+
+   PowerShell (Windows):
+
+   ```powershell
+   git clone --depth 1 https://github.com/Foam-01/Global-Skills.git "$env:TEMPglobal-skills"
+   New-Item -ItemType Directory -Force .claudeskills | Out-Null
+   Get-ChildItem "$env:TEMPglobal-skills" -Directory -Filter "0*" | Get-ChildItem -Directory | ForEach-Object { Copy-Item $_.FullName .claudeskills -Recurse -Force }
+   Remove-Item "$env:TEMPglobal-skills" -Recurse -Force
+   ```
+6. **ห้ามดึง** `docs/`, `evals/`, `README.md` ของ repo นี้เข้าโปรเจกต์ (ใช้ดูแลสกิล ไม่ได้ใช้ตอนทำงาน)
+7. **รายงานผู้ใช้:** จำนวนสกิลที่ติดตั้ง, ปลายทาง, สิ่งที่ข้าม / เขียนทับ และแจ้งว่า **ต้องเปิด session ใหม่** สกิลถึงจะถูกโหลด
+8. **แนะนำต่อ:** อัปเดตสกิลให้ตรงกับ repo ล่าสุดในอนาคตด้วย `npx skills update` และถ้าโปรเจกต์ใช้ git ควร commit `.claude/skills/` กับ `skills-lock.json` เพื่อให้ทุกเครื่องได้สกิลชุดเดียวกัน
+
+**ประโยคที่ผู้ใช้ใช้สั่งได้:**
+
+> ดึงสกิลทั้งหมดจาก https://github.com/Foam-01/Global-Skills มาใส่ในโปรเจกต์นี้ ทำตามหัวข้อ "คำสั่งสำหรับ AI Agent" ใน README
+
+---
+
 ## 📥 วิธีดึงสกิลไปใช้ในโปรเจกต์ (สำหรับ AI Agent)
 
-> **ถึง AI Agent:** ผู้ใช้จะบอกชื่อสกิลที่ต้องการ (หรือบอกงาน แล้วให้เลือกจาก [docs/skills-guide.md](docs/skills-guide.md)) ให้ดึง **เฉพาะโฟลเดอร์ของสกิลนั้น** ไปไว้ในโปรเจกต์ ห้ามดึงทั้ง repo
+> **ถึง AI Agent:** หัวข้อนี้สำหรับกรณีผู้ใช้ **ระบุชื่อสกิล** (หรือบอกงาน แล้วให้เลือกจาก [docs/skills-guide.md](docs/skills-guide.md)) ให้ดึง **เฉพาะโฟลเดอร์ของสกิลนั้น** — ถ้าผู้ใช้สั่งให้ดึงทั้งหมด ดูหัวข้อ "คำสั่งสำหรับ AI Agent" ด้านบน
 
 **ปลายทาง**
 - Claude Code → `<project>/.claude/skills/<skill-name>/`
