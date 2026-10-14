@@ -1,6 +1,6 @@
 # 🎨 Impeccable — คู่มือเลือกคำสั่ง
 
-สกิลออกแบบ Frontend/UI จาก [pbakaus/impeccable](https://github.com/pbakaus/impeccable) (v4.5) ติดตั้งแบบ global ไว้ที่ `~/.claude/skills/impeccable`
+สกิลออกแบบ Frontend/UI จาก [pbakaus/impeccable](https://github.com/pbakaus/impeccable) (v4.5) เก็บไว้ใน repo ที่ `06-external/impeccable` (ดึงไปใช้: `npx skills add Foam-01/Global-Skills --skill impeccable -a claude-code -y`)
 เอกสารฉบับเต็ม: https://impeccable.style/docs/
 
 รูปแบบคำสั่ง: `/impeccable <คำสั่ง> <สิ่งที่จะทำ>`

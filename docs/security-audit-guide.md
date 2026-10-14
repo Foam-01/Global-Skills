@@ -1,6 +1,6 @@
 # 🔐 Security Audit — คู่มือการใช้งาน
 
-สกิลตรวจหาช่องโหว่ความปลอดภัยจาก [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) ติดตั้งแบบ global ไว้ที่ `~/.claude/skills/security-audit`
+สกิลตรวจหาช่องโหว่ความปลอดภัยจาก [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) เก็บไว้ใน repo ที่ `06-external/security-audit` (ดึงไปใช้: `npx skills add Foam-01/Global-Skills --skill security-audit -a claude-code -y`)
 
 ใช้ตรวจโค้ดได้ทุกแบบ ทั้งเว็บ, API, service, CLI, library และ daemon เน้นอ่านซอร์สโค้ดเป็นหลัก (source-first) และรายงานเฉพาะช่องโหว่ที่ข้ามขอบเขตความปลอดภัยได้จริง พร้อมหลักฐาน วิธีทดสอบที่ปลอดภัย ระดับความสำคัญ และวิธีแก้ที่เล็กที่สุด
 

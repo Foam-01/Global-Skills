@@ -7,7 +7,7 @@ description: ใช้เมื่อเริ่มออกแบบหน้�
 
 > ตรวจล่าสุด: 2026-10
 
-> **ขอบเขต:** ใช้ตอนเริ่มออกแบบ UI ใหม่เพื่อเลือกสไตล์ สี ฟอนต์ และ pattern ส่วนการวิจารณ์ ตรวจ และขัดเกลาหน้าที่มีอยู่แล้ว ให้ใช้ `impeccable` (ติดตั้งแบบ global)
+> **ขอบเขต:** ใช้ตอนเริ่มออกแบบ UI ใหม่เพื่อเลือกสไตล์ สี ฟอนต์ และ pattern ส่วนการวิจารณ์ ตรวจ และขัดเกลาหน้าที่มีอยู่แล้ว ให้ใช้ `impeccable` (อยู่ใน 06-external)
 
 > ดัดแปลงจาก [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) (MIT License)
 

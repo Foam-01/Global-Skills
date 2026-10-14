@@ -28,7 +28,7 @@
 | ระบบช้า | `performance-engineer` |
 | SQL ช้า, ออกแบบตาราง, index, lock, migration | `senior-sql-engineer` |
 | ตรวจช่องโหว่ความปลอดภัย (เร็ว / เฉพาะฟีเจอร์) | `security-engineer` |
-| ตรวจช่องโหว่ทั้งระบบ ออกรายงานเป็นไฟล์ | `security-audit` (global) |
+| ตรวจช่องโหว่ทั้งระบบ ออกรายงานเป็นไฟล์ | `security-audit` (06-external) |
 | เก็บข้อมูลส่วนบุคคล / ข้อมูลสุขภาพ ต้องทำตาม PDPA | `pdpa-privacy-engineer` |
 | ทำระบบรับเงิน PromptPay / บัตร / webhook | `payment-engineer` |
 | วางแผนการเทสต์, คิด test case | `testing-engineer` |

@@ -68,7 +68,7 @@ QUALITY GATES APPLIED: [ระบุข้อ Quality Gate (เช่น #06, F3
 | Architecture | `documentation-engineer` | บันทึกการตัดสินใจสำคัญเป็น ADR |
 | Development | `backend-api-engineer` | ออกแบบ / สร้าง API, auth, error format, idempotency |
 | Development | `vibe-software-engineering` | ต้องการ MVP เร็วแต่ต้องวางรากฐานให้แข็งแรง |
-| Development | `modern-web-guidance`, `ui-ux-pro-max`, `impeccable` (global) | สร้างหน้าเว็บ / UI |
+| Development | `modern-web-guidance`, `ui-ux-pro-max`, `impeccable` (06-external) | สร้างหน้าเว็บ / UI |
 | Development | `flutter-engineer` | สร้างแอป Flutter (Android / iOS) |
 | Development | `mcp-agent-dev` | สร้าง MCP server หรือ agent skill |
 | Development | `payment-engineer` | ระบบรับชำระเงิน, webhook, refund, กระทบยอด |
@@ -76,7 +76,7 @@ QUALITY GATES APPLIED: [ระบุข้อ Quality Gate (เช่น #06, F3
 | Review | `code-reviewer` | รีวิวโค้ดที่เพิ่งเขียนหรือ diff ก่อน merge |
 | Review | `debugging-engineer` | เจอบั๊กที่ต้องหาสาเหตุ |
 | Testing | `testing-engineer` | วางแผนเทสต์และ test case |
-| Testing | `security-engineer`, `security-audit` (global) | ตรวจช่องโหว่ (เร็ว / ทั้งระบบ) |
+| Testing | `security-engineer`, `security-audit` (06-external) | ตรวจช่องโหว่ (เร็ว / ทั้งระบบ) |
 | Testing | `pdpa-privacy-engineer` | ระบบที่เก็บข้อมูลส่วนบุคคล / ข้อมูลอ่อนไหวของคนไทย |
 | Testing | `performance-engineer` | ระบบช้า หรือก่อนปล่อยฟีเจอร์ที่มีโหลดสูง |
 | Release | `devops-engineer` | ตั้งค่า environment, secrets, Docker, CI/CD, deploy และ rollback |

@@ -1,6 +1,6 @@
 # 🛠️ Global Skills
 
-สกิลสำหรับ AI Agent (Antigravity IDE) — คลังเก็บสกิลส่วนตัว แบ่งหมวดหมู่เป็น 5 กลุ่มชัดเจน รวมทั้งหมด 27 สกิล
+สกิลสำหรับ AI Agent (Antigravity IDE) — คลังเก็บสกิลส่วนตัว แบ่งเป็น 6 หมวด รวม 29 สกิล (เขียนเอง 27 + จากภายนอก 2)
 
 ## 📥 วิธีดึงสกิลไปใช้ในโปรเจกต์ (สำหรับ AI Agent)
 
@@ -12,7 +12,28 @@
 - วางโฟลเดอร์สกิลไว้ใต้ `skills/` ตรงๆ **ไม่ต้องมีโฟลเดอร์หมวด** (`01-...`) คั่น
 - ไม่ต้องดึง `docs/`, `evals/`, `README.md` (ใช้ดูแลสกิล ไม่ได้ใช้ตอนทำงาน)
 
-**วิธีที่ 1 — degit (แนะนำ, ต้องมี Node.js)** รันที่ root ของโปรเจกต์ ทีละสกิล:
+**วิธีที่ 1 — `skills` CLI (แนะนำ, ต้องมี Node.js)** รันที่ root ของโปรเจกต์ ใช้ **ชื่อสกิล** ได้เลย ไม่ต้องรู้ path:
+
+```bash
+# Claude Code → .claude/skills/   (Antigravity: เปลี่ยน -a claude-code เป็น -a antigravity)
+npx skills add Foam-01/Global-Skills --skill code-reviewer --skill senior-sql-engineer -a claude-code -y
+```
+
+- ดึงทั้งโฟลเดอร์ของสกิลให้ครบ (รวม `playbook/`, `quality-gates/`) และสร้างไฟล์ `skills-lock.json` จำว่าสกิลมาจากไหน
+- อัปเดตสกิลในโปรเจกต์ให้ตรงกับ repo ล่าสุด: `npx skills update`
+- ดูสกิลที่ติดตั้งในโปรเจกต์: `npx skills list` · ลบ: `npx skills remove <ชื่อสกิล>`
+
+**ชุดสำเร็จรูป (copy ไปรันได้เลย)**
+
+| ประเภทโปรเจกต์ | คำสั่ง |
+|---|---|
+| เว็บ full-stack (Next.js / NestJS / Supabase) | `npx skills add Foam-01/Global-Skills --skill project-orchestrator --skill backend-api-engineer --skill senior-sql-engineer --skill code-reviewer --skill security-engineer --skill testing-engineer --skill impeccable -a claude-code -y` |
+| แอป Flutter + backend | `npx skills add Foam-01/Global-Skills --skill project-orchestrator --skill flutter-engineer --skill backend-api-engineer --skill senior-sql-engineer --skill code-reviewer --skill security-engineer -a claude-code -y` |
+| มีระบบรับเงิน / ข้อมูลลูกค้าคนไทย | เพิ่ม `--skill payment-engineer --skill pdpa-privacy-engineer` |
+| ก่อนขึ้น production | เพิ่ม `--skill devops-engineer --skill production-readiness-engineer --skill security-audit` |
+| รีวิวโค้ดอย่างเดียว | `npx skills add Foam-01/Global-Skills --skill code-reviewer --skill debugging-engineer -a claude-code -y` |
+
+**วิธีที่ 2 — degit** (ดึงทีละโฟลเดอร์ตาม path ในตารางด้านล่าง):
 
 ```bash
 npx degit Foam-01/Global-Skills/<path> .claude/skills/<skill-name>
@@ -25,7 +46,7 @@ npx degit Foam-01/Global-Skills/04-qa-security-performance/code-reviewer .claude
 npx degit Foam-01/Global-Skills/01-master-orchestration/project-orchestrator .claude/skills/project-orchestrator
 ```
 
-**วิธีที่ 2 — git (ไม่มี Node.js)**
+**วิธีที่ 3 — git (ไม่มี Node.js)**
 
 ```bash
 git clone --depth 1 https://github.com/Foam-01/Global-Skills.git /tmp/global-skills
@@ -65,11 +86,13 @@ rm -rf /tmp/global-skills
 | `incident-response-engineer` | `05-production-sre-utility/incident-response-engineer` |
 | `production-readiness-engineer` | `05-production-sre-utility/production-readiness-engineer` |
 | `thai-response` | `05-production-sre-utility/thai-response` |
+| `impeccable` | `06-external/impeccable` |
+| `security-audit` | `06-external/security-audit` |
 
 **ข้อควรรู้**
 - ดึง **ทั้งโฟลเดอร์ของสกิล** เสมอ (คำสั่งด้านบนทำแบบนั้นอยู่แล้ว) — บางสกิลมีไฟล์อ้างอิงข้างใน: `project-orchestrator` มี `quality-gates/`, `senior-sql-engineer` มี `playbook/`
 - ถ้าปลายทางมีโฟลเดอร์ชื่อเดียวกันอยู่แล้ว ให้ถามผู้ใช้ก่อนเขียนทับ
-- สกิลภายนอก (`impeccable`, `security-audit`) ไม่อยู่ใน repo นี้ ดูวิธีติดตั้งในหัวข้อ "สกิลภายนอกที่ติดตั้งแบบ Global"
+- สกิลใน `06-external/` มีไฟล์ `LICENSE` (และ `NOTICE.md`) ของต้นฉบับ **ต้องคัดลอกไปด้วย ห้ามลบ**
 - หลังดึงเสร็จ ต้องเปิด session ใหม่ สกิลถึงจะถูกโหลด
 
 **ประโยคสั่ง AI ที่ใช้ได้เลย**
@@ -93,7 +116,7 @@ LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
 
 ---
 
-## 📦 รายชื่อสกิลตามหมวดหมู่ (5 Categories / 27 Skills)
+## 📦 รายชื่อสกิลตามหมวดหมู่ (6 Categories / 29 Skills)
 
 📖 คู่มือเลือกสกิลตามสถานการณ์และคำอธิบายแต่ละตัว: [docs/skills-guide.md](docs/skills-guide.md)
 
@@ -164,34 +187,13 @@ LAYER 3: QUALITY SYSTEM (Quality Gates: Web 42 + Mobile 32)
 
 ---
 
-## 🌐 สกิลภายนอกที่ติดตั้งแบบ Global
+### 🌐 6. External (สกิลจากผู้พัฒนาภายนอก)
+> 📁 `06-external/` — คัดลอกจากต้นฉบับแบบไม่แก้ไข ระบุ commit และ license ไว้ใน [06-external/README.md](06-external/README.md)
 
-สกิลจากแหล่งภายนอกที่ติดตั้งไว้ที่ `~/.claude/skills/` (ใช้ได้ทุกโปรเจกต์ใน Claude Code และไม่ได้เก็บไว้ใน repo นี้)
-
-| สกิล | แหล่งที่มา | บทบาทและคำอธิบาย |
-|---|---|---|
-| `impeccable` | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | 🎨 Frontend Design — ออกแบบ วิจารณ์ ตรวจ (audit) และขัดเกลา UI/UX ทั้ง typography, layout, สี, motion และ accessibility |
-| `security-audit` | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | 🔐 Security Audit — ตรวจช่องโหว่ทั้ง codebase แบบ 6 ขั้น มีตรวจซ้ำอิสระ และออกรายงานเป็นไฟล์ |
-
-### `impeccable`
-
-```bash
-npx skills add pbakaus/impeccable -g -a claude-code
-```
-
-ครั้งแรกในแต่ละโปรเจกต์ ให้รัน `/impeccable init` และ `/impeccable hooks on` ในแชท
-
-📖 คู่มือเลือกคำสั่ง: [docs/impeccable-guide.md](docs/impeccable-guide.md)
-
-### `security-audit`
-
-```bash
-npx skills add https://github.com/cloudflare/security-audit-skill --skill security-audit -g -a claude-code
-```
-
-ไม่มีคำสั่ง `/` พิมพ์สั่งเป็นภาษาธรรมดา เช่น "security audit this codebase" (ต้องมี Node.js)
-
-📖 คู่มือการใช้งาน: [docs/security-audit-guide.md](docs/security-audit-guide.md)
+| สกิล | บทบาทและคำอธิบาย |
+|---|---|
+| `impeccable` | 🎨 Frontend Design จาก [pbakaus/impeccable](https://github.com/pbakaus/impeccable) (Apache-2.0) — ออกแบบ วิจารณ์ ตรวจ และขัดเกลา UI · 📖 [docs/impeccable-guide.md](docs/impeccable-guide.md) |
+| `security-audit` | 🔐 Security Audit จาก [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) (MIT) — ตรวจช่องโหว่ทั้ง codebase 6 ขั้น ออกรายงานเป็นไฟล์ · 📖 [docs/security-audit-guide.md](docs/security-audit-guide.md) |
 
 ---
 
