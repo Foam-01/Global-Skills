@@ -9,5 +9,7 @@ This repository is a skill library. Do not treat it as an application to build o
   ```
 
   Expect 29 skill folders. Keep `LICENSE` / `NOTICE.md` files. Ask before overwriting skills that did not come from this repo. Tell the user to start a new session afterwards.
+
+  Then make sure the user's project does **not** commit the pulled skills: append (without duplicating) these lines to the project's `.gitignore` — `.claude/skills/`, `.agents/skills/`, `skills-lock.json`. Never ignore the whole `.claude/` folder. If the skills were already committed, ask before running `git rm -r --cached .claude/skills skills-lock.json`. Do not commit on the user's behalf.
 - **User names specific skills** → install only those: `npx skills add Foam-01/Global-Skills --skill <name> --skill <name> -a claude-code -y`
 - Never copy `docs/`, `evals/` or the root `README.md` into the user's project.
