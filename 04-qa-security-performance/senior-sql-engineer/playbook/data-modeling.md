@@ -18,7 +18,7 @@
   - ⚠️ RLS ป้องกันได้ **เฉพาะเมื่อ role ที่แอปใช้ไม่ข้าม RLS**: ORM ฝั่ง server (Prisma, Drizzle, EF Core) มักต่อด้วย role `postgres` / owner ของตาราง ซึ่งข้าม RLS (superuser / `BYPASSRLS` / owner โดยไม่ `FORCE ROW LEVEL SECURITY`) → ต้องใช้ role แยกที่ไม่มีสิทธิ์ข้าม และตั้ง tenant ต่อ transaction (`SET LOCAL app.tenant_id = …` แล้ว policy อ่านด้วย `current_setting('app.tenant_id')`) ไม่เช่นนั้น RLS เป็นแค่ของประดับ
   - **ห้ามรับ tenant_id จาก request** (query string / body) ให้ดึงจาก session ที่ยืนยันตัวตนแล้วเสมอ (AP-04)
 - index / unique นำด้วย `tenant_id`: `UNIQUE (tenant_id, email)` ไม่ใช่ `UNIQUE (email)`, index `(tenant_id, created_at)`
-- FK ข้ามตารางควรรวม `tenant_id` (`FOREIGN KEY (tenant_id, customer_id) REFERENCES customers (tenant_id, id)`) กันการผูกข้อมูลข้ามร้าน
+- FK ข้ามตารางควรรวม `tenant_id` (`FOREIGN KEY (tenant_id, customer_id) REFERENCES customers (tenant_id, id)`) กันการผูกข้อมูลข้ามร้าน ตารางแม่ต้องมี `UNIQUE (tenant_id, id)` ก่อน ไม่เช่นนั้นสร้าง FK ไม่ได้
 - tenant ใหญ่ผิดปกติ (noisy neighbor) ทำให้ statistics / plan เพี้ยน ต้องเฝ้าดู
 
 ---

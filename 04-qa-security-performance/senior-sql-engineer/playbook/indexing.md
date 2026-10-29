@@ -82,11 +82,11 @@ CREATE INDEX ix_posts_creation_date ON posts (creation_date) INCLUDE (title);
 WHERE YEAR(CreationDate) = 2009
 
 -- ❌ 2) BETWEEN กับ datetime → ทำข้อมูลวันสุดท้ายหาย
-WHERE CreationDate BETWEEN 2009-01-01 AND 2009-12-31
+WHERE CreationDate BETWEEN '2009-01-01' AND '2009-12-31'
 -- 2009-12-31 = 2009-12-31 00:00:00 → แถวที่สร้าง 2009-12-31 10:30 หายไป
 
 -- ✅ ช่วงปิดด้านล่าง เปิดด้านบน: seek ได้ และได้ข้อมูลครบ
-WHERE CreationDate >= 2009-01-01 AND CreationDate < 2010-01-01
+WHERE CreationDate >= '2009-01-01' AND CreationDate < '2010-01-01'
 ```
 
 **ตัวอย่างผลจริง** (SQL Server, ตาราง `Posts` ~3.7 ล้านแถว, มี index `(CreationDate) INCLUDE (Title)` จาก IX-02):
@@ -94,8 +94,8 @@ WHERE CreationDate >= 2009-01-01 AND CreationDate < 2010-01-01
 | เงื่อนไข | แถวที่ได้ | Plan | logical reads | CPU time | elapsed |
 |---|---|---|---|---|---|
 | `YEAR(CreationDate) = 2009` | **1,288,974** ✅ ครบ | **Index Scan** ทั้ง index แบบขนาน (Scan count 13) | 22,959 | 2,966 ms | 5,932 ms |
-| `BETWEEN 2009-01-01 AND 2009-12-31` | **1,285,380** ❌ หาย 3,594 แถว | Index Seek เฉพาะช่วง | 7,341 | 812 ms | 5,655 ms |
-| `>= 2009-01-01 AND < 2010-01-01` | 1,288,974 ✅ ครบ | Index Seek เฉพาะช่วง | ~เท่ากับ BETWEEN | ~เท่ากับ BETWEEN | — |
+| `BETWEEN '2009-01-01' AND '2009-12-31'` | **1,285,380** ❌ หาย 3,594 แถว | Index Seek เฉพาะช่วง | 7,341 | 812 ms | 5,655 ms |
+| `>= '2009-01-01' AND < '2010-01-01'` | 1,288,974 ✅ ครบ | Index Seek เฉพาะช่วง | ~เท่ากับ BETWEEN | ~เท่ากับ BETWEEN | — |
 
 **อ่านตัวเลขนี้ให้ถูก:**
 - **`YEAR()` ไม่ได้ "เมิน index ทั้งหมด"** — ยังอ่านจาก index ได้ (เพราะ index ครอบคลุมคอลัมน์ที่ต้องการ) แต่ต้อง **อ่านทั้ง index ทุกแถว** แล้วคำนวณ `YEAR()` ทีละแถว แทนที่จะกระโดดไปเฉพาะช่วงปี 2009 (seek) จึงอ่านมากกว่า ~3 เท่าและใช้ CPU มากกว่า ~3.6 เท่า ถ้า index ไม่ครอบคลุม จะแย่กว่านี้มากเพราะต้อง scan ทั้งตาราง
@@ -521,7 +521,7 @@ WHERE NOT EXISTS (
 - ผลลัพธ์ที่ไม่มี `ORDER BY` ดูเหมือนเรียงตาม PK แต่ **ไม่รับประกัน** (plan ขนาน, ใช้ index อื่น, allocation order scan) ถ้าต้องการลำดับต้องเขียน `ORDER BY`
 - fragmentation % มีผลหลักต่อ range scan ที่อ่านจาก disk; บน SSD และข้อมูลที่อยู่ใน RAM แล้ว ปัญหาที่หนักกว่าคือ **page density ต่ำ** (page มากขึ้น = RAM, I/O, backup มากขึ้น) และ page split ที่เขียน log เพิ่ม
 - ทุก nonclustered index เก็บ clustered key ไว้ด้วย key 16 byte (UUID) จึงทำให้ **ทุก index ใหญ่ขึ้น** เมื่อเทียบกับ `INT` 4 byte หรือ `BIGINT` 8 byte
-- เก็บ UUID เป็น `UNIQUEIDENTIFIER` (16 byte) ห้ามเก็บเป็น `CHAR(36)` / `VARCHAR(36)` (36+ byte, เทียบช้ากว่า) ใน MySQL ใช้ `BINARY(16)` + `UUID_TO_BIN(uuid, 1)` และใน PostgreSQL ใช้ type `uuid`
+- เก็บ UUID เป็น `UNIQUEIDENTIFIER` (16 byte) ห้ามเก็บเป็น `CHAR(36)` / `VARCHAR(36)` (36+ byte, เทียบช้ากว่า) ใน MySQL ใช้ `BINARY(16)` + `UUID_TO_BIN(uuid)` (UUID v7; flag `1` ใช้กับ v1 เท่านั้น, MY-01) และใน PostgreSQL ใช้ type `uuid`
 - ⚠️ SQL Server เรียง `uniqueidentifier` ด้วยไบต์กลุ่มสุดท้ายก่อน **UUID v7 ที่สร้างจากแอปจึงอาจไม่เรียงใน SQL Server** ต้องทดสอบด้วย fragmentation จริง หรือใช้ `NEWSEQUENTIALID()` (ใช้ได้เฉพาะเป็น `DEFAULT`, เรียงต่อเนื่องถึงแค่ตอน restart เครื่อง) ส่วน PostgreSQL / MySQL (`BINARY(16)`) เรียงตามไบต์ ใช้ v7 ได้ตรงๆ
   - คลิป EP.06 วัดให้เห็น (insert ข้อมูลเท่ากัน 4 แบบ): UUID v7 มาตรฐานเก็บใน `uniqueidentifier` → **fragmentation 99.04%, 1,455 pages** (แย่พอๆ กับ v4) · v7 / v1 ที่จัดไบต์ให้เข้ากับวิธีเรียงของ SQL Server → ราว 43–47%, ~1,570 pages · UUID v7 เก็บเป็น `BINARY(16)` → **0.9%, 1,000 pages** ดังนั้นถ้าต้องใช้ v7 ใน SQL Server ให้เก็บเป็น `BINARY(16)` หรือสลับไบต์ให้ตรงกับลำดับการเรียงของ SQL Server แล้ววัด fragmentation ยืนยัน
 - PostgreSQL ไม่มี clustered index ถาวร (ตารางเป็น heap) แต่ B-tree ของ PK ก็ยังกระจัดกระจาย / บวมจาก UUID v4 เหมือนกัน
@@ -529,7 +529,7 @@ WHERE NOT EXISTS (
 **ลบข้อมูลครึ่งตารางแล้ว query ไม่เร็วขึ้น (คลิป Deleted Data / page แหว่ง):** `DELETE` ไม่ได้คืน page ทันที แถวหายไปแต่ **page ยังอยู่และเหลือแถวกระจัดกระจาย** (page density ต่ำ) scan ทั้งตารางจึงยังอ่าน page จำนวนเกือบเท่าเดิม คลิปแสดงว่าหลัง `ALTER INDEX PK_User_Id ON User_Logs REBUILD` query เดิมเหลือ 23,870 logical reads / 155 ms
 - ตรวจด้วย `avg_page_space_used_in_percent` (query ด้านล่าง ใช้โหมด `SAMPLED` / `DETAILED`; โหมด `LIMITED` ไม่คืนค่านี้)
 - ลบก้อนใหญ่ตามช่วงเวลา (log, event) บ่อยๆ → ออกแบบเป็น **partition ตามวันที่** แล้ว `TRUNCATE ... WITH (PARTITIONS ...)` / `DROP` partition แทน `DELETE` (เร็วกว่าและไม่ทิ้ง page แหว่ง) PostgreSQL: `DELETE` ทิ้ง dead tuple รอ `VACUUM` และ `VACUUM` ปกติไม่คืนพื้นที่ให้ OS ใช้ partition + `DROP TABLE` partition เก่าเช่นกัน
-- ลบจำนวนมากใน production ให้ทำ **เป็นรอบละไม่กี่พันแถว** (`DELETE TOP (5000) ... ` วนจนหมด) เพื่อไม่ถือ lock นาน / ไม่ escalate เป็น table lock / ไม่ทำ log โตทีเดียว
+- ลบจำนวนมากใน production ให้ทำ **เป็นรอบละไม่กี่พันแถว** (`DELETE TOP (4000) ... ` วนจนหมด ให้ต่ำกว่าเกณฑ์ lock escalation ~5,000 lock ของ SQL Server, CC-06) เพื่อไม่ถือ lock นาน / ไม่ escalate เป็น table lock / ไม่ทำ log โตทีเดียว
 
 **แนวทางเลือก:**
 1. ค่าเริ่มต้น: `BIGINT IDENTITY` (หรือ `GENERATED ALWAYS AS IDENTITY`) เป็น PK / clustered key
@@ -562,8 +562,8 @@ ORDER BY ips.avg_fragmentation_in_percent DESC;
 | `Location = 'Belgium'` | Index **Scan** (ทั้ง index) | 1,595 |
 
 **กฎเลือกลำดับคอลัมน์:**
-1. คอลัมน์ที่กรองด้วย **เท่ากับ (`=`)** ไว้หน้า ส่วนคอลัมน์ที่กรองด้วย **ช่วง** (`>`, `<`, `BETWEEN`, `LIKE 'x%'`) หรือ `ORDER BY` ไว้ท้าย เพราะหลังคอลัมน์ช่วงแล้ว คอลัมน์ถัดไปจะใช้ seek ไม่ได้ (กลายเป็น residual predicate)
-   - เช่น `WHERE customer_id = @c AND created_at >= @d ORDER BY created_at` ใช้ `(customer_id, created_at)` ไม่ใช่ `(created_at, customer_id)`
+1. ใช้กฎ **ESR: Equality → Sort → Range** — คอลัมน์ที่กรองด้วย `=` ไว้หน้า, ตามด้วยคอลัมน์ใน `ORDER BY` (ถ้าต้องการตัด Sort), แล้วคอลัมน์ที่กรองด้วย **ช่วง** (`>`, `<`, `BETWEEN`, `LIKE 'x%'`) ไว้ท้าย เพราะหลังคอลัมน์ช่วงแล้ว คอลัมน์ถัดไปทั้งใช้ seek ไม่ได้ (residual predicate) และไม่ได้เรียงตามลำดับ (ต้อง Sort) รายละเอียดและข้อแลกเปลี่ยนดูหัวข้อ "สูตร เท่า → ช่วง → เรียง → หยิบ" ด้านล่าง
+   - เช่น `WHERE customer_id = @c AND created_at >= @d ORDER BY created_at` ใช้ `(customer_id, created_at)` (ช่วงกับ ORDER BY เป็นคอลัมน์เดียวกัน) ไม่ใช่ `(created_at, customer_id)`
 2. เลือกคอลัมน์หน้าให้ตรงกับ **query ที่มีอยู่จริงมากที่สุด** แทนกฎ "selectivity สูงไว้หน้า" แบบตายตัว เมื่อเป็นเงื่อนไข `=` ทั้งคู่ ลำดับแทบไม่มีผลต่อ seek นั้น แต่มีผลกับ query อื่นที่กรองแค่คอลัมน์เดียว
 3. index `(A, B)` ทำให้ index `(A)` เดี่ยวซ้ำซ้อน (ลบได้หลังตรวจ IX-08) แต่ **ไม่** ครอบคลุม query ที่กรอง `B` อย่างเดียว ซึ่งต้องมี `(B)` หรือ `(B, A)` ของตัวเอง
 4. คอลัมน์ที่แค่อยู่ใน SELECT ให้ใส่ `INCLUDE` (IX-02) ไม่ต้องเป็น key
@@ -608,7 +608,7 @@ SELECT i.name, ips.index_level, ips.page_count, ips.record_count
 FROM sys.dm_db_index_physical_stats(DB_ID(), OBJECT_ID('dbo.Orders'), NULL, NULL, 'DETAILED') ips
 JOIN sys.indexes i ON i.object_id = ips.object_id AND i.index_id = ips.index_id
 ORDER BY i.name, ips.index_level DESC;
--- PostgreSQL: CREATE EXTENSION pageinspect; SELECT * FROM bt_metap('orders_pkey');  -- level = ความลึก
+-- PostgreSQL: CREATE EXTENSION pageinspect; SELECT * FROM bt_metap('orders_pkey');  -- level = ระดับของ root (leaf = 0) → ความลึก = level + 1
 ```
 
 **แก้ความเข้าใจผิดที่พบบ่อย:** `DBCC IND` / `DBCC PAGE` ที่คลิปใช้เป็นคำสั่ง undocumented ใช้เรียนรู้ใน dev ได้ แต่อย่ารันบน production ให้ใช้ `sys.dm_db_database_page_allocations` / `sys.dm_db_page_info` (SQL Server 2019+) แทน

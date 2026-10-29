@@ -85,7 +85,7 @@ WHERE status = 'pending' ORDER BY created_at;
 
 ## CC-06 — Lock ที่คนมักไม่รู้ว่าเกิด
 
-- **Lock escalation (SQL Server):** ล็อกแถวเกินประมาณ 5,000 lock ในคำสั่งเดียว → อาจยกระดับเป็น table lock → ทั้งตารางค้าง → ทำงานก้อนใหญ่เป็นรอบ (`DELETE TOP (5000)` วน, IX-10)
+- **Lock escalation (SQL Server):** ล็อกแถวเกินประมาณ 5,000 lock ในคำสั่งเดียว → อาจยกระดับเป็น table lock → ทั้งตารางค้าง → ทำงานก้อนใหญ่เป็นรอบที่ต่ำกว่าเกณฑ์ชัดเจน (`DELETE TOP (4000)` วน และนับ lock ของ index ด้วย, IX-10)
 - **Lock queue ของ DDL (PostgreSQL):** `ALTER TABLE` ที่รอ `ACCESS EXCLUSIVE` อยู่ในคิว จะ **บล็อกทุกคำสั่งที่มาหลังจากนั้น แม้แต่ SELECT** → ตั้ง `SET lock_timeout = '3s'` ก่อนรัน DDL บน production แล้ว retry (MG-02)
 - **Idle in transaction:** แอปเปิด transaction แล้วลืม commit / เกิด exception แล้วไม่ rollback → ถือ lock ไว้และ (PostgreSQL) ทำให้ VACUUM เก็บแถวเก่าไม่ได้ → ตั้ง `idle_in_transaction_session_timeout` และใช้ `using` / `try-finally`
 - **FK ไม่มี index:** ลบ / แก้ key ของแถวแม่ต้อง scan ตารางลูกและล็อกนาน (IX-09)

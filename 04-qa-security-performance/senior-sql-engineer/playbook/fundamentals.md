@@ -93,5 +93,5 @@ SELECT * FROM (
 | `FOREIGN KEY` | ข้อมูลกำพร้า + ต้องมี index ฝั่งลูก (IX-09) |
 | Exclusion constraint (PostgreSQL) | ช่วงเวลาทับกัน เช่น ห้องประชุม / คิวจองซ้อน: `EXCLUDE USING gist (room_id WITH =, during WITH &&)` (ต้องใช้ extension `btree_gist`) |
 
-- เลือก `ON DELETE` ให้ตั้งใจ: `RESTRICT` (default ที่ปลอดภัย), `CASCADE` (ลบลูกตาม: ระวังลบข้อมูลเป็นล้านแถวโดยไม่ตั้งใจ), `SET NULL`
+- เลือก `ON DELETE` ให้ตั้งใจ: `NO ACTION` (default ของ PostgreSQL / SQL Server / MySQL ทำงานคล้าย `RESTRICT` ต่างกันเมื่อ constraint เป็น deferrable ใน PostgreSQL), `CASCADE` (ลบลูกตาม: ระวังลบข้อมูลเป็นล้านแถวโดยไม่ตั้งใจ), `SET NULL`
 - Soft delete (`deleted_at`) ทำให้ `UNIQUE (email)` ชนกับแถวที่ลบไปแล้ว → partial / filtered unique index `WHERE deleted_at IS NULL` (IX-07)

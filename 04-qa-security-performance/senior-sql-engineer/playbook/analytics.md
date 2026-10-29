@@ -21,15 +21,18 @@ CREATE TABLE sales_daily (
   orders int NOT NULL, revenue_satang bigint NOT NULL,
   PRIMARY KEY (shop_id, day)
 );
+BEGIN;
+DELETE FROM sales_daily WHERE day >= @from_day AND day < @to_day;   -- days whose orders were all refunded must disappear too
 INSERT INTO sales_daily (shop_id, day, orders, revenue_satang)
 SELECT shop_id, (created_at AT TIME ZONE 'Asia/Bangkok')::date, count(*), sum(total_satang)
 FROM orders
 WHERE created_at >= @from AND created_at < @to AND status = 'paid'
-GROUP BY 1, 2
-ON CONFLICT (shop_id, day) DO UPDATE
-  SET orders = EXCLUDED.orders, revenue_satang = EXCLUDED.revenue_satang;   -- recompute the window, idempotent
+GROUP BY 1, 2;
+COMMIT;   -- recompute the whole window atomically: idempotent and removes stale groups
 ```
 - dashboard อ่านจากตารางสรุป (หลักพันแถว) แทน `GROUP BY` บน orders หลายล้านแถวทุกครั้งที่เปิดหน้า
+- ⚠️ upsert อย่างเดียว (`ON CONFLICT DO UPDATE`) **ไม่ลบกลุ่มที่หายไป** (วันที่ทุกออเดอร์ถูกคืนเงิน → ยอดเก่าค้าง) จึงต้อง DELETE ช่วงนั้นแล้ว INSERT ใหม่ใน transaction เดียว
+- `@from_day` / `@to_day` ต้องตรงกับ `@from` / `@to` ตามขอบวันเวลาไทย
 - คำนวณซ้ำช่วงล่าสุด (เช่น 2–3 วันย้อนหลัง) ทุกรอบ เผื่อข้อมูลมาช้า / มีการแก้ไข / คืนเงิน และให้ job รันซ้ำได้ (idempotent)
 - ระบุ timezone ของ "วัน" ให้ชัด (DM-07)
 

@@ -44,7 +44,7 @@
 
 ## OP-04 — Timeout และการป้องกันตัวเองของระบบ
 
-- ตั้ง timeout ทุกชั้นให้สอดคล้อง: HTTP request < command timeout ของแอป < `statement_timeout` ของ database (ไม่เช่นนั้นผู้ใช้ไปแล้วแต่ query ยังรันกิน resource)
+- ตั้ง timeout ให้ **ชั้นในสุดหมดเวลาก่อน**: `statement_timeout` ของ database ≤ command timeout ของแอป < HTTP request timeout (ไม่เช่นนั้นผู้ใช้ / แอปเลิกรอไปแล้วแต่ query ยังรันกิน connection และ CPU)
 - `statement_timeout` / `lock_timeout` / `idle_in_transaction_session_timeout` ตั้งต่อ role (role ของแอป, role ของ migration, role ของรายงานใช้ค่าต่างกัน)
 - Retry เฉพาะ error ที่ retry ได้ (serialization failure `40001`, deadlock `40P01` / 1205, connection หลุด) ด้วย backoff + jitter และเฉพาะงานที่ idempotent
 - จำกัด query รายงานหนักๆ ไม่ให้รันบน primary ช่วงพีก (replica, ตาราง summary, หรือช่วงกลางคืน)

@@ -27,7 +27,7 @@
 | | IX-08 | Index มากเกินไป = ต้นทุนตอนเขียน (insert reads ต่อแถว 8 → ~46) + จัดกลุ่ม index จาก usage stats (ลูกรัก / ใช้หนัก / ขยะ) + หา query ที่ควรได้ index (dm_exec_query_stats, pg_stat_statements) + วิธีหา index ที่ไม่ได้ใช้ / ซ้ำซ้อน (SQL Server DMV, pg_stat_user_indexes) และเงื่อนไขก่อนลบ |
 | | IX-09 | สร้าง index บนคอลัมน์ FK ฝั่งลูก (SQL Server / PostgreSQL ไม่สร้างให้) — ~800,000 → 49 reads, ~5 วินาที → 53 ms · ลบแถวแม่ช้าเพราะ FK ไม่มี index · query หา FK ที่ไม่มี index |
 | | IX-10 | เลือก clustered key: IDENTITY vs UUID v4 (fragmentation 99.92%, 1,458 pages) vs v7 / NEWSEQUENTIALID (0.9%, 1,080 pages), page split, ไม่มี ORDER BY = ไม่รับประกันลำดับ, UUID v7 ใน uniqueidentifier ไม่เรียง (99.04%) vs BINARY(16) (0.9%) · ลบครึ่งตารางแล้วไม่เร็วขึ้น (page density ต่ำ) → rebuild / partition + truncate / ลบเป็นรอบ |
-| | IX-11 | Composite index ลำดับคอลัมน์ (leftmost prefix): (DisplayName, Location) กรองทั้งคู่ 4 reads seek vs กรอง Location อย่างเดียว 1,595 reads scan · `=` ไว้หน้า ช่วง / ORDER BY ไว้ท้าย · skip scan · กฎ ESR (Equality → Sort → Range) แก้สูตร เท่า→ช่วง→เรียง→หยิบ, DESC ใน index ไม่จำเป็นเมื่อทิศเดียว, index สำหรับ JOIN + ช่วงวันที่, queue + SKIP LOCKED |
+| | IX-11 | Composite index ลำดับคอลัมน์ (leftmost prefix): (DisplayName, Location) กรองทั้งคู่ 4 reads seek vs กรอง Location อย่างเดียว 1,595 reads scan · กฎ ESR: `=` → ORDER BY → ช่วง · skip scan · กฎ ESR (Equality → Sort → Range) แก้สูตร เท่า→ช่วง→เรียง→หยิบ, DESC ใน index ไม่จำเป็นเมื่อทิศเดียว, index สำหรับ JOIN + ช่วงวันที่, queue + SKIP LOCKED |
 | | IX-12 | โครงสร้าง B+Tree: root / intermediate / leaf, seek = reads เท่าความลึก (1,245 แถว → 3 ชั้น → 3 reads), leaf ของ clustered vs nonclustered, key กว้างทำ tree ใหญ่, ดูโครงสร้างด้วย DMV |
 | [schema-design.md](schema-design.md) | SD-01 | เลือก data type ให้พอดี: ปัญหาจริงของ MAX (index key, memory grant), PostgreSQL ต่างกัน, เบอร์โทร / เงิน / สถานะ, BIT ขังไว้ 2 ค่า + MAX memory grant 823 → 43 MB, VARCHAR vs NVARCHAR (VAR = ความยาวจริง + 2 byte), ไม่เก็บอายุ, INT vs BIGINT, FLOAT 250.0000000000000300 vs DECIMAL + กติกาปัด |
 | | SD-02 | อย่าเก็บไฟล์ / base64 ในตารางหลัก: LOB page (lob logical reads 22,970), base64 บวม 33%, เก็บ object key + metadata, signed URL, ถ้าจำเป็นใช้ VARBINARY แยกตาราง |
@@ -102,10 +102,22 @@
 | | MY-03 | กับดัก: implicit conversion, charset / collation, utf8mb4, ONLY_FULL_GROUP_BY, strict mode, LIMIT offset |
 | | MY-04 | Repeatable Read + gap lock, SKIP LOCKED, ON DUPLICATE KEY, MDL |
 | | MY-05 | buffer pool, slow log, sys schema, histogram |
+| [testing.md](testing.md) | TS-01 | ใช้ database จริงใน test (Testcontainers / supabase start) ไม่ใช่ mock / SQLite |
+| | TS-02 | ข้อมูลทดสอบกรณีขอบ: NULL, fan-out, ค่าซ้ำ, ขอบเวลา, ภาษาไทย, tenant อื่น |
+| | TS-03 | ทดสอบ RLS / สิทธิ์ด้วย role จริง (pgTAP, supabase test db) |
+| | TS-04 | ทดสอบ concurrency: ยิงพร้อมกัน ตรวจ invariant, idempotency |
+| | TS-05 | ทดสอบ migration: CI จาก database ว่าง, ข้อมูลขนาดจริง, squawk |
+| | TS-06 | กัน performance ถอยหลัง: plan, จำนวน query ต่อ request, pg_stat_statements |
+| [security.md](security.md) | SE-01 | Injection ที่ parameter กันไม่ได้: ชื่อคอลัมน์ / ORDER BY → allowlist, raw query ของ ORM, array parameter |
+| | SE-02 | Dynamic SQL: format(%I) + USING / QUOTENAME + sp_executesql |
+| | SE-03 | SECURITY DEFINER: search_path, ตรวจสิทธิ์ข้างใน, REVOKE จาก PUBLIC / anon |
+| | SE-04 | รั่วทางอ้อม: error message, คอลัมน์เกิน, mass assignment, log / backup, การนับ |
+| | SE-05 | เก็บข้อมูลลับ: password hash, token hash, column encryption + key นอก DB, ไม่เก็บบัตรเครดิต |
+| | SE-06 | สิทธิ์ขั้นต่ำ, column privilege / view, audit, ตารางที่ลืมเปิด RLS |
 
 ## วิธีเพิ่มบทเรียนใหม่
 
 1. เลือกไฟล์ตามหัวข้อ ถ้าไม่มีไฟล์ที่เหมาะ ให้สร้างไฟล์ใหม่ (เช่น `transactions.md`, `concurrency.md`, `pagination.md`) และเพิ่มในตาราง `14.5` ของ `SKILL.md`
-2. ใช้รหัสต่อจากเดิม (AP-14, IX-13, SD-04, EP-03, FD-07, CC-07, MG-07, PG-08, OP-07, DM-09, IN-08, OR-08, SR-06, AN-06, MY-06 …) และเพิ่มแถวในตารางด้านบน
+2. ใช้รหัสต่อจากเดิม (AP-14, IX-13, SD-04, EP-03, FD-07, CC-07, MG-07, PG-08, OP-07, DM-09, IN-08, OR-08, SR-06, AN-06, MY-06, TS-07, SE-07 …) และเพิ่มแถวในตารางด้านบน
 3. แต่ละบทต้องมี: ❌ ตัวอย่างที่ผิด · ✅ วิธีแก้ · **ทำไม** · **ข้อยกเว้น / ข้อควรระวัง** · คำสั่งของทั้ง SQL Server และ PostgreSQL ถ้าต่างกัน
 4. ตรวจความถูกต้องก่อนใส่ (คลิปสั้นมักตัดข้อยกเว้นออก) และห้ามขัดกับ CORE PRINCIPLE ใน `SKILL.md`

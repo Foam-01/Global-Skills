@@ -379,6 +379,8 @@ Microservices
 
 # 12 — DATABASE SECURITY
 
+รายละเอียด: [playbook/security.md](playbook/security.md)
+
 ตรวจสอบ:
 - SQL Injection
 - Parameterized Query
@@ -514,6 +516,8 @@ After
 | [playbook/search.md](playbook/search.md) | ช่องค้นหา, ค้นคำบางส่วน, ค้นภาษาไทย, Full-Text Search |
 | [playbook/analytics.md](playbook/analytics.md) | dashboard, รายงาน, ตารางสรุป, query aggregate ข้อมูลเยอะ |
 | [playbook/mysql.md](playbook/mysql.md) | โปรเจกต์ใช้ MySQL / MariaDB |
+| [playbook/testing.md](playbook/testing.md) | เขียน / รีวิว test ของ query, RLS, concurrency, migration |
+| [playbook/security.md](playbook/security.md) | SQL injection, dynamic SQL, SECURITY DEFINER, ข้อมูลรั่ว, เก็บรหัสผ่าน / ข้อมูลลับ |
 
 เมื่อใช้คำแนะนำจาก playbook ให้อ้างรหัสหัวข้อ (เช่น AP-03, IX-02) ในรายงาน
 
