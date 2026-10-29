@@ -203,6 +203,9 @@ EXPLAIN ANALYZE
 
 # 05 — TRANSACTION
 
+รายละเอียด: [playbook/concurrency.md](playbook/concurrency.md)
+
+
 ตรวจสอบ:
 - BEGIN
 - COMMIT
@@ -318,6 +321,9 @@ Cursor / Keyset Pagination
 
 # 10 — POSTGRESQL
 
+รายละเอียด: [playbook/postgres.md](playbook/postgres.md)
+
+
 สำหรับ PostgreSQL ให้พิจารณา:
 - EXPLAIN ANALYZE
 - Query Planner
@@ -340,6 +346,9 @@ Cursor / Keyset Pagination
 ---
 
 # 11 — DATABASE ARCHITECTURE
+
+รายละเอียด: [playbook/operations.md](playbook/operations.md)
+
 
 วิเคราะห์ความเหมาะสมของ:
 - Single Database
@@ -387,6 +396,9 @@ Microservices
 ---
 
 # 13 — DATABASE MIGRATION
+
+รายละเอียด: [playbook/migrations.md](playbook/migrations.md)
+
 
 เมื่อต้องแก้ Schema หรือ Migration ให้ตรวจสอบ:
 - Schema Change
@@ -491,6 +503,11 @@ After
 | [playbook/indexing.md](playbook/indexing.md) | จะสร้าง / เลือก / ตรวจ index หรือวัดผล query (filter index, covering INCLUDE, ช่วงวันที่, logical reads, LIKE %คำ%, query คืนข้อมูลหลายล้านแถว, เลือก PK / UUID) |
 | [playbook/schema-design.md](playbook/schema-design.md) | ออกแบบตาราง / เลือก data type / รีวิว migration ที่สร้างหรือแก้คอลัมน์ / เก็บไฟล์หรือรูป |
 | [playbook/execution-plans.md](playbook/execution-plans.md) | query ช้า ต้องหาสาเหตุ หรือยืนยันผลการแก้ด้วย execution plan |
+| [playbook/fundamentals.md](playbook/fundamentals.md) | เขียน / รีวิว query ที่ผลอาจผิดแบบเงียบๆ (NULL, JOIN, GROUP BY, window function, normalization, constraint) |
+| [playbook/concurrency.md](playbook/concurrency.md) | transaction, isolation level, lost update, race condition, deadlock, queue / job table, lock ค้าง |
+| [playbook/migrations.md](playbook/migrations.md) | เปลี่ยน schema / สร้าง index / backfill บน production ที่มีข้อมูลแล้ว |
+| [playbook/postgres.md](playbook/postgres.md) | งาน PostgreSQL / Supabase: อ่าน EXPLAIN, VACUUM / bloat, ชนิด index, JSONB, statistics, RLS, pooling |
+| [playbook/operations.md](playbook/operations.md) | backup / restore, monitoring, replica, timeout, สิทธิ์, การ scale |
 
 เมื่อใช้คำแนะนำจาก playbook ให้อ้างรหัสหัวข้อ (เช่น AP-03, IX-02) ในรายงาน
 

@@ -34,10 +34,41 @@
 | | SD-03 | ข้อมูล append-only มหาศาล: กรณีศึกษา Discord (partition key (channel_id, bucket), Snowflake ID, request coalescing) → SQL: partition ตามเวลา, drop partition แทน DELETE, ID เรียงตามเวลา, ข้อควรระวัง |
 | [execution-plans.md](execution-plans.md) | EP-01 | เปิดและอ่าน execution plan: แถวจริง vs ประเมิน (34 of 1), scan / seek / lookup, คำเตือน, Cost % เป็นค่าประเมิน, Missing Index |
 | | EP-02 | แยกกล่องใน plan 4 กลุ่ม + Scan vs Seek (Index Scan ≠ อ่านทั้งตาราง): Nested Loops / Hash / Merge Join ใช้เมื่อไหร่, คำเตือนที่พบบ่อย (implicit conversion, spill, no join predicate), Missing Index ไม่ใช่คำเตือน, ไม่ใช่ทุก scan ต้องเป็น seek |
+| [fundamentals.md](fundamentals.md) | FD-01 | ลำดับประมวลผลเชิงตรรกะ (FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT) |
+| | FD-02 | NULL / ตรรกะสามค่า: `<>` ไม่คืน NULL, aggregate ข้าม NULL, UNIQUE + NULL ต่างกันแต่ละ DB, การเรียง NULL |
+| | FD-03 | JOIN ทุกแบบ + semi / anti join, fan-out, LATERAL / CROSS APPLY สำหรับ N รายการต่อกลุ่ม |
+| | FD-04 | GROUP BY, FILTER / CASE, window function, top-1 ต่อกลุ่ม, frame RANGE vs ROWS |
+| | FD-05 | Normalization แบบใช้งานจริง, ค่าที่ต้องแช่แข็ง (ราคา ณ วันสั่ง), denormalize เมื่อวัดแล้ว, EAV / JSON |
+| | FD-06 | Constraint เป็นด่านสุดท้าย (UNIQUE กัน race, CHECK, FK, exclusion constraint), ON DELETE, soft delete + partial unique |
+| [concurrency.md](concurrency.md) | CC-01 | Isolation level ของ PostgreSQL / SQL Server / MySQL ต่างกัน, retry 40001, RCSI vs NOLOCK |
+| | CC-02 | Lost update: atomic UPDATE, optimistic version, FOR UPDATE / UPDLOCK, serializable |
+| | CC-03 | เช็กก่อน insert = race → UNIQUE + upsert (ON CONFLICT, MERGE + HOLDLOCK) |
+| | CC-04 | Deadlock: ลำดับการเข้าถึง, transaction สั้น, index, retry |
+| | CC-05 | Queue table: SKIP LOCKED / READPAST, advisory lock / sp_getapplock |
+| | CC-06 | Lock ที่ไม่รู้ตัว: lock escalation, DDL lock queue + lock_timeout, idle in transaction |
+| [migrations.md](migrations.md) | MG-01 | Expand → migrate → contract, rename อย่างปลอดภัย, rollback |
+| | MG-02 | Lock ของ DDL ใน PostgreSQL (ตรวจกับเอกสาร): ADD COLUMN default, ALTER TYPE rewrite, SET NOT NULL ผ่าน CHECK NOT VALID, FK NOT VALID + VALIDATE, CREATE INDEX CONCURRENTLY + INVALID index, lock queue |
+| | MG-03 | SQL Server: ONLINE / RESUMABLE / WAIT_AT_LOW_PRIORITY, WITH NOCHECK = untrusted |
+| | MG-04 | MySQL: ALGORITHM=INSTANT/INPLACE, gh-ost / pt-osc |
+| | MG-05 | Backfill เป็นรอบตาม key, รันซ้ำได้, bloat, ANALYZE หลัง migrate |
+| | MG-06 | Checklist ก่อนรัน migration บน production |
+| [postgres.md](postgres.md) | PG-01 | อ่าน EXPLAIN (ANALYZE, BUFFERS): rows vs actual, loops, Buffers, Heap Fetches, external sort |
+| | PG-02 | MVCC / VACUUM / bloat (ตรวจกับเอกสาร): VACUUM ไม่คืนพื้นที่ให้ OS, VACUUM FULL = ACCESS EXCLUSIVE → pg_repack, สิ่งที่ขวาง vacuum, HOT / fillfactor, XID wraparound |
+| | PG-03 | ชนิด index: B-tree / GIN / GiST / BRIN, partial, expression, INCLUDE |
+| | PG-04 | JSONB: @> + jsonb_path_ops, expression / generated column, เมื่อไหร่ควรเป็นคอลัมน์จริง |
+| | PG-05 | Statistics: ANALYZE, SET STATISTICS, CREATE STATISTICS (คอลัมน์สัมพันธ์กัน), generic plan, volatility |
+| | PG-06 | RLS ของ Supabase (ตรวจกับเอกสาร): `(select auth.uid())`, TO authenticated, index คอลัมน์ policy, SECURITY DEFINER + search_path, service_role, security_invoker view |
+| | PG-07 | Connection / pooling: transaction vs session mode, ขนาด pool, timeout |
+| [operations.md](operations.md) | OP-01 | Backup / PITR / RPO / RTO, ซ้อม restore, replica ไม่ใช่ backup |
+| | OP-02 | Monitoring: ตัวชี้วัดและ view ที่ต้องดู (PG / SQL Server), slow query log, alert จากอาการ |
+| | OP-03 | Read replica: lag, read-your-own-writes, ห้ามตัดสินใจเขียนจาก replica, slot ค้าง |
+| | OP-04 | Timeout ทุกชั้น, retry เฉพาะ error ที่ retry ได้ |
+| | OP-05 | สิทธิ์ / role แยก, ไม่เปิด port, secret, allowlist ORDER BY |
+| | OP-06 | ลำดับการ scale: query → pool → cache → replica → vertical → partition → shard |
 
 ## วิธีเพิ่มบทเรียนใหม่
 
 1. เลือกไฟล์ตามหัวข้อ ถ้าไม่มีไฟล์ที่เหมาะ ให้สร้างไฟล์ใหม่ (เช่น `transactions.md`, `concurrency.md`, `pagination.md`) และเพิ่มในตาราง `14.5` ของ `SKILL.md`
-2. ใช้รหัสต่อจากเดิม (AP-14, IX-13, SD-04, EP-03 …) และเพิ่มแถวในตารางด้านบน
+2. ใช้รหัสต่อจากเดิม (AP-14, IX-13, SD-04, EP-03, FD-07, CC-07, MG-07, PG-08, OP-07 …) และเพิ่มแถวในตารางด้านบน
 3. แต่ละบทต้องมี: ❌ ตัวอย่างที่ผิด · ✅ วิธีแก้ · **ทำไม** · **ข้อยกเว้น / ข้อควรระวัง** · คำสั่งของทั้ง SQL Server และ PostgreSQL ถ้าต่างกัน
 4. ตรวจความถูกต้องก่อนใส่ (คลิปสั้นมักตัดข้อยกเว้นออก) และห้ามขัดกับ CORE PRINCIPLE ใน `SKILL.md`
