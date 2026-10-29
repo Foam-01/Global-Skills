@@ -568,6 +568,15 @@ ORDER BY ips.avg_fragmentation_in_percent DESC;
 - Oracle (index skip scan), MySQL 8.0.13+ (skip scan) และ PostgreSQL 18 (skip scan บน B-tree) ข้ามคอลัมน์หน้าได้ในบางกรณีเมื่อคอลัมน์หน้ามีค่าน้อย แต่ SQL Server ไม่มี feature นี้ อย่าออกแบบโดยพึ่ง skip scan
 - MySQL / PostgreSQL ใช้หลัก leftmost prefix เหมือนกัน
 
+**สูตร "เท่า → ช่วง → เรียง → หยิบ" (โพสต์ devhopsss Index bible 6 โจทย์) + ข้อแก้:**
+- โพสต์ให้เรียง key เป็น `=` → ช่วง → `ORDER BY` / `GROUP BY` → `INCLUDE` คอลัมน์ที่ SELECT ข้อนี้ **ผิดเมื่อมีทั้งช่วงและ ORDER BY คนละคอลัมน์**: หลังคอลัมน์ช่วง ข้อมูลไม่ได้เรียงตามคอลัมน์ถัดไปทั้งก้อน database ยังต้อง Sort ใช้กฎ **ESR (Equality → Sort → Range)** แทน
+  - `WHERE CustomerID = @c AND OrderDate >= @d ORDER BY Amount` → `(CustomerID, Amount, OrderDate)` ถ้าอยากตัด Sort (แลกกับต้องอ่านแถวช่วงที่ไม่ตรงทิ้ง) หรือ `(CustomerID, OrderDate)` ถ้าช่วงแคบมากและ sort ผลไม่กี่แถวถูกกว่า → วัดทั้งสองแบบ
+  - ถ้า ORDER BY คอลัมน์เดียวกับช่วง (`OrderDate`) ก็คือ `(CustomerID, OrderDate)` ตามโพสต์ ถูกต้อง
+- โจทย์ `WHERE Status = 'PAID' ORDER BY OrderDate DESC` + `TOP (20)` → `(Status, OrderDate) INCLUDE (OrderID, Amount)` ถูก: seek ไปที่ PAID แล้วอ่าน 20 แถวแรกตามลำดับ ไม่มี Sort · แต่ **ไม่จำเป็นต้องใส่ `DESC` ใน index** เมื่อเรียงทิศเดียว เพราะ SQL Server / PostgreSQL scan ถอยหลังได้ (DESC จำเป็นเมื่อ ORDER BY ผสมทิศ เช่น `a ASC, b DESC`; SQL Server scan ถอยหลังทำแบบขนานไม่ได้)
+- โจทย์ JOIN `Orders o JOIN Customers c ON c.CustomerID = o.CustomerID WHERE o.OrderDate >= @from` ที่ให้ index `(CustomerID, OrderDate)`: ช่วยเมื่อ plan เป็น Nested Loops จาก Customers ไป Orders ทีละลูกค้า แต่ถ้าเงื่อนไขหลักคือ **ช่วงวันที่ทั้งตาราง** index ที่เหมาะกว่ามักเป็น `(OrderDate) INCLUDE (CustomerID)` แล้ว Hash Join → เปิด plan ดูว่า join แบบไหนก่อนเลือก (EP-02) และยังต้องมี index บน FK ตาม IX-09 อยู่ดี
+- คอลัมน์ clustered key (เช่น `OrderID`) ติดอยู่ใน nonclustered index ทุกตัวอยู่แล้ว ไม่ต้อง INCLUDE ซ้ำ
+- ตาราง queue (`WHERE ProcessedDate IS NULL ORDER BY CreatedDate`, 50 ล้านแถว ค้างแค่ 200) → filtered index `(CreatedDate) WHERE ProcessedDate IS NULL` ดู IX-07 · ระวัง `INCLUDE (Payload)` ถ้า payload ใหญ่ และ worker หลายตัวต้องหยิบงานแบบไม่ชนกัน (`UPDLOCK, READPAST` ใน SQL Server / `FOR UPDATE SKIP LOCKED` ใน PostgreSQL)
+
 ---
 
 ## IX-12 — โครงสร้าง B+Tree: ทำไม seek ใช้ reads เท่าจำนวนชั้น
