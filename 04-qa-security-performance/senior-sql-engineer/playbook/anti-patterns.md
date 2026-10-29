@@ -179,3 +179,52 @@ const { _sum } = await prisma.order.aggregate({
 - **ระวัง LINQ / ORM ที่ดูเหมือนกรองใน database แต่จริงไม่ใช่:** เช่นเรียก `.ToList()` / `AsEnumerable()` ก่อน `.Where()` ใน EF Core หรือใช้ฟังก์ชันที่ ORM แปลงเป็น SQL ไม่ได้ ทำให้ดึงทั้งตารางมากรองในหน่วยความจำ
 - **ข้อยกเว้น:** logic ที่เขียนใน SQL ไม่ได้หรือซับซ้อนมาก ทำในแอปได้ แต่ให้ database กรองให้เหลือน้อยที่สุดก่อน
 - **เมื่อรีวิว:** `findMany()` / `SELECT *` ที่ไม่มี `where` / `take` บนตารางที่โตได้ ตามด้วย `.filter` / `.reduce` / ลูปในแอป → แจ้งเป็นปัญหา performance (Medium–High ตามขนาดตาราง)
+
+---
+
+## AP-08 — Pagination ด้วย `OFFSET` หน้าลึกๆ → Keyset (Seek) Pagination
+
+**ปัญหา:** `OFFSET n ROWS FETCH NEXT k ROWS ONLY` (หรือ `LIMIT k OFFSET n`) ไม่ได้ "กระโดด" ไปแถวที่ n database ต้อง **อ่านแล้วทิ้ง n แถวแรกทุกครั้ง** หน้า 1 เร็ว แต่หน้า 10,000 อ่านเป็นหมื่นๆ แถวเพื่อส่งคืน 20 แถว งานจึงโตตามความลึกของหน้า
+
+```sql
+-- ❌ หน้าลึก = อ่านทิ้ง (@Page-1)*@Size แถว
+SELECT Id, Title, Score FROM Posts
+ORDER BY Id
+OFFSET (@Page - 1) * @Size ROWS FETCH NEXT @Size ROWS ONLY;
+
+-- ✅ Keyset: จำ key สุดท้ายของหน้าก่อน แล้ว seek ต่อจากตรงนั้น (ใช้ B+Tree ตรงๆ, IX-12)
+SELECT TOP (@Size) Id, Title, Score FROM Posts
+WHERE Id > @LastId
+ORDER BY Id;
+```
+
+**เรียงตามคอลัมน์ที่ไม่ unique (เช่น ProductName, CreatedAt):** ต้องมี tie-breaker ที่ unique ต่อท้ายเสมอ ไม่เช่นนั้นแถวที่ค่าเท่ากันจะหายหรือซ้ำระหว่างหน้า
+
+```sql
+-- PostgreSQL / MySQL 8: row value comparison
+WHERE (product_name, product_id) > (@LastName, @LastId)
+ORDER BY product_name, product_id
+LIMIT @Size;
+
+-- SQL Server (ไม่มี row value comparison)
+WHERE ProductName > @LastName
+   OR (ProductName = @LastName AND ProductID > @LastId)
+ORDER BY ProductName, ProductID;
+-- index: (ProductName, ProductID) + INCLUDE คอลัมน์ที่แสดง (IX-02, IX-11)
+```
+
+**เลือกใช้แบบไหน:**
+
+| | OFFSET | Keyset |
+|---|---|---|
+| กระโดดไปหน้า N ตรงๆ | ✅ | ❌ (ได้แค่ ถัดไป / ก่อนหน้า) |
+| ต้นทุนหน้าลึก | โตตาม N | คงที่ (seek) |
+| ข้อมูลถูก insert / delete ระหว่างเปิดดู | แถวเลื่อน → ซ้ำ / หาย | เสถียร |
+| เหมาะกับ | admin table ข้อมูลไม่มาก, หน้าตื้นๆ | feed, infinite scroll, API cursor, export ข้อมูลทั้งตาราง |
+
+**สิ่งที่ต้องแก้ / เสริมจากคลิป (devhopsss B+Tree EP.07 + Q&A pagination):**
+- ต้องมี `ORDER BY` เสมอ (ทั้งสองแบบ) และ `WHERE Id > @LastId` ใช้ได้เพราะ `Id` unique + มี index; ถ้า ID มีช่องโหว่ (ลบแถว) keyset ยังถูกต้อง ไม่ต้องกังวล
+- ใช้ index ที่ตรงกับ `ORDER BY` เท่านั้น ถ้าเรียงตามคอลัมน์ที่ไม่มี index, keyset ก็ต้อง sort ทั้งตารางเหมือนกัน
+- ส่ง cursor ให้ client แบบ opaque (เช่น base64 ของ `{name, id}`) แทนการให้ client ส่ง SQL ค่าเอง และตรวจ input ทุกครั้ง
+- `COUNT(*)` เพื่อแสดง "ทั้งหมด N หน้า" บนตารางใหญ่ก็แพงพอๆ กับ scan; พิจารณาแสดงแค่ "ถัดไป" หรือใช้ค่าประมาณ
+- ถ้าจำเป็นต้องใช้ OFFSET หน้าลึก ลดต้นทุนด้วย "deferred join": หา key ด้วย OFFSET บน index แคบๆ ก่อน แล้วค่อย JOIN กลับไปดึงคอลัมน์ที่เหลือ
