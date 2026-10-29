@@ -108,6 +108,17 @@ WHERE CreationDate >= 2009-01-01 AND CreationDate < 2010-01-01
 
 **ตัวอย่างที่ 2 — `YEAR()` + `MONTH()` (คลิป B+Tree EP.05, `Users`, index `(LastAccessDate)`):** `WHERE LastAccessDate >= '2018-08-01' AND LastAccessDate < '2018-09-01'` ได้ 66,988 แถว ด้วย Index Seek **682 reads** (ประเมินตรง 66,988 of 66,988) ส่วน `YEAR(LastAccessDate) = 2018 AND MONTH(LastAccessDate) = 8` ต้อง scan ทั้ง index และประเมินจำนวนแถวผิดด้วย เพราะ optimizer ใช้ statistics ของคอลัมน์ที่ถูกครอบด้วยฟังก์ชันไม่ได้
 
+**ตารางเขียนใหม่ให้ SARGable (จากคลิป B+Tree EP.06 และโพสต์ Non-SARGable vs SARGable + ข้อแก้):**
+
+| ❌ Non-SARGable | ✅ SARGable | ต้องระวัง |
+|---|---|---|
+| `LEFT(code, 2) = 'CA'` / `SUBSTRING(code,1,2) = 'CA'` | `code LIKE 'CA%'` | prefix เท่านั้น ถ้าค่าที่ค้นมาจากผู้ใช้ต้อง escape `%` `_` (IX-05) |
+| `ISNULL(Location, 'Romania') = 'Romania'` | `(Location = 'Romania' OR Location IS NULL)` | ต้องคงความหมายเดิม: แถว NULL ต้องได้มาด้วย |
+| `UPPER(name) = 'JOHN'` | `name = 'John'` บน collation แบบ case-insensitive | SQL Server ส่วนใหญ่ใช้ CI เป็น default อยู่แล้ว (`UPPER()` จึงไม่จำเป็นเลย) · PostgreSQL เทียบแบบ case-sensitive ต้องใช้ expression index `ON users (lower(name))` + `WHERE lower(name) = 'john'` หรือ `citext` / nondeterministic collation |
+| `price * 1.07 = 107` | `price = 107 / 1.07` (คำนวณฝั่งค่าคงที่) | ระวังการปัด: ผลหารอาจไม่ลงตัว เงินควรเก็บเป็น `DECIMAL` (SD-01) และเทียบด้วยค่าที่ปัดตามกติกาเดียวกับระบบ |
+| `CONVERT(VARCHAR, created_at, 112) = '20240115'` | `created_at >= '2024-01-15' AND created_at < '2024-01-16'` | ช่วงครึ่งเปิด |
+| คอลัมน์ `VARCHAR` เทียบกับพารามิเตอร์ `NVARCHAR` | ส่งพารามิเตอร์ให้ type ตรงคอลัมน์ | implicit conversion ฝั่งคอลัมน์ทำให้ scan (ORM / .NET ส่ง string เป็น `NVARCHAR` โดย default) ดูคำเตือนใน plan (EP-02) |
+
 - ระวัง timezone: เก็บเป็น UTC และแปลงขอบเขตช่วงก่อน query
 
 ## IX-04 — วัดผล query ด้วยตัวเลขที่ถูกต้อง

@@ -13,7 +13,7 @@
 | | AP-07 | ดึงทั้งหมดมากรอง / รวมยอดในโค้ดแอป → ทำใน database + ดู SQL ที่ ORM สร้างจริง (Prisma, EF Core / LINQ) |
 | [indexing.md](indexing.md) | IX-01 | Index คอลัมน์ที่ใช้กรอง (selectivity, tipping point, ต้นทุน write) |
 | | IX-02 | Covering index ด้วย `INCLUDE` + ตัวอย่างตัวเลขจริง 803,786 → 7,341 reads |
-| | IX-03 | ช่วงวันที่: ห้าม `YEAR()` / ฟังก์ชันครอบคอลัมน์ และห้าม `BETWEEN` กับ datetime + ตัวเลขจริง (YEAR() 22,959 vs range 7,341 reads, BETWEEN ทำข้อมูลหาย 3,594 แถว) |
+| | IX-03 | ช่วงวันที่: ห้าม `YEAR()` / ฟังก์ชันครอบคอลัมน์ และห้าม `BETWEEN` กับ datetime + ตัวเลขจริง (YEAR() 22,959 vs range 7,341 reads, BETWEEN ทำข้อมูลหาย 3,594 แถว) + YEAR()/MONTH() vs ช่วง 682 reads + ตารางเขียนใหม่ให้ SARGable (LEFT, ISNULL, UPPER, คำนวณในคอลัมน์, implicit conversion) |
 | | IX-04 | วัดผล query: logical reads, plan, statistics (และ logical reads ≠ RAM) + เทียบ reads ต่อแถวที่ได้, ตัวอย่างก่อน / หลัง 141,570 → 7 reads, อ่าน Scan count ให้ถูก (2,534 ≠ อ่านทั้งตาราง 2,534 รอบ), OPTION (RECOMPILE), TOP ไม่มี ORDER BY |
 | | IX-05 | ช่องค้นหา `LIKE %คำ%`: prefix vs contains (ผลลัพธ์ต่างกัน!), pg_trgm สำหรับภาษาไทย, Full-Text, escape wildcard |
 | | IX-06 | สร้าง index แล้ว reads ลดแต่เวลาไม่ลด (1.39M → 230K reads, ~110 วินาทีเท่าเดิม): หาคอขวด, ส่งข้อมูลหลายล้านแถว, columnstore / partition / aggregate |
