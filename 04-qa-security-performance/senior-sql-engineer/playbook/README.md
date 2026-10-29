@@ -87,10 +87,25 @@
 | | OR-05 | Serverless connection: pooler, pgbouncer=true + directUrl, PrismaClient singleton |
 | | OR-06 | Migration ที่ ORM สร้าง: rename = drop + add, ห้าม db push บน production |
 | | OR-07 | เมื่อไหร่เขียน SQL เอง + raw query แบบมี parameter |
+| [search.md](search.md) | SR-01 | เลือกเครื่องมือค้นหา: B-tree prefix / pg_trgm / Full-Text / search engine แยก |
+| | SR-02 | pg_trgm: operator ที่รองรับ (ตรวจกับเอกสาร), คำค้นสั้นเกินไป, ภาษาไทยขึ้นกับ locale → ทดสอบด้วย show_trgm |
+| | SR-03 | ภาษาไทยกับ Full-Text: ไม่มี parser ไทยในตัว → pg_trgm / ตัดคำก่อนเก็บ / extension / search engine |
+| | SR-04 | PostgreSQL FTS: generated tsvector + GIN, websearch_to_tsquery, ts_rank |
+| | SR-05 | ค้นหา + filter, tenant, autocomplete |
+| [analytics.md](analytics.md) | AN-01 | แยกรายงานจากงานหน้าเว็บ (replica, timeout, warehouse) |
+| | AN-02 | ตารางสรุปแบบ incremental + idempotent, timezone ของวัน |
+| | AN-03 | Materialized view (REFRESH CONCURRENTLY) / Indexed view |
+| | AN-04 | Columnstore / BRIN / partition |
+| | AN-05 | Query รายงาน: fan-out, FILTER, วันที่ว่าง = 0, window, percentile, approx distinct, export |
+| [mysql.md](mysql.md) | MY-01 | InnoDB PK = clustered, secondary index เก็บ PK, UUID BINARY(16) |
+| | MY-02 | อ่าน EXPLAIN (type, key_len, Using filesort / temporary / index) |
+| | MY-03 | กับดัก: implicit conversion, charset / collation, utf8mb4, ONLY_FULL_GROUP_BY, strict mode, LIMIT offset |
+| | MY-04 | Repeatable Read + gap lock, SKIP LOCKED, ON DUPLICATE KEY, MDL |
+| | MY-05 | buffer pool, slow log, sys schema, histogram |
 
 ## วิธีเพิ่มบทเรียนใหม่
 
 1. เลือกไฟล์ตามหัวข้อ ถ้าไม่มีไฟล์ที่เหมาะ ให้สร้างไฟล์ใหม่ (เช่น `transactions.md`, `concurrency.md`, `pagination.md`) และเพิ่มในตาราง `14.5` ของ `SKILL.md`
-2. ใช้รหัสต่อจากเดิม (AP-14, IX-13, SD-04, EP-03, FD-07, CC-07, MG-07, PG-08, OP-07, DM-09, IN-08, OR-08 …) และเพิ่มแถวในตารางด้านบน
+2. ใช้รหัสต่อจากเดิม (AP-14, IX-13, SD-04, EP-03, FD-07, CC-07, MG-07, PG-08, OP-07, DM-09, IN-08, OR-08, SR-06, AN-06, MY-06 …) และเพิ่มแถวในตารางด้านบน
 3. แต่ละบทต้องมี: ❌ ตัวอย่างที่ผิด · ✅ วิธีแก้ · **ทำไม** · **ข้อยกเว้น / ข้อควรระวัง** · คำสั่งของทั้ง SQL Server และ PostgreSQL ถ้าต่างกัน
 4. ตรวจความถูกต้องก่อนใส่ (คลิปสั้นมักตัดข้อยกเว้นออก) และห้ามขัดกับ CORE PRINCIPLE ใน `SKILL.md`

@@ -511,6 +511,9 @@ After
 | [playbook/data-modeling.md](playbook/data-modeling.md) | ออกแบบระบบหลาย tenant, เงิน / กระเป๋าเงิน, สต็อก, audit, soft delete, tree, วันเวลา / timezone, สถานะ |
 | [playbook/incidents.md](playbook/incidents.md) | database มีปัญหาบน production ตอนนี้ (CPU สูง, connection เต็ม, ค้าง, disk เต็ม, ลบข้อมูลผิด) |
 | [playbook/orm.md](playbook/orm.md) | โค้ดใช้ Prisma / Drizzle / supabase-js / EF Core / TypeORM แล้วช้าหรือข้อมูลเพี้ยน |
+| [playbook/search.md](playbook/search.md) | ช่องค้นหา, ค้นคำบางส่วน, ค้นภาษาไทย, Full-Text Search |
+| [playbook/analytics.md](playbook/analytics.md) | dashboard, รายงาน, ตารางสรุป, query aggregate ข้อมูลเยอะ |
+| [playbook/mysql.md](playbook/mysql.md) | โปรเจกต์ใช้ MySQL / MariaDB |
 
 เมื่อใช้คำแนะนำจาก playbook ให้อ้างรหัสหัวข้อ (เช่น AP-03, IX-02) ในรายงาน
 
