@@ -10,7 +10,9 @@
    ```sql
    -- PostgreSQL
    SELECT pid, now() - query_start AS running, state, wait_event_type, wait_event, left(query, 200)
-   FROM pg_stat_activity WHERE state <> 'idle' ORDER BY running DESC;
+   FROM pg_stat_activity
+   WHERE state <> 'idle' AND backend_type = 'client backend' AND pid <> pg_backend_pid()
+   ORDER BY running DESC;
    SELECT left(query, 200), calls, round(total_exec_time) AS total_ms, round(mean_exec_time) AS mean_ms
    FROM pg_stat_statements ORDER BY total_exec_time DESC LIMIT 10;
    -- SQL Server
@@ -59,7 +61,7 @@ SELECT session_id, blocking_session_id, wait_type, wait_time FROM sys.dm_exec_re
 3. ตาราง log / audit / session ที่ไม่มี retention → ลบเป็นรอบหรือ drop partition (SD-03)
 4. temp file จาก query ที่ spill (`temp_files` ใน `pg_stat_database`)
 
-⚠️ ห้ามลบไฟล์ใน data directory ด้วยมือ · `VACUUM FULL` ต้องใช้พื้นที่ว่างเพิ่มเท่าตาราง (ทำตอนดิสก์จะเต็มอาจยิ่งแย่) · ขยายดิสก์ก่อนถ้าทำได้ แล้วค่อยเก็บกวาด
+⚠️ ห้ามลบไฟล์ใน data directory ด้วยมือ · `VACUUM FULL` และ `pg_repack` ต้องใช้พื้นที่ว่างเพิ่มราวขนาดตาราง + index (ทำตอนดิสก์จะเต็มยิ่งแย่) · ขยายดิสก์ก่อนถ้าทำได้ แล้วค่อยเก็บกวาด
 
 ---
 

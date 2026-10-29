@@ -207,9 +207,9 @@ ORDER BY product_name, product_id
 LIMIT @Size;
 
 -- SQL Server (ไม่มี row value comparison)
-WHERE ProductName > @LastName
-   OR (ProductName = @LastName AND ProductID > @LastId)
-ORDER BY ProductName, ProductID;
+WHERE ProductName >= @LastName                     -- seekable leading predicate
+  AND (ProductName > @LastName OR ProductID > @LastId)
+ORDER BY ProductName, ProductID;                    -- check the plan: expect an Index Seek, not a scan
 -- index: (ProductName, ProductID) + INCLUDE คอลัมน์ที่แสดง (IX-02, IX-11)
 ```
 
@@ -355,12 +355,20 @@ tran.Commit();
 **กฎ:** transaction ครอบเฉพาะคำสั่ง database ที่ต้อง atomic เท่านั้น งานที่ต้องรอภายนอก (HTTP, ไฟล์, ส่งอีเมล, queue) ย้ายออกไปก่อนหรือหลัง
 
 ```csharp
-var payment = await http.PostAsync(paymentApi, body);   // นอก transaction
+// 1) short tx: record intent first, so a crash after charging still leaves a trace
 using (var tran = conn.BeginTransaction()) {
-    db.Update(order with { Status = payment.Status });
-    db.Insert(new Outbox(...));                         // งานที่ต้องทำต่อ
-    tran.Commit();                                      // ไม่กี่ ms
+    db.MarkOrderPending(orderId, idempotencyKey);     // status = 'pending'
+    tran.Commit();
 }
+// 2) outside any transaction, with the same idempotency key
+var result = await payments.ChargeAsync(orderId, amount, idempotencyKey);
+// 3) short tx: final status + outbox
+using (var tran = conn.BeginTransaction()) {
+    db.SetOrderStatus(orderId, from: "pending", to: result.Succeeded ? "paid" : "failed");
+    db.Insert(new Outbox(...));                       // follow-up work
+    tran.Commit();                                    // a few ms
+}
+// a reconcile job re-checks orders stuck in 'pending' with the provider
 // worker อ่าน outbox ไปเขียนไฟล์ / ส่งอีเมล (retry ได้, ไม่ค้าง lock)
 ```
 - ต้องให้ "เรียก API + บันทึก DB" สอดคล้องกัน: ใช้ **idempotency key** กับ payment provider + สถานะ `pending` → `paid` และ **outbox pattern** แทนการถือ transaction ข้ามระบบ

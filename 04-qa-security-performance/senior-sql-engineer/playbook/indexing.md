@@ -61,7 +61,7 @@ CREATE INDEX ix_posts_creation_date ON posts (creation_date) INCLUDE (title);
 - **PostgreSQL:** จะเป็น Index Only Scan ได้จริงเมื่อ visibility map เป็นปัจจุบัน (ตาราง vacuum สม่ำเสมอ) ดูใน `EXPLAIN` ว่า `Heap Fetches` ต่ำ
 - ยืนยันผลด้วย plan: SQL Server ต้องไม่มี **Key Lookup** แล้ว / PostgreSQL ต้องเป็น **Index Only Scan**
 
-**ตัวอย่างผลจริง** (ตาราง `Posts` ~3.7 ล้านแถว, query ปี 2009 ได้ **1,285,380 แถว** ≈ 35% ของตาราง, SQL Server):
+**ตัวอย่างผลจริง** (ตาราง `Posts` ~3.7 ล้านแถว, query ปี 2009 ได้ **1,288,974 แถว** ≈ 35% ของตาราง (ตัวเลข 1,285,380 ใน IX-03 คือผลของ `BETWEEN` ที่ทำข้อมูลหาย), SQL Server):
 
 | Index | Plan ที่ได้ | logical reads | ข้อมูลที่ต้องอ่าน (reads × 8 KB) |
 |---|---|---|---|
@@ -104,7 +104,7 @@ WHERE CreationDate >= '2009-01-01' AND CreationDate < '2010-01-01'
 - logical reads ที่ลดลงคือ **งานอ่านที่ลดลง** ไม่ใช่ RAM ที่ใช้ลดลง (ดู IX-02, IX-04)
 - ถ้าเปลี่ยนเงื่อนไขแล้วจำนวนแถวต่างจากเดิม **ต้องหยุดและหาสาเหตุ** ก่อนสรุปว่าแบบใหม่ดีกว่า
 
-**ฟังก์ชันอื่นที่ทำให้ seek ไม่ได้แบบเดียวกัน:** `CAST(col AS DATE) = …` (SQL Server บางกรณียัง seek ได้ แต่ไม่ควรพึ่ง), `DATE_TRUNC(year, col) = …`, `LOWER(email) = …`, `col + 1 = …`, `ISNULL(col, 0) = …`, `LIKE %คำ%` — ย้ายการคำนวณไปฝั่งค่าคงที่ หรือสร้าง expression / computed-column index ถ้าจำเป็นต้องค้นแบบนั้นจริง
+**ฟังก์ชันอื่นที่ทำให้ seek ไม่ได้แบบเดียวกัน:** `CAST(col AS DATE) = …` (SQL Server บางกรณียัง seek ได้ แต่ไม่ควรพึ่ง), `date_trunc('year', col) = …`, `LOWER(email) = …`, `col + 1 = …`, `ISNULL(col, 0) = …`, `LIKE %คำ%` — ย้ายการคำนวณไปฝั่งค่าคงที่ หรือสร้าง expression / computed-column index ถ้าจำเป็นต้องค้นแบบนั้นจริง
 
 **ตัวอย่างที่ 2 — `YEAR()` + `MONTH()` (คลิป B+Tree EP.05, `Users`, index `(LastAccessDate)`):** `WHERE LastAccessDate >= '2018-08-01' AND LastAccessDate < '2018-09-01'` ได้ 66,988 แถว ด้วย Index Seek **682 reads** (ประเมินตรง 66,988 of 66,988) ส่วน `YEAR(LastAccessDate) = 2018 AND MONTH(LastAccessDate) = 8` ต้อง scan ทั้ง index และประเมินจำนวนแถวผิดด้วย เพราะ optimizer ใช้ statistics ของคอลัมน์ที่ถูกครอบด้วยฟังก์ชันไม่ได้
 
@@ -365,18 +365,24 @@ WHERE status = 'pending';
 
 ```sql
 -- SQL Server: index ที่ถูกอัปเดตแต่แทบไม่ถูกใช้อ่าน (สถิติรีเซ็ตเมื่อ restart server)
-SELECT OBJECT_NAME(s.object_id) AS table_name, i.name AS index_name,
-       s.user_seeks, s.user_scans, s.user_lookups, s.user_updates
-FROM sys.dm_db_index_usage_stats s
-JOIN sys.indexes i ON i.object_id = s.object_id AND i.index_id = s.index_id
-WHERE s.database_id = DB_ID() AND i.type_desc = 'NONCLUSTERED'
-ORDER BY (s.user_seeks + s.user_scans + s.user_lookups) ASC, s.user_updates DESC;
+-- LEFT JOIN: indexes never touched since restart have NO row in the DMV and are the best candidates
+SELECT OBJECT_NAME(i.object_id) AS table_name, i.name AS index_name,
+       ISNULL(s.user_seeks, 0) AS user_seeks, ISNULL(s.user_scans, 0) AS user_scans,
+       ISNULL(s.user_lookups, 0) AS user_lookups, ISNULL(s.user_updates, 0) AS user_updates
+FROM sys.indexes i
+LEFT JOIN sys.dm_db_index_usage_stats s
+  ON s.object_id = i.object_id AND s.index_id = i.index_id AND s.database_id = DB_ID()
+WHERE OBJECTPROPERTY(i.object_id, 'IsUserTable') = 1
+  AND i.type_desc = 'NONCLUSTERED' AND i.is_primary_key = 0 AND i.is_unique = 0
+ORDER BY (ISNULL(s.user_seeks,0) + ISNULL(s.user_scans,0) + ISNULL(s.user_lookups,0)) ASC, user_updates DESC;
 
 -- PostgreSQL / Supabase: index ที่ไม่เคยถูก scan (สถิติตั้งแต่ reset ล่าสุด)
-SELECT relname AS table_name, indexrelname AS index_name, idx_scan,
-       pg_size_pretty(pg_relation_size(indexrelid)) AS size
-FROM pg_stat_user_indexes
-ORDER BY idx_scan ASC, pg_relation_size(indexrelid) DESC;
+SELECT s.relname AS table_name, s.indexrelname AS index_name, s.idx_scan,
+       pg_size_pretty(pg_relation_size(s.indexrelid)) AS size
+FROM pg_stat_user_indexes s
+JOIN pg_index i ON i.indexrelid = s.indexrelid
+WHERE NOT i.indisunique AND NOT i.indisprimary          -- never drop PK / unique (they enforce rules)
+ORDER BY s.idx_scan ASC, pg_relation_size(s.indexrelid) DESC;
 ```
 
 **อ่านผล usage stats — จัดกลุ่ม index** (ตัวอย่างจริงจาก SQL Server):
@@ -598,7 +604,7 @@ ORDER BY ips.avg_fragmentation_in_percent DESC;
 
 - **Seek หนึ่งค่า = reads เท่าความลึกของ tree** (root → intermediate → leaf) ไม่ขึ้นกับจำนวนแถวตรงๆ
   - คลิป (devhopsss B+Tree EP.02, `CHAR(4000)` ≈ 2 แถว / page, 1,245 แถว): Root 1 page · Intermediate 2 pages · Leaf 623 pages → seek ด้วย PK = **3 reads**
-  - เพราะหนึ่ง page ชี้ทางได้หลายร้อยถึงหลายพันหน้า tree จึงลึกแค่ 3–4 ชั้นแม้ข้อมูลหลายร้อยล้านแถว ตัวเลข "seek = 3–4 reads" ใน IX-01 / IX-02 / IX-10 มาจากตรงนี้
+  - เพราะหนึ่ง page ชี้ทางได้หลายร้อยถึงหลายพันหน้า tree จึงลึกแค่ 3–4 ชั้นแม้ข้อมูลหลายร้อยล้านแถว ตัวเลข "seek = 3–4 reads" ใน IX-02 / IX-10 มาจากตรงนี้
 - **Key ยิ่งกว้าง tree ยิ่งลึก/ใหญ่:** key กว้าง → ต่อ page ชี้ทางได้น้อยลง → มีชั้นและ page มากขึ้น (อีกเหตุผลที่ไม่ใช้ key เป็น string ยาว หรือ UUID ถ้าไม่จำเป็น ดู IX-10)
 - **Nonclustered + ต้องการคอลัมน์อื่น** = seek ใน nonclustered (3 reads) + Key Lookup เข้า clustered อีกราว 3 reads **ต่อแถว** นี่คือเหตุที่ lookup หลายพันแถวแพง (IX-02) และเกิด tipping point (IX-01)
 

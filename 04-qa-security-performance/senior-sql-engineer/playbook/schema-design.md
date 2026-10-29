@@ -61,7 +61,7 @@ CREATE TABLE Employee_Profile (
 
 ### VARCHAR vs NVARCHAR และจำนวนเต็มขนาดต่างๆ (คลิป Data Type EP.02–04 + ข้อแก้)
 
-- **`N` = Unicode (UTF-16) ใช้ 2 byte ต่อตัวอักษร** ใน SQL Server: ข้อมูลที่เป็น ASCII แน่นอน (รหัส SKU, password hash แบบ hex / base64, token, รหัสประเทศ) ใช้ `VARCHAR` ได้ครึ่งหนึ่งของพื้นที่ ส่วนชื่อคน ที่อยู่ ข้อความภาษาไทยต้องใช้ `NVARCHAR` (หรือ `VARCHAR` + collation `_UTF8` ใน SQL Server 2019+)
+- **`N` = Unicode (UTF-16) ใช้ 2 byte ต่อตัวอักษร** ใน SQL Server: ข้อมูลที่เป็น ASCII แน่นอน (รหัส SKU, password hash แบบ hex / base64, token, รหัสประเทศ) ใช้ `VARCHAR` ได้ครึ่งหนึ่งของพื้นที่ ส่วนชื่อคน ที่อยู่ ข้อความภาษาไทยต้องใช้ `NVARCHAR` (หรือ `VARCHAR` + collation `_UTF8` ใน SQL Server 2019+ ซึ่งประหยัดกับข้อความอังกฤษผสม แต่ตัวอักษรไทยใน UTF-8 ใช้ 3 byte มากกว่า `NVARCHAR` ที่ใช้ 2 byte)
   - ⚠️ คลิปบอก "`VARCHAR(50)` = 50 byte" ผิด: ชนิด `VAR…` เก็บ **ตามความยาวจริง + 2 byte** ตัวเลข 50 คือเพดาน ไม่ใช่พื้นที่ที่ใช้ (`CHAR(n)` / `NCHAR(n)` เท่านั้นที่จองเต็ม n)
   - ⚠️ อีเมล / URL ไม่ได้เป็น ASCII เสมอไป (internationalized email, โดเมนภาษาไทย) ถ้าระบบรับข้อมูลจากผู้ใช้ทั่วไปให้ตัดสินใจอย่างตั้งใจ หรือเก็บในรูป punycode
   - ⚠️ เมื่อคอลัมน์เป็น `VARCHAR` แอปต้องส่งพารามิเตอร์เป็น `VARCHAR` ด้วย (.NET / EF Core ส่ง string เป็น `NVARCHAR` โดย default) ไม่เช่นนั้นเกิด implicit conversion → index scan (IX-03)
@@ -120,7 +120,7 @@ CREATE TABLE messages (
 - ปัญหาที่เจอ: hot partition (ห้องใหญ่ที่คนอ่านพร้อมกัน), GC pause ของ JVM ทำ node ค้าง → ย้ายไป ScyllaDB (C++) และเพิ่ม data service ที่ทำ **request coalescing** (คำขออ่านข้อมูลชุดเดียวกันพร้อมกันหลายพันคำขอ ยิง database ครั้งเดียวแล้วแจกผลให้ทุกคน)
 
 **นำมาใช้กับ SQL database (PostgreSQL / SQL Server / MySQL):**
-- ไม่จำเป็นต้องย้ายไป NoSQL เพื่อหลักการเดียวกัน: **declarative partitioning ตามช่วงเวลา** (PostgreSQL `PARTITION BY RANGE (created_at)`, SQL Server partition function / scheme) + PK / index นำด้วย key ที่ query ใช้ (`(channel_id, message_id DESC)`)
+- ไม่จำเป็นต้องย้ายไป NoSQL เพื่อหลักการเดียวกัน: **declarative partitioning ตามช่วงเวลา** (PostgreSQL `PARTITION BY RANGE (created_at)`, SQL Server partition function / scheme) + index นำด้วย key ที่ query ใช้ (`(channel_id, message_id DESC)`) · ⚠️ PK / UNIQUE ของตารางที่ partition **ต้องรวมคอลัมน์ partition key** (PostgreSQL และ unique index ที่ aligned ใน SQL Server) และ PK ระบุ `DESC` ไม่ได้ → PK `(channel_id, message_id, created_at)` + index `(channel_id, message_id DESC)` แยก หรือ partition ด้วยช่วงของ `message_id` (Snowflake เรียงตามเวลาอยู่แล้ว) แล้วใช้ PK `(channel_id, message_id)`
 - ลบข้อมูลเก่าด้วย drop / truncate partition แทน `DELETE` (ดู IX-10 เรื่อง page แหว่ง) และย้าย partition เก่าไป storage ถูกกว่าได้
 - ID เรียงตามเวลา (Snowflake / UUID v7 / `BIGINT IDENTITY`) ให้ทั้ง insert ต่อท้าย (IX-10) และ keyset pagination ฟรี
 - request coalescing / cache หน้า "ล่าสุด" ช่วย hot key ได้มากกว่าการเพิ่ม index

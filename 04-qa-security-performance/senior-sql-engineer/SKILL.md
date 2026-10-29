@@ -478,7 +478,7 @@ After
 
 ### ชุดเก็บหลักฐาน (ใช้ก่อนเสนออะไร)
 
-**ถ้าเข้าถึง database ได้ (dev / staging หรือ read-only):** รันเองเพื่อเก็บหลักฐาน ห้ามรันคำสั่งที่เขียนข้อมูล / DDL โดยไม่ได้รับอนุมัติ (กฎข้อ 16) และ `EXPLAIN ANALYZE` รัน query จริง → ใช้กับ `SELECT` เท่านั้น ถ้าเป็น `UPDATE` / `DELETE` ให้ครอบด้วย `BEGIN; … ROLLBACK;`
+**ถ้าเข้าถึง database ได้ (dev / staging หรือ read-only):** รันเองเพื่อเก็บหลักฐาน ห้ามรันคำสั่งที่เขียนข้อมูล / DDL โดยไม่ได้รับอนุมัติ (กฎข้อ 16) และ `EXPLAIN ANALYZE` รัน query จริง → ใช้กับ `SELECT` เท่านั้น ถ้าเป็น `UPDATE` / `DELETE` ให้รันบน dev / staging / สำเนาข้อมูล ครอบด้วย `BEGIN; … ROLLBACK;` (ระหว่างนั้นยังถือ row lock, เขียน WAL, sequence และผลภายนอกของ trigger ไม่ถูก rollback) ถ้าจำเป็นต้องรันบน production ให้ตั้ง `lock_timeout` และรันช่วงโหลดต่ำ
 
 | ต้องการรู้ | PostgreSQL / Supabase | SQL Server |
 |---|---|---|

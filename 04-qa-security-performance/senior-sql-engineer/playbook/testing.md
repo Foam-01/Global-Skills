@@ -10,6 +10,7 @@
 - SQLite / in-memory provider (EF Core InMemory) ทำงานต่างจาก PostgreSQL / SQL Server (collation, NULL ใน UNIQUE, timezone, lock, constraint บางชนิด) → ผ่าน test แต่พังบน production
 - ใช้ container: Testcontainers (Node, .NET, Java, Python, Go), `docker compose` หรือ Supabase CLI (`supabase start` รัน stack จริงในเครื่อง พร้อม `supabase db reset` ที่รัน migration + seed)
 - แต่ละ test แยกข้อมูลกัน: ครอบด้วย transaction แล้ว rollback, หรือ truncate ระหว่าง test, หรือ schema / database ต่อ worker เมื่อรันขนาน
+- ⚠️ test concurrency (TS-04) และ migration (TS-05) **ใช้วิธี rollback ไม่ได้**: connection อื่นมองไม่เห็นข้อมูลที่ยังไม่ commit และ `CREATE INDEX CONCURRENTLY` รันใน transaction ไม่ได้ → ใช้ truncate หรือ database ต่อ test
 
 ---
 

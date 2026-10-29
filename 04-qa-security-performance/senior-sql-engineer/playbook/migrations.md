@@ -57,7 +57,7 @@ ALTER TABLE ...;                 -- retry from the migration runner if it times 
 
 ## MG-04 — MySQL
 
-- InnoDB online DDL: `ALGORITHM=INSTANT` (8.0+: เพิ่มคอลัมน์ได้ทันที) > `INPLACE` > `COPY` (rewrite ตาราง) ระบุ `ALGORITHM=…, LOCK=NONE` ให้มัน error แทนที่จะแอบล็อกตาราง
+- InnoDB online DDL: `ALGORITHM=INSTANT` (8.0+: เพิ่มคอลัมน์ได้ทันที) > `INPLACE` > `COPY` (rewrite ตาราง) ระบุ `ALGORITHM=INSTANT` หรือ `ALGORITHM=INPLACE, LOCK=NONE` ให้มัน error แทนที่จะแอบล็อกตาราง (INSTANT ใส่ `LOCK=NONE` ไม่ได้)
 - ตารางใหญ่มากที่ต้อง COPY: ใช้เครื่องมือ online schema change (`gh-ost`, `pt-online-schema-change`)
 
 ---
@@ -67,8 +67,9 @@ ALTER TABLE ...;                 -- retry from the migration runner if it times 
 ```sql
 -- PostgreSQL: backfill in batches by key range, committing each batch
 UPDATE users SET full_name = name
-WHERE id >= @from AND id < @from + 5000 AND full_name IS NULL;
--- loop @from in the migration runner; sleep briefly between batches
+WHERE id >= $1 AND id < $1 + 5000 AND full_name IS NULL;
+-- loop $1 from min(id) to max(id) in the migration runner (one transaction per batch); sleep briefly between batches
+-- (PG 11+ alternative: a PROCEDURE with a loop and COMMIT after each batch, called via CALL outside a transaction)
 ```
 - ทีละไม่กี่พันแถวต่อรอบ commit ทุกรอบ → ไม่ถือ lock นาน, log / WAL ไม่โตทีเดียว, replica ไม่ lag (ดู OP-03)
 - วนตาม key ที่มี index (ไม่ใช่ `OFFSET`) และทำให้ **รันซ้ำได้** (`WHERE full_name IS NULL`) เผื่อหยุดกลางทาง

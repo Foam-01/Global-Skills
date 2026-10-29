@@ -15,7 +15,7 @@
 ถ้าเลือกตารางร่วม:
 - `tenant_id NOT NULL` ทุกตารางที่เป็นข้อมูลของลูกค้า (รวมตารางลูก ไม่พึ่ง JOIN ไปหาแม่)
 - **บังคับที่ database** ด้วย RLS (`USING (tenant_id = (select current_tenant_id()))`, PG-06) ไม่ใช่หวังว่าทุก query จะใส่ `WHERE tenant_id` ครบ
-  - ⚠️ RLS ป้องกันได้ **เฉพาะเมื่อ role ที่แอปใช้ไม่ข้าม RLS**: ORM ฝั่ง server (Prisma, Drizzle, EF Core) มักต่อด้วย role `postgres` / owner ของตาราง ซึ่งข้าม RLS (superuser / `BYPASSRLS` / owner โดยไม่ `FORCE ROW LEVEL SECURITY`) → ต้องใช้ role แยกที่ไม่มีสิทธิ์ข้าม และตั้ง tenant ต่อ transaction (`SET LOCAL app.tenant_id = …` แล้ว policy อ่านด้วย `current_setting('app.tenant_id')`) ไม่เช่นนั้น RLS เป็นแค่ของประดับ
+  - ⚠️ RLS ป้องกันได้ **เฉพาะเมื่อ role ที่แอปใช้ไม่ข้าม RLS**: ORM ฝั่ง server (Prisma, Drizzle, EF Core) มักต่อด้วย role `postgres` / owner ของตาราง ซึ่งข้าม RLS (superuser / `BYPASSRLS` / owner โดยไม่ `FORCE ROW LEVEL SECURITY`) → ต้องใช้ role แยกที่ไม่มีสิทธิ์ข้าม และตั้ง tenant ต่อ transaction (`SET LOCAL app.tenant_id = …` แล้ว policy อ่านด้วย `current_setting('app.tenant_id')` ซึ่ง error ถ้าลืมตั้งค่า = fail แบบปลอดภัย; ถ้าใช้ `current_setting(…, true)` จะได้ NULL และ policy คืน 0 แถว) ไม่เช่นนั้น RLS เป็นแค่ของประดับ
   - **ห้ามรับ tenant_id จาก request** (query string / body) ให้ดึงจาก session ที่ยืนยันตัวตนแล้วเสมอ (AP-04)
 - index / unique นำด้วย `tenant_id`: `UNIQUE (tenant_id, email)` ไม่ใช่ `UNIQUE (email)`, index `(tenant_id, created_at)`
 - FK ข้ามตารางควรรวม `tenant_id` (`FOREIGN KEY (tenant_id, customer_id) REFERENCES customers (tenant_id, id)`) กันการผูกข้อมูลข้ามร้าน ตารางแม่ต้องมี `UNIQUE (tenant_id, id)` ก่อน ไม่เช่นนั้นสร้าง FK ไม่ได้
@@ -34,10 +34,11 @@ CREATE TABLE ledger_entries (
   amount_satang bigint NOT NULL,             -- integer minor units, signed (+ credit / - debit)
   txn_id uuid NOT NULL,                      -- groups the two sides of one transfer
   kind text NOT NULL,                        -- 'topup' | 'purchase' | 'refund' ...
-  idempotency_key text UNIQUE,               -- same request cannot post twice (CC-03)
+  idempotency_key text,                      -- copied from the transfer header; uniqueness is enforced there
   created_at timestamptz NOT NULL DEFAULT now()
 );
 ```
+- idempotency key ต้อง UNIQUE ที่ **ระดับการโอน** ไม่ใช่ทุกแถว ledger (หนึ่งการโอนมี 2 แถว → UNIQUE บนแถวจะทำให้แถวที่สองชนเสมอ): ตาราง `transfers (txn_id PK, idempotency_key UNIQUE, …)` ที่ `ledger_entries.txn_id` อ้างถึง (CC-03)
 - **Double-entry:** ทุกการโอนมีสองฝั่งที่รวมกันได้ 0 (`SUM(amount) GROUP BY txn_id = 0`) ใส่ใน transaction เดียว
 - ห้าม `UPDATE` / `DELETE` รายการ ledger ถ้าผิดให้ลงรายการกลับ (reversal)
 - ยอดคงเหลือ: คำนวณจาก `SUM` + cache ในตาราง `account_balances` ที่อัปเดตใน transaction เดียวกับการลงรายการ พร้อม `CHECK (balance >= 0)` ถ้าห้ามติดลบ และล็อกแถวบัญชีก่อนตัด (`FOR UPDATE`, CC-02) และมี job reconcile เทียบ cache กับ SUM

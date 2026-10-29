@@ -27,7 +27,7 @@
 | | IX-08 | Index มากเกินไป = ต้นทุนตอนเขียน (insert reads ต่อแถว 8 → ~46) + จัดกลุ่ม index จาก usage stats (ลูกรัก / ใช้หนัก / ขยะ) + หา query ที่ควรได้ index (dm_exec_query_stats, pg_stat_statements) + วิธีหา index ที่ไม่ได้ใช้ / ซ้ำซ้อน (SQL Server DMV, pg_stat_user_indexes) และเงื่อนไขก่อนลบ |
 | | IX-09 | สร้าง index บนคอลัมน์ FK ฝั่งลูก (SQL Server / PostgreSQL ไม่สร้างให้) — ~800,000 → 49 reads, ~5 วินาที → 53 ms · ลบแถวแม่ช้าเพราะ FK ไม่มี index · query หา FK ที่ไม่มี index |
 | | IX-10 | เลือก clustered key: IDENTITY vs UUID v4 (fragmentation 99.92%, 1,458 pages) vs v7 / NEWSEQUENTIALID (0.9%, 1,080 pages), page split, ไม่มี ORDER BY = ไม่รับประกันลำดับ, UUID v7 ใน uniqueidentifier ไม่เรียง (99.04%) vs BINARY(16) (0.9%) · ลบครึ่งตารางแล้วไม่เร็วขึ้น (page density ต่ำ) → rebuild / partition + truncate / ลบเป็นรอบ |
-| | IX-11 | Composite index ลำดับคอลัมน์ (leftmost prefix): (DisplayName, Location) กรองทั้งคู่ 4 reads seek vs กรอง Location อย่างเดียว 1,595 reads scan · กฎ ESR: `=` → ORDER BY → ช่วง · skip scan · กฎ ESR (Equality → Sort → Range) แก้สูตร เท่า→ช่วง→เรียง→หยิบ, DESC ใน index ไม่จำเป็นเมื่อทิศเดียว, index สำหรับ JOIN + ช่วงวันที่, queue + SKIP LOCKED |
+| | IX-11 | Composite index ลำดับคอลัมน์ (leftmost prefix): (DisplayName, Location) กรองทั้งคู่ 4 reads seek vs กรอง Location อย่างเดียว 1,595 reads scan · กฎ ESR: `=` → ORDER BY → ช่วง · skip scan · แก้สูตร เท่า→ช่วง→เรียง→หยิบ, DESC ใน index ไม่จำเป็นเมื่อทิศเดียว, index สำหรับ JOIN + ช่วงวันที่, queue + SKIP LOCKED |
 | | IX-12 | โครงสร้าง B+Tree: root / intermediate / leaf, seek = reads เท่าความลึก (1,245 แถว → 3 ชั้น → 3 reads), leaf ของ clustered vs nonclustered, key กว้างทำ tree ใหญ่, ดูโครงสร้างด้วย DMV |
 | [schema-design.md](schema-design.md) | SD-01 | เลือก data type ให้พอดี: ปัญหาจริงของ MAX (index key, memory grant), PostgreSQL ต่างกัน, เบอร์โทร / เงิน / สถานะ, BIT ขังไว้ 2 ค่า + MAX memory grant 823 → 43 MB, VARCHAR vs NVARCHAR (VAR = ความยาวจริง + 2 byte), ไม่เก็บอายุ, INT vs BIGINT, FLOAT 250.0000000000000300 vs DECIMAL + กติกาปัด |
 | | SD-02 | อย่าเก็บไฟล์ / base64 ในตารางหลัก: LOB page (lob logical reads 22,970), base64 บวม 33%, เก็บ object key + metadata, signed URL, ถ้าจำเป็นใช้ VARBINARY แยกตาราง |
@@ -44,7 +44,7 @@
 | | CC-02 | Lost update: atomic UPDATE, optimistic version, FOR UPDATE / UPDLOCK, serializable |
 | | CC-03 | เช็กก่อน insert = race → UNIQUE + upsert (ON CONFLICT, MERGE + HOLDLOCK) |
 | | CC-04 | Deadlock: ลำดับการเข้าถึง, transaction สั้น, index, retry |
-| | CC-05 | Queue table: SKIP LOCKED / READPAST, advisory lock / sp_getapplock |
+| | CC-05 | Queue table: SKIP LOCKED / READPAST ต้องเปลี่ยนสถานะใน transaction เดียวกัน (autocommit = หยิบซ้ำ), advisory lock / sp_getapplock |
 | | CC-06 | Lock ที่ไม่รู้ตัว: lock escalation, DDL lock queue + lock_timeout, idle in transaction |
 | [migrations.md](migrations.md) | MG-01 | Expand → migrate → contract, rename อย่างปลอดภัย, rollback |
 | | MG-02 | Lock ของ DDL ใน PostgreSQL (ตรวจกับเอกสาร): ADD COLUMN default, ALTER TYPE rewrite, SET NOT NULL ผ่าน CHECK NOT VALID, FK NOT VALID + VALIDATE, CREATE INDEX CONCURRENTLY + INVALID index, lock queue |
@@ -110,12 +110,12 @@
 | | TS-06 | กัน performance ถอยหลัง: plan, จำนวน query ต่อ request, pg_stat_statements |
 | [security.md](security.md) | SE-01 | Injection ที่ parameter กันไม่ได้: ชื่อคอลัมน์ / ORDER BY → allowlist, raw query ของ ORM, array parameter |
 | | SE-02 | Dynamic SQL: format(%I) + USING / QUOTENAME + sp_executesql |
-| | SE-03 | SECURITY DEFINER: search_path, ตรวจสิทธิ์ข้างใน, REVOKE จาก PUBLIC / anon |
+| | SE-03 | SECURITY DEFINER: search_path, ตรวจสิทธิ์ข้างใน, REVOKE จาก PUBLIC / anon / authenticated |
 | | SE-04 | รั่วทางอ้อม: error message, คอลัมน์เกิน, mass assignment, log / backup, การนับ |
 | | SE-05 | เก็บข้อมูลลับ: password hash, token hash, column encryption + key นอก DB, ไม่เก็บบัตรเครดิต |
 | | SE-06 | สิทธิ์ขั้นต่ำ, column privilege / view, audit, ตารางที่ลืมเปิด RLS |
 | [integration.md](integration.md) | IG-01 | Dual write: DB + อีเมล / API / search ไม่ตรงกัน |
-| | IG-02 | Transactional outbox: เขียนใน transaction เดียว, worker SKIP LOCKED, backoff, dead-letter, at-least-once |
+| | IG-02 | Transactional outbox: เขียนใน transaction เดียว, worker claim + lease (locked_until) + SKIP LOCKED, backoff, dead-letter, at-least-once |
 | | IG-03 | Cache: cache-aside + ลบหลัง commit, ห้ามใช้ตัดสินเรื่องเงิน / สต็อก, stampede, key ต้องรวม tenant |
 | | IG-04 | Consumer idempotent: processed_events + ON CONFLICT, event สลับลำดับ |
 | | IG-05 | CDC: trigger, LISTEN/NOTIFY (เป็นแค่ตัวปลุก), logical replication / Debezium (slot ค้าง), Supabase Realtime / webhook, SQL Server CDC |

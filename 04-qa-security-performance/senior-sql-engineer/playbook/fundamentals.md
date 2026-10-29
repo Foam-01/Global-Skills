@@ -23,7 +23,7 @@ FROM / JOIN → WHERE → GROUP BY → HAVING → SELECT (window function คำ
 
 ## FD-02 — NULL และตรรกะสามค่า (TRUE / FALSE / UNKNOWN)
 
-- `NULL = NULL` ได้ **UNKNOWN** ไม่ใช่ TRUE และ `WHERE` เก็บเฉพาะแถวที่เป็น TRUE ต้องใช้ `IS NULL` / `IS NOT NULL` (หรือ `IS DISTINCT FROM` ใน PostgreSQL / SQL Server 2022+)
+- `NULL = NULL` ได้ **UNKNOWN** ไม่ใช่ TRUE และ `WHERE` เก็บเฉพาะแถวที่เป็น TRUE ต้องใช้ `IS NULL` / `IS NOT NULL` (หรือ `IS [NOT] DISTINCT FROM` ใน PostgreSQL / SQL Server 2022+, `<=>` ใน MySQL)
 - `col <> 'x'` **ไม่คืนแถวที่ col เป็น NULL** เป็นต้นเหตุของรายงานที่ "แถวหาย" ถ้าต้องการให้รวมด้วย เขียน `col <> 'x' OR col IS NULL`
 - `NOT IN (subquery ที่มี NULL)` ได้ 0 แถวเสมอ (AP-05) → ใช้ `NOT EXISTS`
 - Aggregate ข้าม NULL: `COUNT(col)` ไม่นับ NULL แต่ `COUNT(*)` นับทุกแถว · `AVG(col)` หารด้วยจำนวนที่ไม่ NULL (ไม่ใช่จำนวนแถว) · `SUM` ของแถวที่เป็น NULL ทั้งหมดได้ **NULL** ไม่ใช่ 0 → `COALESCE(SUM(x), 0)`

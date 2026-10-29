@@ -7,7 +7,7 @@ query รายงานต่างจาก query หน้าเว็บ: �
 ## AN-01 — แยกงานรายงานออกจากงานหน้าเว็บ (OLTP vs OLAP)
 
 - รายงานหนักบน primary ช่วงพีก = แย่ง CPU / I/O / buffer กับลูกค้า (IX-06) → ย้ายไป read replica, รันนอกเวลา, หรือใช้ตารางสรุป (AN-02)
-- ตั้ง `statement_timeout` ให้ role ของรายงาน และอย่าเปิด transaction ค้างระหว่างดึงรายงาน (PG-02)
+- ตั้ง `statement_timeout` ให้ role ของรายงาน และอย่าเปิด transaction ค้างระหว่างดึงรายงาน (PG-02, CC-06)
 - ข้อมูลระดับหลายร้อยล้านแถวที่ต้อง slice หลายมิติ → data warehouse (BigQuery, Snowflake, ClickHouse, DuckDB) แล้ว sync ข้อมูลไป ไม่ใช่ฝืนจูน OLTP
 
 ---
@@ -22,17 +22,17 @@ CREATE TABLE sales_daily (
   PRIMARY KEY (shop_id, day)
 );
 BEGIN;
-DELETE FROM sales_daily WHERE day >= @from_day AND day < @to_day;   -- days whose orders were all refunded must disappear too
+DELETE FROM sales_daily WHERE day >= $3 AND day < $4;   -- days whose orders were all refunded must disappear too
 INSERT INTO sales_daily (shop_id, day, orders, revenue_satang)
 SELECT shop_id, (created_at AT TIME ZONE 'Asia/Bangkok')::date, count(*), sum(total_satang)
 FROM orders
-WHERE created_at >= @from AND created_at < @to AND status = 'paid'
+WHERE created_at >= $1 AND created_at < $2 AND status = 'paid'
 GROUP BY 1, 2;
 COMMIT;   -- recompute the whole window atomically: idempotent and removes stale groups
 ```
 - dashboard อ่านจากตารางสรุป (หลักพันแถว) แทน `GROUP BY` บน orders หลายล้านแถวทุกครั้งที่เปิดหน้า
 - ⚠️ upsert อย่างเดียว (`ON CONFLICT DO UPDATE`) **ไม่ลบกลุ่มที่หายไป** (วันที่ทุกออเดอร์ถูกคืนเงิน → ยอดเก่าค้าง) จึงต้อง DELETE ช่วงนั้นแล้ว INSERT ใหม่ใน transaction เดียว
-- `@from_day` / `@to_day` ต้องตรงกับ `@from` / `@to` ตามขอบวันเวลาไทย
+- `$3` / `$4` (วัน) ต้องตรงกับ `$1` / `$2` (timestamptz) ตามขอบวันเวลาไทย
 - คำนวณซ้ำช่วงล่าสุด (เช่น 2–3 วันย้อนหลัง) ทุกรอบ เผื่อข้อมูลมาช้า / มีการแก้ไข / คืนเงิน และให้ job รันซ้ำได้ (idempotent)
 - ระบุ timezone ของ "วัน" ให้ชัด (DM-07)
 

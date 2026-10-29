@@ -30,8 +30,8 @@ EXPLAIN (ANALYZE, BUFFERS) SELECT ...;   -- runs the query for real: wrap writes
 
 - `UPDATE` ใน PostgreSQL = **เขียนแถวใหม่ + ทำเครื่องหมายแถวเก่าว่าตาย** และ `DELETE` = ทำเครื่องหมายตาย แถวตาย (dead tuple) ยังกินพื้นที่จนกว่า VACUUM จะเก็บ
 - VACUUM ปกติ (และ autovacuum) **คืนพื้นที่ให้ตารางใช้ซ้ำ แต่ไม่คืนให้ OS** (ยกเว้น page ท้ายตารางที่ว่างทั้งหมด) และรันพร้อมงานปกติได้
-- `VACUUM FULL` เขียนตารางใหม่ทั้งหมด คืนพื้นที่จริง แต่ถือ **`ACCESS EXCLUSIVE`** (ทั้งตารางใช้งานไม่ได้) → บน production ใช้ `pg_repack` แทน
-- **สิ่งที่ทำให้ VACUUM เก็บแถวตายไม่ได้:** transaction ที่เปิดค้างนาน (รวม `idle in transaction`), prepared transaction ค้าง, replication slot ที่ไม่มีใครอ่าน → ตาราง bloat เรื่อยๆ
+- `VACUUM FULL` เขียนตารางใหม่ทั้งหมด คืนพื้นที่จริง แต่ถือ **`ACCESS EXCLUSIVE`** (ทั้งตารางใช้งานไม่ได้) → บน production ใช้ `pg_repack` แทน (ยังต้องมี PK / unique key, ใช้ **พื้นที่ว่างเพิ่มราวขนาดตาราง + index** และถือ `ACCESS EXCLUSIVE` สั้นๆ ตอนสลับตาราง ห้ามใช้ตอน disk ใกล้เต็ม)
+- **สิ่งที่ทำให้ VACUUM เก็บแถวตายไม่ได้:** transaction ที่เปิดค้างนาน (รวม `idle in transaction`), prepared transaction ค้าง, replication slot ค้าง (slot ที่ค้าง **เก็บ WAL ไว้เสมอ** และขวาง VACUUM เมื่อ slot ถือ xmin: logical slot หรือ physical slot ที่เปิด `hot_standby_feedback` ดูจาก `pg_replication_slots.xmin / catalog_xmin`) → ตาราง bloat เรื่อยๆ
   ```sql
   SELECT pid, state, age(backend_xmin) AS xmin_age, now() - xact_start AS open_for, query
   FROM pg_stat_activity WHERE backend_xmin IS NOT NULL ORDER BY xmin_age DESC;

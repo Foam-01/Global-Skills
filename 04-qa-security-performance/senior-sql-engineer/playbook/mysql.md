@@ -49,7 +49,7 @@
 - `SELECT … FOR UPDATE SKIP LOCKED` / `NOWAIT` ใช้ทำ queue ได้ (8.0+, CC-05)
 - `INSERT … ON DUPLICATE KEY UPDATE` สำหรับ upsert (CC-03) ระวังว่าเพิ่มค่า `AUTO_INCREMENT` แม้ไม่ได้ insert
 - ดู deadlock ล่าสุด: `SHOW ENGINE INNODB STATUS` (หัวข้อ LATEST DETECTED DEADLOCK)
-- DDL ใหญ่: `ALGORITHM=INSTANT / INPLACE, LOCK=NONE` หรือ gh-ost / pt-osc (MG-04) และ metadata lock (MDL) ทำให้เกิดคิวค้างแบบเดียวกับ PostgreSQL ถ้ามี transaction เปิดค้างบนตารางนั้น
+- DDL ใหญ่: `ALGORITHM=INSTANT` (ห้ามใส่ `LOCK=NONE` คู่กัน จะ error; INSTANT รับแค่ `LOCK=DEFAULT`) หรือ `ALGORITHM=INPLACE, LOCK=NONE` หรือ gh-ost / pt-osc (MG-04) และ metadata lock (MDL) ทำให้เกิดคิวค้างแบบเดียวกับ PostgreSQL ถ้ามี transaction เปิดค้างบนตารางนั้น
 
 ---
 

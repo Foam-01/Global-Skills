@@ -76,6 +76,18 @@ LIMIT 10 FOR UPDATE SKIP LOCKED;
 SELECT TOP (10) id FROM jobs WITH (UPDLOCK, READPAST, ROWLOCK)
 WHERE status = 'pending' ORDER BY created_at;
 ```
+- ⚠️ lock อยู่แค่จนจบ transaction: ถ้ารันแบบ autocommit (ค่าปกติของ ORM / driver) lock หายทันทีที่ SELECT จบ → worker อื่นหยิบแถวเดิมซ้ำ ต้องเปลี่ยนสถานะใน transaction เดียวกัน หรือรวมเป็นคำสั่งเดียว:
+  ```sql
+  -- PostgreSQL
+  UPDATE jobs SET status = 'running', locked_until = now() + interval '5 minutes'
+  WHERE id IN (SELECT id FROM jobs WHERE status = 'pending' ORDER BY created_at
+               LIMIT 10 FOR UPDATE SKIP LOCKED)
+  RETURNING id;
+  -- SQL Server
+  WITH c AS (SELECT TOP (10) * FROM jobs WITH (UPDLOCK, READPAST, ROWLOCK)
+             WHERE status = 'pending' ORDER BY created_at)
+  UPDATE c SET status = 'running' OUTPUT inserted.id;
+  ```
 - `SKIP LOCKED` / `READPAST` = ข้ามแถวที่ worker อื่นล็อกอยู่ ไม่รอกัน
 - ต้องมี index ที่ตรงกับ `WHERE` + `ORDER BY` (มัก filtered / partial index `WHERE status = 'pending'`, IX-07)
 - งานที่ worker ตายกลางทาง: ใช้ `locked_until` / heartbeat แล้วให้ปล่อยคืนเมื่อหมดเวลา

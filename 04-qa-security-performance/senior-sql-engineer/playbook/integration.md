@@ -52,7 +52,7 @@ RETURNING id, topic, payload;
 -- the row locks end at COMMIT; the lease (locked_until) is what keeps other workers away
 ```
 - ⚠️ `SELECT … FOR UPDATE SKIP LOCKED` อย่างเดียวกันงานซ้ำได้ **เฉพาะตอนที่ยังถือ transaction อยู่** พอ commit แล้ว lock หลุด worker อื่นหยิบแถวเดิมได้ทันที จึงต้องใช้ lease (`locked_until`) แบบข้างบนถ้าจะทำงานนอก transaction
-- worker ทำงานแล้ว `UPDATE outbox SET processed_at = now(), locked_until = NULL` ถ้าล้มให้เลื่อน `next_attempt_at` แบบ exponential backoff, เกินจำนวนครั้งที่กำหนดให้ย้ายไป dead-letter และแจ้งเตือน
+- worker ทำงานแล้ว `UPDATE outbox SET processed_at = now(), locked_until = NULL WHERE id = $1 AND locked_until = $2` (lease ที่ตัวเองได้มา กัน worker ที่ lease หมดอายุไปแล้วเขียนทับ) ถ้าล้มให้เลื่อน `next_attempt_at` แบบ exponential backoff, เกินจำนวนครั้งที่กำหนดให้ย้ายไป dead-letter และแจ้งเตือน
 - ⚠️ การรับประกันคือ **at-least-once** (worker อาจทำสำเร็จแล้วตายก่อนบันทึก → ทำซ้ำ) → ปลายทางต้อง idempotent (IG-04)
 - outbox โตเร็ว: ลบ / archive แถวที่ processed แล้วเป็นรอบเล็กๆ (หัวข้อลบข้อมูลใน IX-10, MG-05) หรือ partition ตามเวลา (SD-03) และระวัง bloat จาก UPDATE บ่อย (PG-02)
 - อย่าถือ transaction ค้างตอน worker เรียก API: claim + lease → commit → ทำงาน → บันทึกผลใน transaction ใหม่ (lease ต้องยาวกว่าเวลาทำงานปกติ ถ้า worker ตาย lease หมดอายุแล้ว worker อื่นจะหยิบต่อ)
