@@ -102,3 +102,26 @@ CREATE TABLE Employee_Profile (
 3. ไฟล์ส่วนตัว (เอกสาร, บัตรประชาชน, สลิป) ใช้ **signed URL ที่หมดอายุ** + ตรวจสิทธิ์ (AP-04) ห้ามเปิด bucket public และห้ามคืน path บน server ให้ client ตรงๆ
 4. ถ้าจำเป็นต้องเก็บใน database จริง (ไฟล์เล็ก, ต้อง transactional กับข้อมูล): เก็บเป็น **ไบต์ดิบ** `VARBINARY(MAX)` / `bytea` ไม่ใช่ base64, แยกไป **ตารางของมันเอง** (1:1 กับตารางหลัก) และไม่ดึงคอลัมน์นั้นใน query รายการ SQL Server มี `FILESTREAM` / FileTable สำหรับไฟล์ใหญ่
 5. ตรวจขนาดและชนิดไฟล์ฝั่ง server ก่อนรับเสมอ
+
+---
+
+## SD-03 — ข้อมูล append-only ปริมาณมหาศาล (แชต, event, log): แบ่ง partition ตามเวลา (กรณีศึกษา Discord)
+
+**จากคลิป devhopsss เรื่อง Discord** (อิงบทความวิศวกรรมของ Discord เอง): ข้อความหลายล้านล้านแถวเก็บใน Cassandra แล้วย้ายไป ScyllaDB ด้วย schema
+
+```sql
+CREATE TABLE messages (
+  channel_id bigint, bucket int, message_id bigint, author_id bigint, content text,
+  PRIMARY KEY ((channel_id, bucket), message_id)
+) WITH CLUSTERING ORDER BY (message_id DESC);
+```
+- **partition key `(channel_id, bucket)`**: `bucket` = ช่วงเวลาคงที่ (เช่น 10 วัน) ทำให้ partition ของห้องแชตที่คุยกันมาหลายปีไม่โตไม่สิ้นสุด
+- **`message_id` เป็น Snowflake ID** (เรียงตามเวลา) + clustering DESC → อ่าน "ข้อความล่าสุด 50 รายการของห้อง" ด้วยการอ่านต่อเนื่องจาก partition เดียว คือ keyset pagination (AP-08) ในระดับ storage
+- ปัญหาที่เจอ: hot partition (ห้องใหญ่ที่คนอ่านพร้อมกัน), GC pause ของ JVM ทำ node ค้าง → ย้ายไป ScyllaDB (C++) และเพิ่ม data service ที่ทำ **request coalescing** (คำขออ่านข้อมูลชุดเดียวกันพร้อมกันหลายพันคำขอ ยิง database ครั้งเดียวแล้วแจกผลให้ทุกคน)
+
+**นำมาใช้กับ SQL database (PostgreSQL / SQL Server / MySQL):**
+- ไม่จำเป็นต้องย้ายไป NoSQL เพื่อหลักการเดียวกัน: **declarative partitioning ตามช่วงเวลา** (PostgreSQL `PARTITION BY RANGE (created_at)`, SQL Server partition function / scheme) + PK / index นำด้วย key ที่ query ใช้ (`(channel_id, message_id DESC)`)
+- ลบข้อมูลเก่าด้วย drop / truncate partition แทน `DELETE` (ดู IX-10 เรื่อง page แหว่ง) และย้าย partition เก่าไป storage ถูกกว่าได้
+- ID เรียงตามเวลา (Snowflake / UUID v7 / `BIGINT IDENTITY`) ให้ทั้ง insert ต่อท้าย (IX-10) และ keyset pagination ฟรี
+- request coalescing / cache หน้า "ล่าสุด" ช่วย hot key ได้มากกว่าการเพิ่ม index
+- ⚠️ partition ไม่ได้ทำให้ทุก query เร็วขึ้น: query ที่ไม่มี partition key ใน `WHERE` ต้องเปิดทุก partition (ช้ากว่าตารางเดียว) ใช้เมื่อข้อมูลใหญ่จริง (หลายร้อยล้านแถวขึ้นไป) และ query เกือบทั้งหมดกรองตาม key + ช่วงเวลา

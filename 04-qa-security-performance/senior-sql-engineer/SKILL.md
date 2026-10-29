@@ -79,7 +79,7 @@ description: ใช้เมื่อทำงานกับ SQL / Database เ
 - Schema รองรับการเติบโตหรือไม่
 
 
-รายละเอียดการเลือก data type อยู่ใน [playbook/schema-design.md](playbook/schema-design.md) (SD-01 data type, SD-02 เก็บไฟล์ / รูป)
+รายละเอียดการเลือก data type อยู่ใน [playbook/schema-design.md](playbook/schema-design.md) (SD-01 data type, SD-02 เก็บไฟล์ / รูป, SD-03 partition ข้อมูลมหาศาลตามเวลา)
 
 ---
 
