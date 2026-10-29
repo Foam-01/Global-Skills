@@ -21,6 +21,7 @@
 | | IX-08 | Index มากเกินไป = ต้นทุนตอนเขียน (insert reads ต่อแถว 8 → ~46) + จัดกลุ่ม index จาก usage stats (ลูกรัก / ใช้หนัก / ขยะ) + หา query ที่ควรได้ index (dm_exec_query_stats, pg_stat_statements) + วิธีหา index ที่ไม่ได้ใช้ / ซ้ำซ้อน (SQL Server DMV, pg_stat_user_indexes) และเงื่อนไขก่อนลบ |
 | | IX-09 | สร้าง index บนคอลัมน์ FK ฝั่งลูก (SQL Server / PostgreSQL ไม่สร้างให้) — ~800,000 → 49 reads, ~5 วินาที → 53 ms · ลบแถวแม่ช้าเพราะ FK ไม่มี index · query หา FK ที่ไม่มี index |
 | | IX-10 | เลือก clustered key: IDENTITY vs UUID v4 (fragmentation 99.92%, 1,458 pages) vs v7 / NEWSEQUENTIALID (0.9%, 1,080 pages), page split, ไม่มี ORDER BY = ไม่รับประกันลำดับ, UUID v7 ใน SQL Server อาจไม่เรียง |
+| | IX-11 | Composite index ลำดับคอลัมน์ (leftmost prefix): (DisplayName, Location) กรองทั้งคู่ 4 reads seek vs กรอง Location อย่างเดียว 1,595 reads scan · `=` ไว้หน้า ช่วง / ORDER BY ไว้ท้าย · skip scan |
 | [schema-design.md](schema-design.md) | SD-01 | เลือก data type ให้พอดี: ปัญหาจริงของ MAX (index key, memory grant), PostgreSQL ต่างกัน, เบอร์โทร / เงิน / สถานะ, BIT ขังไว้ 2 ค่า |
 | [execution-plans.md](execution-plans.md) | EP-01 | เปิดและอ่าน execution plan: แถวจริง vs ประเมิน (34 of 1), scan / seek / lookup, คำเตือน, Cost % เป็นค่าประเมิน, Missing Index |
 | | EP-02 | แยกกล่องใน plan 4 กลุ่ม + Scan vs Seek (Index Scan ≠ อ่านทั้งตาราง): Nested Loops / Hash / Merge Join ใช้เมื่อไหร่, คำเตือนที่พบบ่อย (implicit conversion, spill, no join predicate), Missing Index ไม่ใช่คำเตือน, ไม่ใช่ทุก scan ต้องเป็น seek |
@@ -28,6 +29,6 @@
 ## วิธีเพิ่มบทเรียนใหม่
 
 1. เลือกไฟล์ตามหัวข้อ ถ้าไม่มีไฟล์ที่เหมาะ ให้สร้างไฟล์ใหม่ (เช่น `transactions.md`, `concurrency.md`, `pagination.md`) และเพิ่มในตาราง `14.5` ของ `SKILL.md`
-2. ใช้รหัสต่อจากเดิม (AP-08, IX-11, SD-02, EP-03 …) และเพิ่มแถวในตารางด้านบน
+2. ใช้รหัสต่อจากเดิม (AP-08, IX-12, SD-02, EP-03 …) และเพิ่มแถวในตารางด้านบน
 3. แต่ละบทต้องมี: ❌ ตัวอย่างที่ผิด · ✅ วิธีแก้ · **ทำไม** · **ข้อยกเว้น / ข้อควรระวัง** · คำสั่งของทั้ง SQL Server และ PostgreSQL ถ้าต่างกัน
 4. ตรวจความถูกต้องก่อนใส่ (คลิปสั้นมักตัดข้อยกเว้นออก) และห้ามขัดกับ CORE PRINCIPLE ใน `SKILL.md`

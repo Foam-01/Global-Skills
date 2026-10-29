@@ -511,3 +511,29 @@ JOIN sys.indexes i ON i.object_id = ips.object_id AND i.index_id = ips.index_id
 WHERE ips.page_count >= 1000
 ORDER BY ips.avg_fragmentation_in_percent DESC;
 ```
+
+---
+
+## IX-11 — Composite Index: ลำดับคอลัมน์สำคัญ (leftmost prefix)
+
+**หลัก:** index `(A, B)` เรียงข้อมูลตาม A ก่อน แล้วจึงเรียง B **ภายใน A เดียวกัน** เหมือนสมุดโทรศัพท์ที่เรียงนามสกุลแล้วตามด้วยชื่อ จึง seek ได้เมื่อ query กรอง A (หรือ A + B) แต่ถ้ากรอง B อย่างเดียว ค่า B จะกระจายอยู่ทั่วทั้ง index และต้อง scan
+
+**ตัวเลขจากคลิป (Users, `NCIX_Users_DisplayName_Location ON Users(DisplayName, Location)`):**
+
+| WHERE | Plan | logical reads |
+|---|---|---|
+| `DisplayName = 'Alex' AND Location = 'Boston, MA'` | Index Seek | 4 |
+| `DisplayName = 'Alex'` | Index Seek (831 แถว, ประเมินตรง 831 of 831) | ไม่กี่ page |
+| `Location = 'Belgium'` | Index **Scan** (ทั้ง index) | 1,595 |
+
+**กฎเลือกลำดับคอลัมน์:**
+1. คอลัมน์ที่กรองด้วย **เท่ากับ (`=`)** ไว้หน้า ส่วนคอลัมน์ที่กรองด้วย **ช่วง** (`>`, `<`, `BETWEEN`, `LIKE 'x%'`) หรือ `ORDER BY` ไว้ท้าย เพราะหลังคอลัมน์ช่วงแล้ว คอลัมน์ถัดไปจะใช้ seek ไม่ได้ (กลายเป็น residual predicate)
+   - เช่น `WHERE customer_id = @c AND created_at >= @d ORDER BY created_at` ใช้ `(customer_id, created_at)` ไม่ใช่ `(created_at, customer_id)`
+2. เลือกคอลัมน์หน้าให้ตรงกับ **query ที่มีอยู่จริงมากที่สุด** แทนกฎ "selectivity สูงไว้หน้า" แบบตายตัว เมื่อเป็นเงื่อนไข `=` ทั้งคู่ ลำดับแทบไม่มีผลต่อ seek นั้น แต่มีผลกับ query อื่นที่กรองแค่คอลัมน์เดียว
+3. index `(A, B)` ทำให้ index `(A)` เดี่ยวซ้ำซ้อน (ลบได้หลังตรวจ IX-08) แต่ **ไม่** ครอบคลุม query ที่กรอง `B` อย่างเดียว ซึ่งต้องมี `(B)` หรือ `(B, A)` ของตัวเอง
+4. คอลัมน์ที่แค่อยู่ใน SELECT ให้ใส่ `INCLUDE` (IX-02) ไม่ต้องเป็น key
+
+**สิ่งที่ต้องแก้ / เสริมจากคลิป:**
+- กรอง B อย่างเดียวไม่ได้ "ใช้ index ไม่ได้" มันยังใช้ได้แบบ **scan** ซึ่งอาจถูกกว่า scan ตารางเพราะ index แคบกว่า แต่ไม่ใช่ seek
+- Oracle (index skip scan), MySQL 8.0.13+ (skip scan) และ PostgreSQL 18 (skip scan บน B-tree) ข้ามคอลัมน์หน้าได้ในบางกรณีเมื่อคอลัมน์หน้ามีค่าน้อย แต่ SQL Server ไม่มี feature นี้ อย่าออกแบบโดยพึ่ง skip scan
+- MySQL / PostgreSQL ใช้หลัก leftmost prefix เหมือนกัน
