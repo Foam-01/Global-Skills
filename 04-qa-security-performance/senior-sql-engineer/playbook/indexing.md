@@ -181,6 +181,7 @@ OPTION (RECOMPILE);   -- ใช้ตอนทดสอบเท่านั้�
 - **logical reads ไม่ได้บอกทุกอย่าง:** query ที่ reads น้อยก็ยังช้าได้ถ้าติด **lock / blocking**, ใช้ **CPU หนัก** (ฟังก์ชันต่อแถว, sort / hash ขนาดใหญ่), **spill ลง tempdb** หรือ **ส่งผลลัพธ์จำนวนมาก** (IX-06) — ดู CPU time, wait stats และ plan ประกอบเสมอ
 - เมื่อเจอ "query ช้าเฉพาะบางเวลา" ให้สงสัย blocking / ภาระ server ก่อน แทนที่จะแก้ query
 
+- เทียบแผน / ตัวเลขให้นิ่งขึ้นตอนทดสอบ: `OPTION (MAXDOP 1)` ปิดการรันขนาน (scan count และ reads ไม่แกว่งตามจำนวน thread) — ใช้ตอนเทียบเท่านั้น ไม่ใส่ใน query จริงโดยไม่มีเหตุผล
 - เทียบเวลาให้ยุติธรรม: รันหลายครั้งแล้วดูค่ากลาง หรือเทียบตอน cache อุ่นทั้งคู่ — ห้ามเทียบรันแรก (cache เย็น) กับรันหลัง
 - รายงานเป็น "logical reads ลดจาก X เหลือ Y" พร้อม plan ก่อน/หลัง แทนการบอกว่า "เร็วขึ้น N เท่า" อย่างเดียว
 
@@ -411,6 +412,8 @@ CREATE INDEX CONCURRENTLY ix_posts_owner_user_id ON posts (owner_user_id) INCLUD
 |---|---|---|---|---|
 | ไม่มี index บน `OwnerUserId` | 13 / ~800,000 (รันขนาน + Workfile) | 13 / ~1,370 | ~14,100 ms | ~5,060 ms |
 | มี `(OwnerUserId) INCLUDE (ViewCount)` | **10 / 49** | 1 / 14 | ต่ำมาก | ~53 ms |
+
+- อีกตัวอย่าง (`AVG(ViewCount)` + `INNER JOIN` + `OPTION (RECOMPILE, MAXDOP 1)`): ไม่มี index → Posts scan 1 / 799,163 reads · CPU 4,468 ms · elapsed 5,236 ms → มี index → Posts **244 reads** · elapsed 86 ms (AVG ต้องอ่านโพสต์ทุกตัวของผู้ใช้ 10 คน จึงอ่านมากกว่า MAX ซึ่งหยุดได้เร็วกว่า) — คลิปแปลง 800,000 × 8 KB เป็น "RAM 6,250 MB" ซึ่งคือปริมาณงานอ่าน ไม่ใช่ RAM (IX-04)
 
 **ทำไมต่างมากขนาดนี้:**
 - ไม่มี index → database ต้อง `GROUP BY` **โพสต์ทั้งตาราง** เพื่อหา MAX ของทุกผู้ใช้ ทั้งที่ต้องการแค่ 10 คน
