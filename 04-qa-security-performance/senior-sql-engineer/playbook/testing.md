@@ -42,6 +42,8 @@ SELECT is((SELECT count(*) FROM u), 0::bigint,
 SELECT * FROM finish();
 ROLLBACK;
 ```
+- ต้องมี **test เชิงบวกด้วย** (ผู้ใช้เห็น / แก้แถวของตัวเองได้) ไม่เช่นนั้น policy ที่บล็อกทุกแถวก็ผ่าน test เชิงลบ
+- test UPDATE ที่คาดว่าได้ 0 แถว ใช้ได้เมื่อ role นั้นมี `GRANT UPDATE` บนตาราง ถ้าไม่มีจะได้ `permission denied` แทน (ซึ่งก็ปลอดภัย แต่ test จะ error)
 - ทดสอบด้วย **role ที่แอปใช้จริง** (`authenticated` / `anon` / role ของแอป) ไม่ใช่ `postgres` ที่ข้าม RLS (DM-01)
 - ทดสอบทั้ง SELECT / INSERT / UPDATE / DELETE และกรณี "ผู้ใช้ไม่ได้ login"
 - ฝั่ง API: test ที่ใช้ token ของผู้ใช้ A ขอข้อมูลของผู้ใช้ B ต้องได้ 403 / 404 (AP-04)

@@ -114,10 +114,16 @@
 | | SE-04 | รั่วทางอ้อม: error message, คอลัมน์เกิน, mass assignment, log / backup, การนับ |
 | | SE-05 | เก็บข้อมูลลับ: password hash, token hash, column encryption + key นอก DB, ไม่เก็บบัตรเครดิต |
 | | SE-06 | สิทธิ์ขั้นต่ำ, column privilege / view, audit, ตารางที่ลืมเปิด RLS |
+| [integration.md](integration.md) | IG-01 | Dual write: DB + อีเมล / API / search ไม่ตรงกัน |
+| | IG-02 | Transactional outbox: เขียนใน transaction เดียว, worker SKIP LOCKED, backoff, dead-letter, at-least-once |
+| | IG-03 | Cache: cache-aside + ลบหลัง commit, ห้ามใช้ตัดสินเรื่องเงิน / สต็อก, stampede, key ต้องรวม tenant |
+| | IG-04 | Consumer idempotent: processed_events + ON CONFLICT, event สลับลำดับ |
+| | IG-05 | CDC: trigger, LISTEN/NOTIFY (เป็นแค่ตัวปลุก), logical replication / Debezium (slot ค้าง), Supabase Realtime / webhook, SQL Server CDC |
+| | IG-06 | Read model: database หลักคือความจริง, reconcile / rebuild |
 
 ## วิธีเพิ่มบทเรียนใหม่
 
 1. เลือกไฟล์ตามหัวข้อ ถ้าไม่มีไฟล์ที่เหมาะ ให้สร้างไฟล์ใหม่ (เช่น `transactions.md`, `concurrency.md`, `pagination.md`) และเพิ่มในตาราง `14.5` ของ `SKILL.md`
-2. ใช้รหัสต่อจากเดิม (AP-14, IX-13, SD-04, EP-03, FD-07, CC-07, MG-07, PG-08, OP-07, DM-09, IN-08, OR-08, SR-06, AN-06, MY-06, TS-07, SE-07 …) และเพิ่มแถวในตารางด้านบน
+2. ใช้รหัสต่อจากเดิม (AP-14, IX-13, SD-04, EP-03, FD-07, CC-07, MG-07, PG-08, OP-07, DM-09, IN-08, OR-08, SR-06, AN-06, MY-06, TS-07, SE-07, IG-07 …) และเพิ่มแถวในตารางด้านบน
 3. แต่ละบทต้องมี: ❌ ตัวอย่างที่ผิด · ✅ วิธีแก้ · **ทำไม** · **ข้อยกเว้น / ข้อควรระวัง** · คำสั่งของทั้ง SQL Server และ PostgreSQL ถ้าต่างกัน
 4. ตรวจความถูกต้องก่อนใส่ (คลิปสั้นมักตัดข้อยกเว้นออก) และห้ามขัดกับ CORE PRINCIPLE ใน `SKILL.md`

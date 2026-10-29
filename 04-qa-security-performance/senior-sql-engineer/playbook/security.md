@@ -43,8 +43,8 @@ EXEC sp_executesql @sql, N'@name nvarchar(100)', @name = @name;
 
 function แบบนี้รันด้วยสิทธิ์ของ **เจ้าของ** (มักเป็น `postgres`) และข้าม RLS → ถ้าเขียนพลาดคือประตูหลังของทั้ง database
 - ตั้ง `SET search_path = ''` (หรือ schema ที่ปลอดภัย) และอ้างชื่อเต็ม `public.orders`, `auth.uid()` ทุกตัว กันการสร้าง object ปลอมใน schema อื่นมาแทนที่
-- ตรวจสิทธิ์ข้างใน function เอง (`IF NOT is_shop_admin((select auth.uid()), p_shop_id) THEN RAISE EXCEPTION …`) เพราะ RLS ไม่ช่วยแล้ว
-- `REVOKE EXECUTE ON FUNCTION … FROM PUBLIC, anon;` แล้ว `GRANT` เฉพาะ role ที่ต้องใช้ (function ใน schema `public` ของ Supabase ถูกเรียกผ่าน API `rpc()` ได้)
+- ตรวจสิทธิ์ข้างใน function เอง (`IF NOT public.is_shop_admin((select auth.uid()), p_shop_id) THEN RAISE EXCEPTION …`) เพราะ RLS ไม่ช่วยแล้ว
+- `REVOKE EXECUTE ON FUNCTION … FROM PUBLIC, anon, authenticated;` แล้ว `GRANT` เฉพาะ role ที่ต้องใช้ (default privileges ของ Supabase ให้ EXECUTE กับ `anon` / `authenticated` ตรงๆ และ function ใน schema ที่เปิดผ่าน API ถูกเรียกด้วย `rpc()` ได้)
 - ใช้ `SECURITY INVOKER` (default) ถ้าไม่จำเป็นต้องข้ามสิทธิ์
 
 ---
@@ -65,7 +65,7 @@ function แบบนี้รันด้วยสิทธิ์ของ **�
 | ข้อมูล | วิธีเก็บ |
 |---|---|
 | รหัสผ่าน | **hash แบบช้า** (argon2id / bcrypt / scrypt) ที่ฝั่งแอป หรือใช้ระบบ auth สำเร็จรูป ห้ามเข้ารหัสแบบถอดกลับได้ ห้าม MD5 / SHA ตรงๆ |
-| token / API key ที่ต้องตรวจ | เก็บ hash (SHA-256) ของ token แล้วเทียบ ไม่เก็บตัวจริง |
+| token / API key ที่ต้องตรวจ | เก็บ hash (SHA-256) ของ token แล้วเทียบ ไม่เก็บตัวจริง (SHA-256 ไม่ใส่ salt ปลอดภัยเฉพาะ token ที่สุ่มยาวและ entropy สูง ≥ 128 bit ไม่ใช่รหัสที่คนตั้ง) |
 | ข้อมูลที่ต้องอ่านกลับได้ (เลขบัตรประชาชน, เลขบัญชี) | เข้ารหัสระดับคอลัมน์ด้วยกุญแจที่อยู่ **นอก database** (KMS / Vault / Supabase Vault) + เก็บค่า hash แยกไว้ค้นหาแบบตรงตัว |
 | เลขบัตรเครดิต | อย่าเก็บเอง ใช้ token ของ payment provider |
 

@@ -518,6 +518,7 @@ After
 | [playbook/mysql.md](playbook/mysql.md) | โปรเจกต์ใช้ MySQL / MariaDB |
 | [playbook/testing.md](playbook/testing.md) | เขียน / รีวิว test ของ query, RLS, concurrency, migration |
 | [playbook/security.md](playbook/security.md) | SQL injection, dynamic SQL, SECURITY DEFINER, ข้อมูลรั่ว, เก็บรหัสผ่าน / ข้อมูลลับ |
+| [playbook/integration.md](playbook/integration.md) | เขียน DB แล้วต้องส่งอีเมล / เรียก API / อัปเดต cache หรือ search, outbox, webhook, event, CDC |
 
 เมื่อใช้คำแนะนำจาก playbook ให้อ้างรหัสหัวข้อ (เช่น AP-03, IX-02) ในรายงาน
 
