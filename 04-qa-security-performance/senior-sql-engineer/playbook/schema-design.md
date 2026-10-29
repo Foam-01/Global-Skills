@@ -85,3 +85,20 @@ CREATE TABLE Employee_Profile (
 - คอลัมน์ `MAX` / `text` ที่ถูกใช้ใน `WHERE`, `JOIN`, `ORDER BY` หรือควรเป็น unique → แจ้ง
 - ตัวเลขที่เก็บเป็นข้อความ, เงินที่เป็น FLOAT, เบอร์โทรที่เป็น INT → แจ้งเป็นบั๊กความถูกต้อง
 - ชนิดของคอลัมน์ที่ใช้ join กันต้อง **ตรงกัน** (เช่น `INT` กับ `INT` ไม่ใช่ `INT` กับ `VARCHAR`) ไม่อย่างนั้นเกิดการแปลงชนิดที่ทำให้ใช้ index ไม่ได้
+
+---
+
+## SD-02 — อย่าเก็บไฟล์ / รูป (โดยเฉพาะ base64) ในตารางหลัก
+
+**ปัญหา (คลิป LOB page base64):** `UPDATE Users SET Pic = 'data:image/jpeg;base64,...'`
+- แถวใน SQL Server ใส่ได้ราว **8,060 byte ต่อ page** ค่าที่ใหญ่กว่านั้นใน `VARCHAR(MAX)` / `VARBINARY(MAX)` ถูกย้ายไป **LOB page** แยก แถวหลักเหลือแค่ pointer (PostgreSQL ทำแบบเดียวกันเรียกว่า TOAST เมื่อแถวเกิน ~2 KB)
+- `SELECT *` หรือ `SELECT Id, Pic` ต้องตามอ่าน LOB page ทุกแถว → เห็นเป็น **lob logical reads** (คลิป: 22,970) แยกจาก logical reads ปกติ (IX-04)
+- **base64 ทำข้อมูลบวมขึ้น ~33%** (3 byte → 4 ตัวอักษร) และถ้าเก็บใน `NVARCHAR` ก็บวมอีก 2 เท่า
+- ผลข้างเคียงที่คลิปไม่ได้พูด: backup / restore / replication ใหญ่และช้าลง, buffer pool ถูกรูปเบียดข้อมูลที่ query ใช้จริง, API ส่ง payload ใหญ่โดยไม่ตั้งใจ
+
+**ทางที่ถูก:**
+1. อัปไฟล์ไปที่ object storage (S3, R2, GCS, Supabase Storage, Cloudinary) แล้วเก็บแค่ **object key** + metadata (`content_type`, `size_bytes`, `checksum`, `uploaded_by`) ในตาราง
+2. เก็บ **key / path แบบ relative** (`profiles/user_1.jpg`) ไม่ใช่ URL เต็ม เพื่อย้าย bucket / CDN / domain ได้โดยไม่ต้อง update ทุกแถว แล้วสร้าง URL ตอนแสดงผล
+3. ไฟล์ส่วนตัว (เอกสาร, บัตรประชาชน, สลิป) ใช้ **signed URL ที่หมดอายุ** + ตรวจสิทธิ์ (AP-04) ห้ามเปิด bucket public และห้ามคืน path บน server ให้ client ตรงๆ
+4. ถ้าจำเป็นต้องเก็บใน database จริง (ไฟล์เล็ก, ต้อง transactional กับข้อมูล): เก็บเป็น **ไบต์ดิบ** `VARBINARY(MAX)` / `bytea` ไม่ใช่ base64, แยกไป **ตารางของมันเอง** (1:1 กับตารางหลัก) และไม่ดึงคอลัมน์นั้นใน query รายการ SQL Server มี `FILESTREAM` / FileTable สำหรับไฟล์ใหญ่
+5. ตรวจขนาดและชนิดไฟล์ฝั่ง server ก่อนรับเสมอ
