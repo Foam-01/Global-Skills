@@ -106,6 +106,8 @@ WHERE CreationDate >= 2009-01-01 AND CreationDate < 2010-01-01
 
 **ฟังก์ชันอื่นที่ทำให้ seek ไม่ได้แบบเดียวกัน:** `CAST(col AS DATE) = …` (SQL Server บางกรณียัง seek ได้ แต่ไม่ควรพึ่ง), `DATE_TRUNC(year, col) = …`, `LOWER(email) = …`, `col + 1 = …`, `ISNULL(col, 0) = …`, `LIKE %คำ%` — ย้ายการคำนวณไปฝั่งค่าคงที่ หรือสร้าง expression / computed-column index ถ้าจำเป็นต้องค้นแบบนั้นจริง
 
+**ตัวอย่างที่ 2 — `YEAR()` + `MONTH()` (คลิป B+Tree EP.05, `Users`, index `(LastAccessDate)`):** `WHERE LastAccessDate >= '2018-08-01' AND LastAccessDate < '2018-09-01'` ได้ 66,988 แถว ด้วย Index Seek **682 reads** (ประเมินตรง 66,988 of 66,988) ส่วน `YEAR(LastAccessDate) = 2018 AND MONTH(LastAccessDate) = 8` ต้อง scan ทั้ง index และประเมินจำนวนแถวผิดด้วย เพราะ optimizer ใช้ statistics ของคอลัมน์ที่ถูกครอบด้วยฟังก์ชันไม่ได้
+
 - ระวัง timezone: เก็บเป็น UTC และแปลงขอบเขตช่วงก่อน query
 
 ## IX-04 — วัดผล query ด้วยตัวเลขที่ถูกต้อง
