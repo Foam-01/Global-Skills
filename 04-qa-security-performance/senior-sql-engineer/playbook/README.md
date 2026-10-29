@@ -14,6 +14,7 @@
 | | AP-08 | Pagination ด้วย OFFSET หน้าลึก (อ่านทิ้ง n แถว) → keyset `WHERE Id > @LastId`, tie-breaker เมื่อเรียงคอลัมน์ไม่ unique, ตารางเลือก OFFSET vs keyset, deferred join |
 | | AP-09 | "SP เร็วกว่าเพราะเก็บ plan" เป็นความเชื่อเก่า (parameterized query ก็ cache plan) · SP คุ้มเมื่อลด round trip / transaction สั้น / คุมสิทธิ์ · ข้อเสีย · parameter sniffing และวิธีแก้ |
 | | AP-10 | JOIN ด้วย key ที่ต้องแปลงก่อนเทียบ (`IN` หลายรูปแบบ GUID, `COLLATE`, `CONCAT`) → non-sargable ~24 วินาที · แก้ที่ต้นเหตุ: canonical format, collation ตรงกัน, JOIN หลายคอลัมน์ / generated column, functional index ชั่วคราว |
+| | AP-11 | `UNION` ทั้งที่ไม่มีทางซ้ำ → `UNION ALL`: Distinct Sort / memory grant / spill, รอครบก่อนคืนแถวแรก (ทำลาย TOP), เมื่อไหร่ต้องใช้ UNION จริง, NULL ถือว่าซ้ำ |
 | [indexing.md](indexing.md) | IX-01 | Index คอลัมน์ที่ใช้กรอง (selectivity, tipping point, ต้นทุน write) |
 | | IX-02 | Covering index ด้วย `INCLUDE` + ตัวอย่างตัวเลขจริง 803,786 → 7,341 reads |
 | | IX-03 | ช่วงวันที่: ห้าม `YEAR()` / ฟังก์ชันครอบคอลัมน์ และห้าม `BETWEEN` กับ datetime + ตัวเลขจริง (YEAR() 22,959 vs range 7,341 reads, BETWEEN ทำข้อมูลหาย 3,594 แถว) + YEAR()/MONTH() vs ช่วง 682 reads + ตารางเขียนใหม่ให้ SARGable (LEFT, ISNULL, UPPER, คำนวณในคอลัมน์, implicit conversion) + EF Core ส่ง N'P%' ใส่คอลัมน์ VARCHAR 841 → 42 reads (HasColumnType / IsUnicode(false)) |
@@ -34,6 +35,6 @@
 ## วิธีเพิ่มบทเรียนใหม่
 
 1. เลือกไฟล์ตามหัวข้อ ถ้าไม่มีไฟล์ที่เหมาะ ให้สร้างไฟล์ใหม่ (เช่น `transactions.md`, `concurrency.md`, `pagination.md`) และเพิ่มในตาราง `14.5` ของ `SKILL.md`
-2. ใช้รหัสต่อจากเดิม (AP-11, IX-13, SD-03, EP-03 …) และเพิ่มแถวในตารางด้านบน
+2. ใช้รหัสต่อจากเดิม (AP-12, IX-13, SD-03, EP-03 …) และเพิ่มแถวในตารางด้านบน
 3. แต่ละบทต้องมี: ❌ ตัวอย่างที่ผิด · ✅ วิธีแก้ · **ทำไม** · **ข้อยกเว้น / ข้อควรระวัง** · คำสั่งของทั้ง SQL Server และ PostgreSQL ถ้าต่างกัน
 4. ตรวจความถูกต้องก่อนใส่ (คลิปสั้นมักตัดข้อยกเว้นออก) และห้ามขัดกับ CORE PRINCIPLE ใน `SKILL.md`
