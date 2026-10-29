@@ -296,3 +296,26 @@ LEFT JOIN zone_master zm
 - ถ้าต้องการไม่ซ้ำแค่บางคอลัมน์ (เช่น email) `UNION` ไม่ช่วย ต้องใช้ `ROW_NUMBER() OVER (PARTITION BY email ORDER BY …)` เลือกแถวที่ต้องการ
 
 **รีวิวโค้ด:** เจอ `UNION` ให้ถาม 3 ข้อ (ซ้ำได้จริงไหม · มี PK ใน SELECT ไหม · ถ้าซ้ำ ซ้ำเพราะอะไร) และเปิด plan หา Distinct Sort / Hash Aggregate
+
+---
+
+## AP-12 — CTE ที่ถูกอ้างหลายครั้ง, Temp Table vs Table Variable vs CTE
+
+**จากโพสต์ devhopsss เรื่อง Temp Table (สรุปส่วนใหญ่ถูกต้อง) + ข้อเสริม:**
+
+**1. CTE ไม่ได้เก็บผลไว้ (SQL Server):** `WITH x AS (...)` เป็นแค่ชื่อเรียก query ถ้าอ้าง `x` 3 ครั้ง (`FROM x a JOIN x b JOIN x c`) optimizer มัก **ประมวลผล query นั้นซ้ำ 3 รอบ** ถ้า query หนัก ให้เก็บผลลง temp table ครั้งเดียว
+- PostgreSQL 12+ ทำเหมือนกัน (inline) ถ้าอ้างครั้งเดียว แต่ถ้าอ้างหลายครั้งจะ materialize ให้อัตโนมัติ และบังคับได้ด้วย `WITH x AS MATERIALIZED (...)`
+- CTE ที่อ้างครั้งเดียวไม่มีต้นทุนเพิ่ม ใช้เพื่อความอ่านง่ายได้เต็มที่
+
+**2. แตก query ยักษ์เป็นขั้นด้วย temp table:** `SELECT … INTO #Step1 …` → `#Step2` → ผลสุดท้าย อ่านง่าย debug ทีละขั้นได้ (`SELECT * FROM #Step1`) และมักได้ plan ที่ดีกว่าเพราะ optimizer เห็นจำนวนแถวจริงของแต่ละขั้น (ช่วยเมื่อ estimate ผิดมาก, EP-01)
+
+| | `#Temp` | `@TableVariable` | `##GlobalTemp` |
+|---|---|---|---|
+| ขอบเขต | session (หายเมื่อปิด connection) | batch / procedure ที่ประกาศ | ทุก session มองเห็น |
+| statistics | ✅ มี → plan แม่น | ❌ ไม่มี: ก่อน SQL Server 2019 ประเมินว่ามี **1 แถวเสมอ** (2019+ มี deferred compilation ช่วยบ้าง) | ✅ |
+| index | สร้างได้หลังสร้างตาราง | ได้เฉพาะ inline (PK / UNIQUE / INDEX ในตอนประกาศ) | ได้ |
+| rollback | ข้อมูลถูก rollback | **ไม่ถูก rollback** (ใช้เก็บ log ระหว่าง transaction ได้) | ถูก rollback |
+| เหมาะกับ | ข้อมูลเยอะ / JOIN ต่อ | ไม่กี่สิบแถว ไม่ JOIN ซับซ้อน | แทบไม่ควรใช้ (ชนกันข้าม session) |
+
+**3. ราคาที่ต้องจ่าย:** temp table อยู่ใน **tempdb ที่ทุก database บน server ใช้ร่วมกัน** การเขียนลง tempdb มีต้นทุน; query สั้นที่ JOIN ธรรมดาใส่ temp table แล้วช้าลง และ **สร้าง temp table ในลูป** ทำให้ tempdb แย่งกันทั้งเครื่อง ใช้เมื่อมันแก้ปัญหาจริง (ผลกลางถูกใช้ซ้ำ, estimate ผิด, query อ่านไม่ออก) ไม่ใช่ใส่ทุก query
+- PostgreSQL: `CREATE TEMP TABLE` ไม่มี statistics อัตโนมัติจนกว่าจะ `ANALYZE` (autovacuum ไม่ดูแล temp table) ให้ `ANALYZE tmp;` หลังใส่ข้อมูลก่อน JOIN

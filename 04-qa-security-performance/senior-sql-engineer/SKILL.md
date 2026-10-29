@@ -469,7 +469,7 @@ After
 
 | ไฟล์ | เปิดเมื่อ |
 |---|---|
-| [playbook/anti-patterns.md](playbook/anti-patterns.md) | รีวิว query หรือโค้ดที่เรียก database (subquery vs JOIN, N+1, EXISTS, IDOR, NOT IN + NULL, LEFT / RIGHT JOIN, กรองในแอปแทน database, pagination OFFSET vs keyset, stored procedure / parameter sniffing, JOIN ด้วย key ที่ต้องแปลง, UNION vs UNION ALL) |
+| [playbook/anti-patterns.md](playbook/anti-patterns.md) | รีวิว query หรือโค้ดที่เรียก database (subquery vs JOIN, N+1, EXISTS, IDOR, NOT IN + NULL, LEFT / RIGHT JOIN, กรองในแอปแทน database, pagination OFFSET vs keyset, stored procedure / parameter sniffing, JOIN ด้วย key ที่ต้องแปลง, UNION vs UNION ALL, CTE / temp table / table variable) |
 | [playbook/indexing.md](playbook/indexing.md) | จะสร้าง / เลือก / ตรวจ index หรือวัดผล query (filter index, covering INCLUDE, ช่วงวันที่, logical reads, LIKE %คำ%, query คืนข้อมูลหลายล้านแถว, เลือก PK / UUID) |
 | [playbook/schema-design.md](playbook/schema-design.md) | ออกแบบตาราง / เลือก data type / รีวิว migration ที่สร้างหรือแก้คอลัมน์ / เก็บไฟล์หรือรูป |
 | [playbook/execution-plans.md](playbook/execution-plans.md) | query ช้า ต้องหาสาเหตุ หรือยืนยันผลการแก้ด้วย execution plan |
