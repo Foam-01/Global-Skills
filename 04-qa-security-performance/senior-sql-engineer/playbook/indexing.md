@@ -43,6 +43,17 @@ INCLUDE (Title);
 CREATE INDEX ix_posts_creation_date ON posts (creation_date) INCLUDE (title);
 ```
 
+**ตัวอย่างผลจริงแบบเล็ก** (SQL Server, `SELECT Id, DisplayName, Location FROM Users WHERE DisplayName = @name` ได้ 1 แถว):
+
+| Index | Plan | logical reads |
+|---|---|---|
+| ไม่มี | Clustered Index Scan ขนาน (scan count 13) | 7,768 |
+| `(DisplayName)` | Index Seek + Key Lookup (ไปเอา `Location` จากตารางจริง) | 6 |
+| `(DisplayName) INCLUDE (Location)` | Index Seek อย่างเดียว | 3 |
+
+- nonclustered index เก็บ **key + ตัวชี้ไปแถวจริง** (clustered key เช่น `Id`) — คอลัมน์ที่ไม่อยู่ใน index ต้องเดินตามตัวชี้ไปอ่าน (Key Lookup) ทีละแถว
+- กับ 1 แถว lookup เพิ่มแค่ 3 หน้า (ไม่จำเป็นต้อง INCLUDE เสมอ) แต่กับหลายพันแถว lookup คูณตามจำนวนแถว (ดู IX-01 tipping point)
+
 - **Key** = คอลัมน์ที่ใช้ค้นหา / กรอง / เรียง (`WHERE`, `JOIN`, `ORDER BY`) · **INCLUDE** = คอลัมน์ที่แค่ต้องแสดงผล
 - **SQL Server:** ถ้าตารางมี **clustered index** (เช่น `Id` ที่เป็น PK แบบ clustered) clustered key **ถูกเก็บในทุก nonclustered index อยู่แล้ว** ไม่ต้อง `INCLUDE (Id)` ซ้ำ — แต่ถ้าตารางเป็น **heap** (ไม่มี clustered index, ใน plan จะเห็น `Table Scan` / `RID Lookup`) ต้อง `INCLUDE (Id)` ถ้า query ต้องการ `Id` · ตาราง OLTP ส่วนใหญ่ควรมี clustered index ตั้งแต่แรก — เจอ heap ใน production ให้แจ้งด้วย
 - **อย่า INCLUDE คอลัมน์ใหญ่** (เช่น `Body`, `NVARCHAR(MAX)`, JSON) — index จะบวม กิน memory / disk และทำให้ write ช้า ถ้าต้องใช้คอลัมน์ใหญ่ ปล่อยให้ lookup เฉพาะแถวที่ได้ไม่กี่แถวดีกว่า
