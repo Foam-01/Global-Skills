@@ -213,6 +213,18 @@ ORDER BY ProductName, ProductID;
 -- index: (ProductName, ProductID) + INCLUDE คอลัมน์ที่แสดง (IX-02, IX-11)
 ```
 
+**Feed สินค้าตามหมวด ใหม่ล่าสุดก่อน (คลิป keyset feed):** คลิปใช้ `INDEX (CategoryId, CreatedAt DESC) INCLUDE (Name, Price, Rating, SoldCount, Stock)` แล้ว seek ไปที่หมวด + ต่อจาก `CreatedAt` ของแถวสุดท้าย ถูกหลักแล้ว (`=` ก่อน แล้วคอลัมน์เรียง, IX-11) แต่ **`CreatedAt` ไม่ unique** สินค้าที่สร้างเวลาเดียวกันจะหาย / ซ้ำระหว่างหน้า ต้องใส่ `Id` เป็น tie-breaker ทั้งใน index และเงื่อนไข
+
+```sql
+-- index: (CategoryId, CreatedAt DESC, Id DESC) INCLUDE (Name, Price, Rating, SoldCount, Stock)
+SELECT TOP (@Size) Id, Name, Price, CreatedAt
+FROM Products
+WHERE CategoryId = @Cat
+  AND (CreatedAt < @LastCreatedAt
+       OR (CreatedAt = @LastCreatedAt AND Id < @LastId))
+ORDER BY CreatedAt DESC, Id DESC;
+```
+
 **เลือกใช้แบบไหน:**
 
 | | OFFSET | Keyset |
