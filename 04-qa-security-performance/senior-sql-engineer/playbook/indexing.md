@@ -526,6 +526,11 @@ WHERE NOT EXISTS (
   - คลิป EP.06 วัดให้เห็น (insert ข้อมูลเท่ากัน 4 แบบ): UUID v7 มาตรฐานเก็บใน `uniqueidentifier` → **fragmentation 99.04%, 1,455 pages** (แย่พอๆ กับ v4) · v7 / v1 ที่จัดไบต์ให้เข้ากับวิธีเรียงของ SQL Server → ราว 43–47%, ~1,570 pages · UUID v7 เก็บเป็น `BINARY(16)` → **0.9%, 1,000 pages** ดังนั้นถ้าต้องใช้ v7 ใน SQL Server ให้เก็บเป็น `BINARY(16)` หรือสลับไบต์ให้ตรงกับลำดับการเรียงของ SQL Server แล้ววัด fragmentation ยืนยัน
 - PostgreSQL ไม่มี clustered index ถาวร (ตารางเป็น heap) แต่ B-tree ของ PK ก็ยังกระจัดกระจาย / บวมจาก UUID v4 เหมือนกัน
 
+**ลบข้อมูลครึ่งตารางแล้ว query ไม่เร็วขึ้น (คลิป Deleted Data / page แหว่ง):** `DELETE` ไม่ได้คืน page ทันที แถวหายไปแต่ **page ยังอยู่และเหลือแถวกระจัดกระจาย** (page density ต่ำ) scan ทั้งตารางจึงยังอ่าน page จำนวนเกือบเท่าเดิม คลิปแสดงว่าหลัง `ALTER INDEX PK_User_Id ON User_Logs REBUILD` query เดิมเหลือ 23,870 logical reads / 155 ms
+- ตรวจด้วย `avg_page_space_used_in_percent` (query ด้านล่าง ใช้โหมด `SAMPLED` / `DETAILED`; โหมด `LIMITED` ไม่คืนค่านี้)
+- ลบก้อนใหญ่ตามช่วงเวลา (log, event) บ่อยๆ → ออกแบบเป็น **partition ตามวันที่** แล้ว `TRUNCATE ... WITH (PARTITIONS ...)` / `DROP` partition แทน `DELETE` (เร็วกว่าและไม่ทิ้ง page แหว่ง) PostgreSQL: `DELETE` ทิ้ง dead tuple รอ `VACUUM` และ `VACUUM` ปกติไม่คืนพื้นที่ให้ OS ใช้ partition + `DROP TABLE` partition เก่าเช่นกัน
+- ลบจำนวนมากใน production ให้ทำ **เป็นรอบละไม่กี่พันแถว** (`DELETE TOP (5000) ... ` วนจนหมด) เพื่อไม่ถือ lock นาน / ไม่ escalate เป็น table lock / ไม่ทำ log โตทีเดียว
+
 **แนวทางเลือก:**
 1. ค่าเริ่มต้น: `BIGINT IDENTITY` (หรือ `GENERATED ALWAYS AS IDENTITY`) เป็น PK / clustered key
 2. ต้องการ id สาธารณะที่เดาไม่ได้: ใช้ PK เป็นตัวเลข + คอลัมน์ `public_id` UUID แยกพร้อม unique nonclustered index หรือใช้ UUID v7 เป็น PK
