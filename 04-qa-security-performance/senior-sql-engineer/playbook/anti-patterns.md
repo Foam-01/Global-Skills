@@ -228,3 +228,23 @@ ORDER BY ProductName, ProductID;
 - ส่ง cursor ให้ client แบบ opaque (เช่น base64 ของ `{name, id}`) แทนการให้ client ส่ง SQL ค่าเอง และตรวจ input ทุกครั้ง
 - `COUNT(*)` เพื่อแสดง "ทั้งหมด N หน้า" บนตารางใหญ่ก็แพงพอๆ กับ scan; พิจารณาแสดงแค่ "ถัดไป" หรือใช้ค่าประมาณ
 - ถ้าจำเป็นต้องใช้ OFFSET หน้าลึก ลดต้นทุนด้วย "deferred join": หา key ด้วย OFFSET บน index แคบๆ ก่อน แล้วค่อย JOIN กลับไปดึงคอลัมน์ที่เหลือ
+
+---
+
+## AP-09 — "Stored Procedure เร็วกว่าเพราะเก็บ plan ไว้" (ความเชื่อเก่า) และเมื่อไหร่ควรใช้ SP จริง
+
+**ความเชื่อที่ผิด:** ตั้งแต่ SQL Server 2005 query แบบ **parameterized** จากแอป / ORM (`sp_executesql`, `@p0`) ก็ถูกเก็บ plan ใน plan cache และนำกลับมาใช้เหมือน SP ทุกอย่าง ความเร็วต่อ query จึงแทบไม่ต่าง (จากโพสต์ devhopsss เรื่อง Stored Procedure ซึ่งสรุปได้ถูกต้อง)
+- ข้อยกเว้น: SQL ที่ **ต่อ string ค่าเข้าไปตรงๆ** (`WHERE id = 5`, `WHERE id = 6` …) ได้ plan ใหม่ทุกค่า → plan cache บวม + เสีย CPU compile และเสี่ยง SQL injection แก้ด้วยการใช้ parameter ไม่ใช่ย้ายไป SP
+
+**ที่ SP / function ฝั่ง database คุ้มจริง:**
+1. **ลด round trip:** งานหลายขั้น (เช็กสต็อก → ตัดสต็อก → บันทึก order → เขียน log) จากแอปคุยกับ DB 4 รอบ; ใน SP คุยรอบเดียว และ transaction สั้นลง → ถือ lock สั้นลง → คนอื่นรอน้อยลง (มีผลมากเมื่อแอปกับ DB อยู่คนละ region)
+2. **คุมสิทธิ์:** ให้แอปมีสิทธิ์ `EXECUTE` เฉพาะ SP แทนสิทธิ์ `UPDATE` ทั้งตาราง (PostgreSQL / Supabase: `SECURITY DEFINER` function + `SET search_path` + `REVOKE` จาก `PUBLIC` และระวังเพราะ bypass RLS)
+3. งาน set-based ข้อมูลเยอะ ที่ถ้าทำในแอปต้องดึงข้อมูลออกมาก่อน (AP-07)
+
+**ข้อเสียที่ต้องยอมรับ:** logic กระจายสองที่, ต้องเก็บ SP ใน migration ภายใต้ git (ห้ามแก้ตรงบน server), unit test ยากกว่า, CPU ของ database คือทรัพยากรที่ scale แพงที่สุด, และ **parameter sniffing**
+
+**Parameter sniffing (เกิดกับ query parameterized ทุกแบบ ไม่ใช่เฉพาะ SP):** plan ถูกสร้างจากค่าพารามิเตอร์ของการรันครั้งแรก ถ้าครั้งแรกเป็นค่าที่มีแถวน้อย (seek + lookup) แล้วต่อมาเจอค่าที่มีแถวเป็นล้าน plan เดิมจะช้ามาก (หรือกลับกัน)
+- อาการ: query เดิม "บางทีเร็ว บางทีช้า" และหายเองหลัง restart / recompile
+- แก้ตามลำดับ: ตรวจ index ให้เหมาะก่อน → `OPTION (RECOMPILE)` เฉพาะ query ที่รันไม่บ่อย → `OPTIMIZE FOR (@p UNKNOWN)` / ค่าที่เป็นตัวแทน → Query Store บังคับ plan · SQL Server 2022 มี Parameter Sensitive Plan optimization ช่วยอัตโนมัติบางกรณี
+
+**สรุปกฎ:** CRUD ทั่วไปใช้ ORM / parameterized query; งานหลายขั้นที่ต้อง atomic, คุมสิทธิ์เข้ม หรือประมวลผลข้อมูลจำนวนมาก ใช้ SP / database function
