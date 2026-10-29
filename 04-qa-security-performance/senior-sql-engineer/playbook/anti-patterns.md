@@ -319,3 +319,40 @@ LEFT JOIN zone_master zm
 
 **3. ราคาที่ต้องจ่าย:** temp table อยู่ใน **tempdb ที่ทุก database บน server ใช้ร่วมกัน** การเขียนลง tempdb มีต้นทุน; query สั้นที่ JOIN ธรรมดาใส่ temp table แล้วช้าลง และ **สร้าง temp table ในลูป** ทำให้ tempdb แย่งกันทั้งเครื่อง ใช้เมื่อมันแก้ปัญหาจริง (ผลกลางถูกใช้ซ้ำ, estimate ผิด, query อ่านไม่ออก) ไม่ใช่ใส่ทุก query
 - PostgreSQL: `CREATE TEMP TABLE` ไม่มี statistics อัตโนมัติจนกว่าจะ `ANALYZE` (autovacuum ไม่ดูแล temp table) ให้ `ANALYZE tmp;` หลังใส่ข้อมูลก่อน JOIN
+
+---
+
+## AP-13 — เปิด transaction ค้างไว้ระหว่างเรียก API / เขียนไฟล์ และการใช้ tempdb เกินจำเป็น
+
+**ปัญหา (โพสต์ devhopsss เรื่อง tempdb):**
+
+```csharp
+using var tran = conn.BeginTransaction();
+db.Update(order);                              // 5 ms
+await http.PostAsync(paymentApi, body);        // ❌ รอ 30 วินาที
+await File.WriteAllTextAsync(logPath, data);   // ❌ เขียนไฟล์
+tran.Commit();
+```
+
+ระหว่าง 30 วินาทีนั้น transaction **ถือ lock แถว order ไว้** ทุกคนที่แตะแถวเดียวกันต้องรอ (blocking) และถ้าเปิด RCSI / snapshot isolation, version ของแถวที่ถูกแก้ต้องเก็บใน **tempdb version store** จนกว่าจะ commit → tempdb โตและช้าทั้งเครื่อง
+
+**กฎ:** transaction ครอบเฉพาะคำสั่ง database ที่ต้อง atomic เท่านั้น งานที่ต้องรอภายนอก (HTTP, ไฟล์, ส่งอีเมล, queue) ย้ายออกไปก่อนหรือหลัง
+
+```csharp
+var payment = await http.PostAsync(paymentApi, body);   // นอก transaction
+using (var tran = conn.BeginTransaction()) {
+    db.Update(order with { Status = payment.Status });
+    db.Insert(new Outbox(...));                         // งานที่ต้องทำต่อ
+    tran.Commit();                                      // ไม่กี่ ms
+}
+// worker อ่าน outbox ไปเขียนไฟล์ / ส่งอีเมล (retry ได้, ไม่ค้าง lock)
+```
+- ต้องให้ "เรียก API + บันทึก DB" สอดคล้องกัน: ใช้ **idempotency key** กับ payment provider + สถานะ `pending` → `paid` และ **outbox pattern** แทนการถือ transaction ข้ามระบบ
+- ห้ามรอ user input / UI ระหว่าง transaction เปิด; ตั้ง command timeout และ `SET XACT_ABORT ON` (SQL Server) / `idle_in_transaction_session_timeout` (PostgreSQL) กัน transaction ค้าง
+- หา transaction ที่เปิดนาน: `sys.dm_tran_active_transactions` + `sys.dm_exec_sessions` (SQL Server) / `pg_stat_activity WHERE state = 'idle in transaction'` (PostgreSQL)
+
+**tempdb คือทรัพยากรที่ทุก database บน instance ใช้ร่วมกัน** ถูกใช้โดย: temp table / table variable (AP-12), sort / hash ที่ **spill**, version store (RCSI / snapshot / online index rebuild), cursor, `UNION` / `DISTINCT` ขนาดใหญ่ (AP-11)
+
+**Spill:** ก่อนรัน optimizer ประเมินแล้วจอง memory grant ถ้าข้อมูลจริงเกินที่จอง ส่วนเกินถูกเขียนลง tempdb (งานในแรมกลายเป็นงาน disk) — ตัวอย่างในโพสต์: Sort 200,000 แถว granted 6,144 KB → *"Sort wrote 15,173 pages to and read 15,173 pages from tempdb"* (spill level 2) ดูได้จากเครื่องหมาย ⚠️ บน Sort / Hash Match ใน actual plan (EP-02)
+- 3 สาเหตุที่ dev ทำเอง: `SELECT *` แล้ว `ORDER BY` (แถวกว้าง = ต้องจองเยอะ) → เลือกเฉพาะคอลัมน์ · sort ทั้งหมดก่อนแล้วไปกรองในโค้ด → กรองใน `WHERE` ก่อน · sort คอลัมน์ที่ไม่มี index → ทำ index ที่เรียงไว้แล้ว Sort จะหายไปจาก plan
+- สาเหตุที่ต้องดูเพิ่ม: estimate ผิด (statistics เก่า, table variable, parameter sniffing AP-09) ทำให้จองน้อยเกิน · ส่วนกลับกัน (MAX columns, SD-01) ทำให้จองมากเกิน
