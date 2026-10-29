@@ -251,7 +251,7 @@
 
 | วันที่ | สกิล | Trigger | Near-miss | พฤติกรรม | หมายเหตุ |
 |---|---|---|---|---|---|
-| 2026-10-29 (รอบ 5) | senior-sql-engineer (หลังเทรน playbook) | — | — | ➖ | 40/41 เท่ากับ baseline · โจทย์ยากขึ้น 4 ข้อ (E1–E4) · with-skill มีโครง evidence / trade-off / verification และแผนทดสอบชัดกว่า · rubric อิ่มตัว |
+| 2026-10-29 (รอบ 5) | senior-sql-engineer (หลังเทรน playbook) | — | — | ➖ | 40/41 → 41/41 หลังเพิ่มกฎรออนุมัติ (baseline 40/41) · โจทย์ยากขึ้น 4 ข้อ (E1–E4) · with-skill มีโครง evidence / trade-off / verification และแผนทดสอบชัดกว่า · rubric อิ่มตัว |
 | 2026-10-11 (รอบ 4) | 27 สกิล (ย่อ description) | 24/24 | 11/11 | — | routing 35/35 หลังย่อ -71% |
 | 2026-10-11 (รอบ 4) | payment-engineer | 2/2 | 1/1 | ➖ | 8/9 เท่ากับ baseline |
 | 2026-10-11 (รอบ 4) | pdpa-privacy-engineer | 2/2 | 1/1 | ➖ | 10/10 เท่ากับ baseline |

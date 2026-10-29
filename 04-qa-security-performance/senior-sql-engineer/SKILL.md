@@ -462,6 +462,23 @@ After
 
 **ห้ามสรุปว่า Optimize สำเร็จจนกว่าจะมีการตรวจสอบผล**
 
+### ชุดเก็บหลักฐาน (ใช้ก่อนเสนออะไร)
+
+**ถ้าเข้าถึง database ได้ (dev / staging หรือ read-only):** รันเองเพื่อเก็บหลักฐาน ห้ามรันคำสั่งที่เขียนข้อมูล / DDL โดยไม่ได้รับอนุมัติ (กฎข้อ 16) และ `EXPLAIN ANALYZE` รัน query จริง → ใช้กับ `SELECT` เท่านั้น ถ้าเป็น `UPDATE` / `DELETE` ให้ครอบด้วย `BEGIN; … ROLLBACK;`
+
+| ต้องการรู้ | PostgreSQL / Supabase | SQL Server |
+|---|---|---|
+| plan + งานจริง | `EXPLAIN (ANALYZE, BUFFERS, VERBOSE) <query>` → ดู `rows` จริง vs ประเมิน, `Buffers: shared hit/read`, Seq Scan, Sort Method: external (spill) | `SET STATISTICS IO, TIME ON` + Actual Execution Plan → logical / lob reads, ⚠️ คำเตือน, Scan / Seek |
+| query ที่หนักที่สุดของทั้งระบบ | `pg_stat_statements` เรียงตาม `total_exec_time` (Supabase: Query Performance report) | `sys.dm_exec_query_stats` / Query Store |
+| index ที่มี / ไม่ได้ใช้ | `\d table`, `pg_stat_user_indexes` (`idx_scan = 0`) | `sp_helpindex`, `sys.dm_db_index_usage_stats` |
+| ขนาดตาราง / dead rows | `pg_total_relation_size`, `pg_stat_user_tables` (`n_dead_tup`, `last_autovacuum`) | `sp_spaceused`, `sys.dm_db_index_physical_stats` |
+| lock / รอกัน | `pg_stat_activity` (`wait_event`, `state = 'idle in transaction'`), `pg_blocking_pids()` | `sys.dm_exec_requests` (`blocking_session_id`, `wait_type`) |
+| statistics เก่า | `pg_stats`, `last_analyze` → `ANALYZE table` | `STATS_DATE`, `UPDATE STATISTICS` |
+
+**ถ้าเข้าถึงไม่ได้:** อย่าเดาตัวเลข ให้ขอสิ่งที่ต้องใช้แบบเจาะจง (คำสั่งข้างบนที่ตรงกับปัญหา + จำนวนแถวโดยประมาณ + query นี้ถูกเรียกบ่อยแค่ไหน) และระบุชัดในคำตอบว่าข้อเสนอไหน "ยืนยันแล้วจากหลักฐาน" ข้อไหน "เป็นสมมติฐานที่ต้องวัด"
+
+**Supabase / PostgreSQL ที่มักพลาด:** RLS policy ที่เรียกฟังก์ชันต่อแถว (ห่อด้วย `(select auth.uid())` ให้คำนวณครั้งเดียว) และคอลัมน์ที่ policy ใช้ต้องมี index · `ILIKE '%คำ%'` ต้องใช้ `pg_trgm` GIN index · FK ไม่มี index อัตโนมัติ (IX-09) · ตาราง UPDATE / DELETE บ่อยต้องดู autovacuum · ต่อผ่าน pooler (Supavisor transaction mode) แล้ว prepared statement / session state บางอย่างใช้ไม่ได้
+
 ---
 
 # 14.5 — PLAYBOOK (ไฟล์อ้างอิง)
@@ -507,6 +524,9 @@ After
 ### 8. Verification
 ตรวจสอบอย่างไรว่าแก้แล้วดีขึ้นจริง?
 
+### 9. Next Step (รออนุมัติ)
+เมื่อเป็นการตรวจ / รีวิวของที่มีอยู่ ให้จบรายงานด้วยรายการสิ่งที่จะแก้ เรียงตามผลกระทบ แล้วถามผู้ใช้ว่าจะให้แก้ข้อไหน เช่น "ยังไม่ได้แก้ไฟล์ใด ๆ — ต้องการให้เริ่มจากข้อ 1–3 ไหมครับ"
+
 ---
 
 # 🚨 IMPORTANT RULES
@@ -526,6 +546,8 @@ After
 13. หาก SQL เดิมดีอยู่แล้ว ให้บอกตรง ๆ
 14. หาก Optimization ไม่ได้ช่วยมาก ต้องบอกตรง ๆ
 15. เลือกวิธีที่ง่ายที่สุดที่แก้ Root Cause ได้จริง
+16. **ตรวจของเดิม: รายงานก่อน แก้ทีหลัง** — เมื่อถูกขอให้ตรวจ / รีวิว / หาสาเหตุ ให้รายงานและเสนอแผนก่อน แล้ว **รออนุมัติ** ก่อนแก้ไฟล์, รัน migration, สร้าง / ลบ index หรือรันคำสั่งที่เขียนข้อมูลบน database จริง โค้ดตัวอย่างในรายงานได้ แต่ต้องเขียนชัดว่า "ยังไม่ได้แก้" (ยกเว้นผู้ใช้สั่งให้แก้ตั้งแต่แรก)
+17. **จัดลำดับตามผลกระทบ** — เรียงข้อเสนอจาก ความถูกต้อง / ความปลอดภัย / ข้อมูลเสียหาย ก่อน แล้วตามด้วย performance ที่ (ความถี่ของ query × เวลาที่เสีย) สูงสุด และบอกตรง ๆ เมื่อสิ่งใด "ยังไม่คุ้มที่จะแก้" (ตารางเล็ก, query รันวันละครั้ง)
 
 ---
 

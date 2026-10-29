@@ -63,3 +63,8 @@ E3 12/12 — same + quantifies retained rows (~12M), picks batched delete first 
 E4 9/9 — same + ties numbers to the warm-cache example, expected 682 reads, MAXDOP 1 for fair comparison, "report reads not 2x faster"
 TOTAL 40/41 (baseline 40/41) — tie on score. With-skill adds evidence → root cause → trade-offs → verification structure, playbook references, and concrete test plans; neither asked for approval before proposing code.
 Takeaway: the rubric is saturated (a strong model already knows these SQL facts). Future rounds need tasks that require measuring a real database or project-specific judgement.
+
+## AFTER FIX (2026-10-29)
+Added SKILL.md rule 16 (report first, wait for approval), rule 17 (prioritise by impact), response section 9 "Next Step (รออนุมัติ)", and an evidence-collection kit (PostgreSQL / Supabase + SQL Server).
+E2 re-run with skill: 10/10 — opens with "ยังไม่ได้แก้ไฟล์ใดเลย", cites line numbers, ranks fixes by impact (double charge first, UNION last as low priority), labels code "ตัวอย่างเท่านั้น ยังไม่ได้แก้", ends with "ต้องการให้เริ่มจากข้อ 1–4 ก่อนไหม".
+WITH-SKILL TOTAL 41/41 vs baseline 40/41.
