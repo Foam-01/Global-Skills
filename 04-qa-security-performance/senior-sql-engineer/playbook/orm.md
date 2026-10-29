@@ -50,7 +50,7 @@
 ## OR-05 — Connection ใน serverless / หลาย instance
 
 - แต่ละ function / instance เปิด pool ของตัวเอง → รวมกันเกิน `max_connections` (IN-02) → ใช้ pooler (Supabase: transaction pooler port 6543) + `connection_limit` ต่ำต่อ instance
-- Prisma กับ PgBouncer / Supavisor transaction mode: ใส่ `?pgbouncer=true` (ปิด prepared statement) และใช้ `directUrl` (direct / session) สำหรับ `prisma migrate`
+- Prisma กับ pooler แบบ transaction mode: **PgBouncer ก่อน 1.21** ต้องใส่ `?pgbouncer=true` · **PgBouncer 1.21+** เอกสาร Prisma แนะนำ **ไม่ใส่** แต่ต้องตั้ง `max_prepared_statements > 0` · Supavisor (Supabase) ใส่ใน connection string แบบ pooled ได้ · migration (`prisma migrate`, `db push`, `db pull`) ต้องใช้ **direct connection** แยก (`directUrl` / `DIRECT_URL` ใน `prisma.config.ts` ของ Prisma 7) ไม่เช่นนั้นเจอ `prepared statement "s0" already exists`
 - Next.js dev ที่ hot reload สร้าง PrismaClient ใหม่ทุกครั้ง → เก็บเป็น singleton บน `globalThis`
 
 ---

@@ -194,6 +194,8 @@ OPTION (RECOMPILE);   -- ใช้ตอนทดสอบเท่านั้�
 - query ที่ดี: reads ใกล้เคียงกับจำนวนหน้าที่ต้องใช้จริง (แถวน้อยควรอ่านแค่หลักหน่วย–หลักร้อยหน้า) — ถ้า reads มากกว่าจำนวนแถวที่ได้หลายสิบเท่าขึ้นไป ให้เปิด plan (EP-01) หาจุดที่ scan หรือ lookup
 **ก่อน / หลังสร้าง index ที่ตรงกับ query** (`CREATE NONCLUSTERED INDEX … ON Posts (CommentCount) INCLUDE (Id, FavoriteCount)`):
 
+> หมายเหตุ: ตาราง `Posts` ในตัวอย่างนี้เป็นสำเนาที่ **ไม่มี clustered index (heap)** จึงต้อง `INCLUDE (Id)` (IX-02) ส่วนตัวอย่าง `Posts` ในบทอื่น (IX-01, IX-02, IX-03) เป็นตารางที่มี clustered PK บน `Id` ตัวเลขจึงเทียบข้ามบทกันตรงๆ ไม่ได้
+
 | | ก่อน | หลัง |
 |---|---|---|
 | Plan | Table Scan (Posts เป็น heap) + Parallelism · ข้อความ Missing Index (Impact 83%) | Index Seek (NonClustered) → Top |

@@ -49,8 +49,8 @@ ALTER TABLE ...;                 -- retry from the migration runner if it times 
 
 ## MG-03 — SQL Server
 
-- `CREATE INDEX … WITH (ONLINE = ON)` / `ALTER INDEX … REBUILD WITH (ONLINE = ON)` (Enterprise / Azure SQL) ไม่บล็อกการเขียนระหว่างสร้าง แต่ยังต้องได้ lock สั้นๆ ตอนเริ่มและจบ → ใช้ `WAIT_AT_LOW_PRIORITY (MAX_DURATION = …, ABORT_AFTER_WAIT = SELF)` เพื่อไม่ให้ไปขวางคิว
-- `RESUMABLE = ON` (2017+ สำหรับ rebuild, 2019+ สำหรับ create) หยุด / ทำต่อได้ ใช้กับตารางใหญ่มาก
+- `CREATE INDEX … WITH (ONLINE = ON)` / `ALTER INDEX … REBUILD WITH (ONLINE = ON)` (Enterprise / Azure SQL) ไม่บล็อกการเขียนระหว่างสร้าง แต่ยังต้องได้ lock สั้นๆ ตอนเริ่มและจบ → ใช้ `WAIT_AT_LOW_PRIORITY (MAX_DURATION = …, ABORT_AFTER_WAIT = SELF)` เพื่อไม่ให้ไปขวางคิว (กับ `ALTER INDEX … REBUILD` / `ALTER TABLE … SWITCH` ใช้ได้ตั้งแต่ 2014; กับ `CREATE INDEX` เป็นของเวอร์ชันใหม่ / Azure SQL → ตรวจเอกสารของเวอร์ชันที่ใช้ก่อน)
+- `RESUMABLE = ON` (2017+ สำหรับ rebuild, 2019+ สำหรับ create ตามเอกสาร `CREATE INDEX`; ต้อง `ONLINE = ON` และรันใน explicit transaction ไม่ได้) หยุด / ทำต่อได้ ใช้กับตารางใหญ่มาก
 - `ADD COLUMN NOT NULL DEFAULT <ค่าคงที่>` เป็น metadata-only (Enterprise 2012+) แต่ default ที่ไม่คงที่ (`NEWID()`) ต้องเขียนทุกแถว
 - `ALTER COLUMN` เปลี่ยน type / ขนาดมัก **ต้องแตะทุกแถวภายใต้ Sch-M lock** → ใช้ expand / contract
 - เพิ่ม FK / CHECK บนตารางใหญ่: `WITH NOCHECK` แล้วตรวจทีหลัง แต่ constraint จะเป็น "untrusted" และ optimizer ใช้มันช่วย plan ไม่ได้ จนกว่าจะ `ALTER TABLE … WITH CHECK CHECK CONSTRAINT …`

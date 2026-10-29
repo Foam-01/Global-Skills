@@ -84,7 +84,7 @@
 | | OR-02 | ดึงทุกคอลัมน์ / ไม่มี limit / count ทุกหน้า / AsNoTracking |
 | | OR-03 | Type ไม่ตรง, ORM ใส่ฟังก์ชันครอบคอลัมน์ (ToLower, insensitive) |
 | | OR-04 | Lost update ใน ORM, interactive transaction, supabase-js ใช้ rpc(), upsert ต้องมี unique |
-| | OR-05 | Serverless connection: pooler, pgbouncer=true + directUrl, PrismaClient singleton |
+| | OR-05 | Serverless connection: pooler, `pgbouncer=true` เฉพาะ PgBouncer < 1.21 (ตรวจกับเอกสาร Prisma), direct connection สำหรับ migrate, PrismaClient singleton |
 | | OR-06 | Migration ที่ ORM สร้าง: rename = drop + add, ห้าม db push บน production |
 | | OR-07 | เมื่อไหร่เขียน SQL เอง + raw query แบบมี parameter |
 | [search.md](search.md) | SR-01 | เลือกเครื่องมือค้นหา: B-tree prefix / pg_trgm / Full-Text / search engine แยก |

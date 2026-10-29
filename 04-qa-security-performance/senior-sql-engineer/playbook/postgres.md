@@ -101,7 +101,7 @@ CREATE INDEX ON orders (user_id);                  -- every column a policy filt
 ## PG-07 — Connection และ pooling
 
 - แต่ละ connection ของ PostgreSQL = หนึ่ง process (ใช้ memory หลาย MB) เปิดหลายร้อย / หลายพัน connection ตรงๆ ทำให้ database ช้าเอง → ใช้ pooler (PgBouncer / Supavisor)
-- **Transaction mode** (คืน connection หลังจบแต่ละ transaction): ใช้กับ serverless / หลาย instance แต่ **session state ใช้ไม่ได้** เช่น `SET` แบบ session, advisory lock แบบ session, `LISTEN/NOTIFY`, temp table ข้าม transaction และ prepared statement บางแบบ (บาง ORM ต้องตั้งค่า เช่น Prisma `pgbouncer=true`)
+- **Transaction mode** (คืน connection หลังจบแต่ละ transaction): ใช้กับ serverless / หลาย instance แต่ **session state ใช้ไม่ได้** เช่น `SET` แบบ session, advisory lock แบบ session, `LISTEN/NOTIFY`, temp table ข้าม transaction และ prepared statement บางแบบ (บาง ORM ต้องตั้งค่าตามเวอร์ชันของ pooler เช่น Prisma, OR-05)
 - **Session mode** / direct connection: ใช้กับ migration และงานที่ต้อง session state
 - ขนาด pool ไม่ใช่ยิ่งมากยิ่งดี: connection ที่ทำงานพร้อมกันจริงควรอยู่ในหลักสิบต่อ database (เริ่มที่ราว 2–4 เท่าของจำนวน CPU core แล้ววัด) เกินกว่านั้นแย่ง CPU / lock กันเอง
 - ตั้ง `statement_timeout` และ `idle_in_transaction_session_timeout` ระดับ role ของแอป
