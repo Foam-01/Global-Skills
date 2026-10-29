@@ -494,6 +494,7 @@ WHERE NOT EXISTS (
 - ทุก nonclustered index เก็บ clustered key ไว้ด้วย key 16 byte (UUID) จึงทำให้ **ทุก index ใหญ่ขึ้น** เมื่อเทียบกับ `INT` 4 byte หรือ `BIGINT` 8 byte
 - เก็บ UUID เป็น `UNIQUEIDENTIFIER` (16 byte) ห้ามเก็บเป็น `CHAR(36)` / `VARCHAR(36)` (36+ byte, เทียบช้ากว่า) ใน MySQL ใช้ `BINARY(16)` + `UUID_TO_BIN(uuid, 1)` และใน PostgreSQL ใช้ type `uuid`
 - ⚠️ SQL Server เรียง `uniqueidentifier` ด้วยไบต์กลุ่มสุดท้ายก่อน **UUID v7 ที่สร้างจากแอปจึงอาจไม่เรียงใน SQL Server** ต้องทดสอบด้วย fragmentation จริง หรือใช้ `NEWSEQUENTIALID()` (ใช้ได้เฉพาะเป็น `DEFAULT`, เรียงต่อเนื่องถึงแค่ตอน restart เครื่อง) ส่วน PostgreSQL / MySQL (`BINARY(16)`) เรียงตามไบต์ ใช้ v7 ได้ตรงๆ
+  - คลิป EP.06 วัดให้เห็น (insert ข้อมูลเท่ากัน 4 แบบ): UUID v7 มาตรฐานเก็บใน `uniqueidentifier` → **fragmentation 99.04%, 1,455 pages** (แย่พอๆ กับ v4) · v7 / v1 ที่จัดไบต์ให้เข้ากับวิธีเรียงของ SQL Server → ราว 43–47%, ~1,570 pages · UUID v7 เก็บเป็น `BINARY(16)` → **0.9%, 1,000 pages** ดังนั้นถ้าต้องใช้ v7 ใน SQL Server ให้เก็บเป็น `BINARY(16)` หรือสลับไบต์ให้ตรงกับลำดับการเรียงของ SQL Server แล้ววัด fragmentation ยืนยัน
 - PostgreSQL ไม่มี clustered index ถาวร (ตารางเป็น heap) แต่ B-tree ของ PK ก็ยังกระจัดกระจาย / บวมจาก UUID v4 เหมือนกัน
 
 **แนวทางเลือก:**
