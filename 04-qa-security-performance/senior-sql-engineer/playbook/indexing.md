@@ -125,6 +125,7 @@ EXPLAIN (ANALYZE, BUFFERS) SELECT ...;
 |---|---|---|
 | **logical reads** (SQL Server) / **shared hit + read** (PostgreSQL) | จำนวนหน้า 8 KB ที่ query อ่าน | ตัวชี้วัดหลัก — คงที่กว่าเวลา ไม่ขึ้นกับ cache อุ่น / เย็น |
 | physical reads / `read=` | หน้าที่ต้องอ่านจาก disk จริง | บอกว่า cache เย็นหรือข้อมูลไม่พอดีกับ memory |
+| read-ahead reads (SQL Server) | หน้าที่ database **ดึงจาก disk ล่วงหน้า** เข้า buffer pool เพราะคาดว่า scan จะต้องใช้ | ตัวมันเอง **ไม่ใช่ปัญหา** (ช่วยให้ scan เร็วขึ้น) แต่ค่าหลักแสน = query กำลัง scan ข้อมูลก้อนใหญ่ที่ไม่อยู่ใน cache → แก้ที่ต้นเหตุ (index / เงื่อนไข) ตัวอย่างจริง: read-ahead 799,171 · CPU 35 วินาที · elapsed 223 วินาที ตอน cache เย็น |
 | CPU time vs elapsed time | CPU > elapsed แปลว่า query รันขนาน (parallel) | ถ้า query ง่ายแต่รันขนาน มักแปลว่ากำลัง scan ข้อมูลเยอะ |
 | Scan count | จำนวนครั้งที่เข้าไปอ่าน object นั้น (seek หรือ scan ก็นับ) | **ห้ามดูเดี่ยวๆ** — อ่านคู่กับ logical reads เสมอ (ดูหัวข้อ "อ่าน Scan count ให้ถูก" ด้านล่าง) |
 | rows ใน plan (estimated vs actual) | optimizer ประเมินจำนวนแถวถูกไหม | ต่างกันมาก = statistics เก่า → `UPDATE STATISTICS` / `ANALYZE` |
