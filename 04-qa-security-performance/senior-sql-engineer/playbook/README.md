@@ -24,7 +24,7 @@
 | | IX-10 | เลือก clustered key: IDENTITY vs UUID v4 (fragmentation 99.92%, 1,458 pages) vs v7 / NEWSEQUENTIALID (0.9%, 1,080 pages), page split, ไม่มี ORDER BY = ไม่รับประกันลำดับ, UUID v7 ใน uniqueidentifier ไม่เรียง (99.04%) vs BINARY(16) (0.9%) |
 | | IX-11 | Composite index ลำดับคอลัมน์ (leftmost prefix): (DisplayName, Location) กรองทั้งคู่ 4 reads seek vs กรอง Location อย่างเดียว 1,595 reads scan · `=` ไว้หน้า ช่วง / ORDER BY ไว้ท้าย · skip scan |
 | | IX-12 | โครงสร้าง B+Tree: root / intermediate / leaf, seek = reads เท่าความลึก (1,245 แถว → 3 ชั้น → 3 reads), leaf ของ clustered vs nonclustered, key กว้างทำ tree ใหญ่, ดูโครงสร้างด้วย DMV |
-| [schema-design.md](schema-design.md) | SD-01 | เลือก data type ให้พอดี: ปัญหาจริงของ MAX (index key, memory grant), PostgreSQL ต่างกัน, เบอร์โทร / เงิน / สถานะ, BIT ขังไว้ 2 ค่า |
+| [schema-design.md](schema-design.md) | SD-01 | เลือก data type ให้พอดี: ปัญหาจริงของ MAX (index key, memory grant), PostgreSQL ต่างกัน, เบอร์โทร / เงิน / สถานะ, BIT ขังไว้ 2 ค่า + MAX memory grant 823 → 43 MB, VARCHAR vs NVARCHAR (VAR = ความยาวจริง + 2 byte), ไม่เก็บอายุ, INT vs BIGINT, FLOAT 250.0000000000000300 vs DECIMAL + กติกาปัด |
 | [execution-plans.md](execution-plans.md) | EP-01 | เปิดและอ่าน execution plan: แถวจริง vs ประเมิน (34 of 1), scan / seek / lookup, คำเตือน, Cost % เป็นค่าประเมิน, Missing Index |
 | | EP-02 | แยกกล่องใน plan 4 กลุ่ม + Scan vs Seek (Index Scan ≠ อ่านทั้งตาราง): Nested Loops / Hash / Merge Join ใช้เมื่อไหร่, คำเตือนที่พบบ่อย (implicit conversion, spill, no join predicate), Missing Index ไม่ใช่คำเตือน, ไม่ใช่ทุก scan ต้องเป็น seek |
 
