@@ -538,3 +538,34 @@ ORDER BY ips.avg_fragmentation_in_percent DESC;
 - กรอง B อย่างเดียวไม่ได้ "ใช้ index ไม่ได้" มันยังใช้ได้แบบ **scan** ซึ่งอาจถูกกว่า scan ตารางเพราะ index แคบกว่า แต่ไม่ใช่ seek
 - Oracle (index skip scan), MySQL 8.0.13+ (skip scan) และ PostgreSQL 18 (skip scan บน B-tree) ข้ามคอลัมน์หน้าได้ในบางกรณีเมื่อคอลัมน์หน้ามีค่าน้อย แต่ SQL Server ไม่มี feature นี้ อย่าออกแบบโดยพึ่ง skip scan
 - MySQL / PostgreSQL ใช้หลัก leftmost prefix เหมือนกัน
+
+---
+
+## IX-12 — โครงสร้าง B+Tree: ทำไม seek ใช้ reads เท่าจำนวนชั้น
+
+**หลัก:** index ทุกตัว (clustered และ nonclustered) ใน SQL Server, PostgreSQL และ MySQL InnoDB เป็น B+Tree ที่แต่ละ node คือ page หนึ่งหน้า (8 KB ใน SQL Server / PostgreSQL, 16 KB ใน InnoDB)
+
+| ชั้น | `index_level` | เก็บอะไร |
+|---|---|---|
+| Root | สูงสุด | page เดียว ชี้ไปหน้าลูก (ค่า key แรกของแต่ละหน้า + page id) |
+| Intermediate | 1 … n-1 | page ชี้ทาง แบบเดียวกับ root |
+| Leaf | 0 | **clustered:** ตัวแถวข้อมูลจริงทั้งแถว · **nonclustered:** key + คอลัมน์ `INCLUDE` + row locator (clustered key หรือ RID ถ้าเป็น heap) · leaf page ต่อกันเป็น linked list จึง range scan ได้ |
+
+- **Seek หนึ่งค่า = reads เท่าความลึกของ tree** (root → intermediate → leaf) ไม่ขึ้นกับจำนวนแถวตรงๆ
+  - คลิป (devhopsss B+Tree EP.02, `CHAR(4000)` ≈ 2 แถว / page, 1,245 แถว): Root 1 page · Intermediate 2 pages · Leaf 623 pages → seek ด้วย PK = **3 reads**
+  - เพราะหนึ่ง page ชี้ทางได้หลายร้อยถึงหลายพันหน้า tree จึงลึกแค่ 3–4 ชั้นแม้ข้อมูลหลายร้อยล้านแถว ตัวเลข "seek = 3–4 reads" ใน IX-01 / IX-02 / IX-10 มาจากตรงนี้
+- **Key ยิ่งกว้าง tree ยิ่งลึก/ใหญ่:** key กว้าง → ต่อ page ชี้ทางได้น้อยลง → มีชั้นและ page มากขึ้น (อีกเหตุผลที่ไม่ใช้ key เป็น string ยาว หรือ UUID ถ้าไม่จำเป็น ดู IX-10)
+- **Nonclustered + ต้องการคอลัมน์อื่น** = seek ใน nonclustered (3 reads) + Key Lookup เข้า clustered อีกราว 3 reads **ต่อแถว** นี่คือเหตุที่ lookup หลายพันแถวแพง (IX-02) และเกิด tipping point (IX-01)
+
+ดูโครงสร้างจริงของ index:
+
+```sql
+-- SQL Server
+SELECT i.name, ips.index_level, ips.page_count, ips.record_count
+FROM sys.dm_db_index_physical_stats(DB_ID(), OBJECT_ID('dbo.Orders'), NULL, NULL, 'DETAILED') ips
+JOIN sys.indexes i ON i.object_id = ips.object_id AND i.index_id = ips.index_id
+ORDER BY i.name, ips.index_level DESC;
+-- PostgreSQL: CREATE EXTENSION pageinspect; SELECT * FROM bt_metap('orders_pkey');  -- level = ความลึก
+```
+
+**แก้ความเข้าใจผิดที่พบบ่อย:** `DBCC IND` / `DBCC PAGE` ที่คลิปใช้เป็นคำสั่ง undocumented ใช้เรียนรู้ใน dev ได้ แต่อย่ารันบน production ให้ใช้ `sys.dm_db_database_page_allocations` / `sys.dm_db_page_info` (SQL Server 2019+) แทน
