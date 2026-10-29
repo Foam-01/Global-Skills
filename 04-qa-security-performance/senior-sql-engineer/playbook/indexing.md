@@ -469,3 +469,45 @@ WHERE NOT EXISTS (
 ```
 
 - ตัวอย่างใน Stack Overflow database (ที่คลิปใช้) อาจไม่มี FK constraint ประกาศไว้จริง — หลักการเดียวกันใช้กับ "คอลัมน์ที่ใช้ join ไปหาตารางอื่น" ทุกตัว ไม่ว่าจะประกาศ FK หรือไม่
+
+---
+
+## IX-10 — เลือก Clustered Key: IDENTITY vs UUID v4 vs UUID v7 / NEWSEQUENTIALID
+
+**หลัก:** ใน SQL Server, PRIMARY KEY จะกลายเป็น clustered index โดย default ซึ่งก็คือ "ตัวตาราง" ที่เรียงตาม key บน page ขนาด 8 KB ลำดับที่ค่า key ใหม่เข้ามาจึงกำหนดว่า insert จะไปเขียนที่ไหน
+
+| Key | แถวใหม่ไปลงที่ | ผล |
+|---|---|---|
+| `INT/BIGINT IDENTITY` | ท้าย page สุดท้ายเสมอ | page เต็มแน่น, ไม่มี page split กลางตาราง, insert อ่านน้อย |
+| UUID v4 / `NEWID()` (สุ่ม) | page ใดก็ได้กลางตาราง | page split ไม่หยุด, page ใช้ไปราว 50–70%, fragmentation สูง, ต้องดึง page เก่าขึ้น buffer pool ทุกครั้งที่ insert |
+| UUID v7 / `NEWSEQUENTIALID()` / ULID (เรียงตามเวลา) | ใกล้ท้ายตาราง | พฤติกรรมใกล้ IDENTITY แต่ยังได้ id ที่ไม่เดาง่ายและสร้างฝั่งแอปได้ |
+
+**ตัวเลขจากคลิป (devhopsss, Index series EP.03–05, `CHAR(2000)` ≈ 4 แถว / page):**
+- `WHERE Id = 3` บน clustered index = Clustered Index Seek, 4 logical reads
+- ตาราง UUID ทดลองเล็กๆ: insert หนึ่งแถวที่ต้องแทรกกลาง page เต็ม = page split, 8 reads (แถวที่ต่อท้ายได้ใช้ราว 2 reads)
+- ข้อมูลเท่ากัน: UUID v4 = **fragmentation 99.92%, 1,458 pages** vs UUID v7 = **0.9%, 1,080 pages** (v4 ใช้พื้นที่มากกว่าราว 35%)
+- `ALTER INDEX ... REBUILD` ทำให้ v4 กลับเป็น 1.1% / 1,000 pages แต่หลังจากนั้นไม่นาน insert ใหม่ก็ทำให้กระจัดกระจายอีก **rebuild คือการรักษาอาการ ไม่ใช่การแก้ที่ต้นเหตุ**
+
+**สิ่งที่ต้องแก้ / เสริมจากคลิป:**
+- ผลลัพธ์ที่ไม่มี `ORDER BY` ดูเหมือนเรียงตาม PK แต่ **ไม่รับประกัน** (plan ขนาน, ใช้ index อื่น, allocation order scan) ถ้าต้องการลำดับต้องเขียน `ORDER BY`
+- fragmentation % มีผลหลักต่อ range scan ที่อ่านจาก disk; บน SSD และข้อมูลที่อยู่ใน RAM แล้ว ปัญหาที่หนักกว่าคือ **page density ต่ำ** (page มากขึ้น = RAM, I/O, backup มากขึ้น) และ page split ที่เขียน log เพิ่ม
+- ทุก nonclustered index เก็บ clustered key ไว้ด้วย key 16 byte (UUID) จึงทำให้ **ทุก index ใหญ่ขึ้น** เมื่อเทียบกับ `INT` 4 byte หรือ `BIGINT` 8 byte
+- เก็บ UUID เป็น `UNIQUEIDENTIFIER` (16 byte) ห้ามเก็บเป็น `CHAR(36)` / `VARCHAR(36)` (36+ byte, เทียบช้ากว่า) ใน MySQL ใช้ `BINARY(16)` + `UUID_TO_BIN(uuid, 1)` และใน PostgreSQL ใช้ type `uuid`
+- ⚠️ SQL Server เรียง `uniqueidentifier` ด้วยไบต์กลุ่มสุดท้ายก่อน **UUID v7 ที่สร้างจากแอปจึงอาจไม่เรียงใน SQL Server** ต้องทดสอบด้วย fragmentation จริง หรือใช้ `NEWSEQUENTIALID()` (ใช้ได้เฉพาะเป็น `DEFAULT`, เรียงต่อเนื่องถึงแค่ตอน restart เครื่อง) ส่วน PostgreSQL / MySQL (`BINARY(16)`) เรียงตามไบต์ ใช้ v7 ได้ตรงๆ
+- PostgreSQL ไม่มี clustered index ถาวร (ตารางเป็น heap) แต่ B-tree ของ PK ก็ยังกระจัดกระจาย / บวมจาก UUID v4 เหมือนกัน
+
+**แนวทางเลือก:**
+1. ค่าเริ่มต้น: `BIGINT IDENTITY` (หรือ `GENERATED ALWAYS AS IDENTITY`) เป็น PK / clustered key
+2. ต้องการ id สาธารณะที่เดาไม่ได้: ใช้ PK เป็นตัวเลข + คอลัมน์ `public_id` UUID แยกพร้อม unique nonclustered index หรือใช้ UUID v7 เป็น PK
+3. ไม่ใช้ UUID v4 เป็น clustered key ในตารางที่ insert เยอะ ถ้าจำเป็นต้องใช้ ให้ทำ clustered index ไว้ที่คอลัมน์อื่น (เช่น `BIGINT IDENTITY`) และทำ PK เป็น `NONCLUSTERED`
+
+ตรวจดู fragmentation และ page density:
+
+```sql
+SELECT OBJECT_NAME(ips.object_id) AS table_name, i.name,
+       ips.avg_fragmentation_in_percent, ips.avg_page_space_used_in_percent, ips.page_count
+FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, 'SAMPLED') ips
+JOIN sys.indexes i ON i.object_id = ips.object_id AND i.index_id = ips.index_id
+WHERE ips.page_count >= 1000
+ORDER BY ips.avg_fragmentation_in_percent DESC;
+```
