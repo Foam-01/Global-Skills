@@ -119,6 +119,19 @@ WHERE CreationDate >= 2009-01-01 AND CreationDate < 2010-01-01
 | `CONVERT(VARCHAR, created_at, 112) = '20240115'` | `created_at >= '2024-01-15' AND created_at < '2024-01-16'` | ช่วงครึ่งเปิด |
 | คอลัมน์ `VARCHAR` เทียบกับพารามิเตอร์ `NVARCHAR` | ส่งพารามิเตอร์ให้ type ตรงคอลัมน์ | implicit conversion ฝั่งคอลัมน์ทำให้ scan (ORM / .NET ส่ง string เป็น `NVARCHAR` โดย default) ดูคำเตือนใน plan (EP-02) |
 
+**ตัวอย่าง implicit conversion จาก EF Core (คลิป EF Core tuning):** คอลัมน์ `DisplayName VARCHAR(50)` แต่ entity เป็น `string` ธรรมดา → `db.User.Where(u => u.DisplayName.StartsWith("P"))` สร้าง `LIKE N'P%'` → Index **Scan** (ประเมิน 56,034 แถว), **841 reads**, CPU 94 ms · เมื่อ map type ให้ตรงเป็น `LIKE 'P%'` → Index **Seek** (13,217 แถว), **42 reads**, CPU 16 ms (ผลลัพธ์เท่ากัน 13,217 แถว)
+
+```csharp
+// EF Core: บอก type จริงของคอลัมน์ ให้ส่งพารามิเตอร์เป็น varchar
+modelBuilder.Entity<User>().Property(u => u.DisplayName)
+    .HasColumnType("varchar(50)");   // หรือ .IsUnicode(false).HasMaxLength(50)
+// ตรวจ SQL ที่สร้างจริงด้วย query.ToQueryString() (AP-07)
+```
+
+- ผลกระทบขึ้นกับ collation: collation แบบ `SQL_*` → scan เต็ม; collation แบบ Windows (เช่น `Thai_CI_AS`) SQL Server อาจทำ seek แบบช่วงกว้างได้ (`GetRangeThroughConvert`) แต่ก็ยังแพงกว่าและประเมินแถวผิด แก้ที่ type ให้ตรงเสมอ
+- ทิศกลับกัน (คอลัมน์ `NVARCHAR` + พารามิเตอร์ `VARCHAR`) ไม่เสีย index เพราะ SQL Server แปลงพารามิเตอร์ขึ้นไปแทน
+- Dapper / ADO.NET: ระบุ `DbType.AnsiString` / `new DbString { IsAnsi = true, Length = 50 }`
+
 - ระวัง timezone: เก็บเป็น UTC และแปลงขอบเขตช่วงก่อน query
 
 ## IX-04 — วัดผล query ด้วยตัวเลขที่ถูกต้อง
