@@ -24,7 +24,8 @@
 |---|---|---|
 | `ALTER TABLE` ส่วนใหญ่ | **`ACCESS EXCLUSIVE`** (บล็อกทั้งอ่านและเขียน) | ทำให้เร็ว + `SET lock_timeout` แล้ว retry |
 | `ADD COLUMN` (nullable หรือมี DEFAULT ที่ไม่ volatile) | ไม่ rewrite ตาราง (เก็บ default ใน metadata, PG 11+) → เร็ว | ✅ ปลอดภัย แต่ยังต้องได้ lock สั้นๆ |
-| `ADD COLUMN … DEFAULT now()/random()` (volatile) | **rewrite ทั้งตาราง** | เพิ่มแบบไม่มี default แล้ว backfill เป็นรอบ |
+| `ADD COLUMN … DEFAULT clock_timestamp() / random() / gen_random_uuid()` (**volatile**) | **rewrite ทั้งตาราง** | เพิ่มแบบไม่มี default แล้ว backfill เป็นรอบ แล้วค่อย `SET DEFAULT` |
+| `ADD COLUMN … DEFAULT now()` | `now()` เป็น **STABLE** (ค่าเดียวทั้ง transaction) → ไม่ rewrite แต่ **ทุกแถวเก่าได้เวลาที่รัน migration** ซึ่งมักผิดความหมาย (`updated_at` / `created_at`) | ตัดสินใจก่อนว่าแถวเก่าควรเป็นค่าอะไร: เพิ่มแบบ nullable + backfill จากคอลัมน์ที่มีความหมาย แล้วค่อย `SET DEFAULT now()` |
 | `ALTER COLUMN TYPE` | ส่วนใหญ่ **rewrite ทั้งตาราง + index** (ยกเว้น binary coercible เช่น `varchar(n)` → `text`, ขยาย `varchar(n)`) | สร้างคอลัมน์ใหม่ + backfill + สลับ (MG-01) |
 | `SET NOT NULL` | scan ทั้งตารางภายใต้ lock | เพิ่ม `CHECK (col IS NOT NULL) NOT VALID` → `VALIDATE CONSTRAINT` → แล้ว `SET NOT NULL` จะข้ามการ scan (PG 12+) → drop check |
 | `ADD FOREIGN KEY` | scan ตรวจทุกแถว (lock `SHARE ROW EXCLUSIVE` ทั้งสองตาราง) | `ADD CONSTRAINT … NOT VALID` (ไม่ scan) → `VALIDATE CONSTRAINT` ทีหลัง (lock แค่ `SHARE UPDATE EXCLUSIVE` ไม่บล็อกการเขียน) |

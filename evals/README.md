@@ -251,6 +251,7 @@
 
 | วันที่ | สกิล | Trigger | Near-miss | พฤติกรรม | หมายเหตุ |
 |---|---|---|---|---|---|
+| 2026-10-29 (รอบ 6) | senior-sql-engineer (ทฤษฎีระดับ production) | — | — | ✅ | 22/22 vs baseline 21/22 · migration ตาราง 180M แถว + ระบบจองคิว · baseline ช่วยจับข้อผิดใน playbook (now() เป็น STABLE) → แก้แล้ว |
 | 2026-10-29 (รอบ 5) | senior-sql-engineer (หลังเทรน playbook) | — | — | ➖ | 40/41 → 41/41 หลังเพิ่มกฎรออนุมัติ (baseline 40/41) · โจทย์ยากขึ้น 4 ข้อ (E1–E4) · with-skill มีโครง evidence / trade-off / verification และแผนทดสอบชัดกว่า · rubric อิ่มตัว |
 | 2026-10-11 (รอบ 4) | 27 สกิล (ย่อ description) | 24/24 | 11/11 | — | routing 35/35 หลังย่อ -71% |
 | 2026-10-11 (รอบ 4) | payment-engineer | 2/2 | 1/1 | ➖ | 8/9 เท่ากับ baseline |

@@ -91,6 +91,8 @@ CREATE INDEX ON orders (user_id);                  -- every column a policy filt
 ```
 - `auth.uid()` ที่ไม่ห่อด้วย `(select …)` อาจถูกเรียก **ทุกแถว** การห่อใช้ได้เฉพาะเมื่อผลไม่ขึ้นกับข้อมูลในแถว
 - Policy ที่ต้องเช็กตารางอื่น (สมาชิกทีม / role): ทำ `SECURITY DEFINER` function ที่ตั้ง `SET search_path = ''` และอ้างชื่อเต็ม schema ทุกตัว ระวังว่าข้างในข้าม RLS
+- ⚠️ **RLS ซ่อนข้อมูลจากการตรวจของแอปด้วย:** query ที่ "เช็กว่ามีการจองชน / อีเมลซ้ำ / สต็อกพอไหม" ผ่าน client ของผู้ใช้ จะเห็นเฉพาะแถวที่ policy อนุญาต → มองไม่เห็นแถวของคนอื่น → เช็กผ่านทั้งที่ชนจริง กติกาที่ต้องดูข้อมูลทั้งตารางให้บังคับด้วย constraint (UNIQUE / EXCLUDE, FD-06, CC-03) หรือ `SECURITY DEFINER` function ไม่ใช่ SELECT จากฝั่ง client
+- เขียน policy แยกตามคำสั่ง (`FOR SELECT` / `INSERT … WITH CHECK` / `UPDATE … USING … WITH CHECK`) ให้ชัด
 - ใน query ฝั่งแอปควรใส่ตัวกรองเดียวกันด้วย (`.eq('user_id', uid)`) ช่วยให้ planner เลือก index ได้ดีขึ้น
 - ⚠️ `service_role` key ข้าม RLS ทั้งหมด ห้ามอยู่ฝั่ง client · ทุกตารางใน schema ที่เปิดผ่าน API ต้อง `ENABLE ROW LEVEL SECURITY` · view ต้องตั้ง `security_invoker = true` (PG 15+) ไม่เช่นนั้นข้าม RLS ของตารางต้นทาง
 
