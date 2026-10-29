@@ -65,10 +65,32 @@
 | | OP-04 | Timeout ทุกชั้น, retry เฉพาะ error ที่ retry ได้ |
 | | OP-05 | สิทธิ์ / role แยก, ไม่เปิด port, secret, allowlist ORDER BY |
 | | OP-06 | ลำดับการ scale: query → pool → cache → replica → vertical → partition → shard |
+| [data-modeling.md](data-modeling.md) | DM-01 | Multi-tenant: tenant_id + RLS, unique / index / FK นำด้วย tenant_id |
+| | DM-02 | เงิน / กระเป๋าเงิน: ledger append-only, double-entry, idempotency key, cache ยอด + reconcile |
+| | DM-03 | สต็อก: atomic + CHECK, movement ledger, จองมีวันหมดอายุ, hot row |
+| | DM-04 | Audit / history: updated_at ด้วย trigger, audit log, valid_from/valid_to, temporal table |
+| | DM-05 | Soft delete: ต้นทุนการกรอง, partial unique, PDPA ต้องลบจริง, archive table |
+| | DM-06 | Tree: adjacency list + recursive CTE, ltree / path, closure table |
+| | DM-07 | วันเวลา: UTC, date สำหรับวันทางธุรกิจ, timezone ของนัดหมาย, รายงานรายวันตามเวลาไทย |
+| | DM-08 | State machine: CHECK, เปลี่ยนสถานะแบบมีเงื่อนไข, เวลาของแต่ละสถานะ |
+| [incidents.md](incidents.md) | IN-01 | CPU 100%: หา query, สาเหตุที่พบบ่อย, หยุดเลือด (rollback deploy, cancel, บังคับ plan) |
+| | IN-02 | Connection เต็ม: idle / idle in transaction / active รอ lock, ไม่แก้ด้วย max_connections |
+| | IN-03 | Blocking: หาต้นตอของโซ่ |
+| | IN-04 | Disk เต็ม: WAL / slot / log, bloat, retention, temp file |
+| | IN-05 | Replica lag |
+| | IN-06 | ลบ / แก้ข้อมูลผิด: หยุด → PITR ไป database ใหม่ → คัดลอกกลับ |
+| | IN-07 | Postmortem |
+| [orm.md](orm.md) | OR-01 | N+1 / cartesian explosion (AsSplitQuery) |
+| | OR-02 | ดึงทุกคอลัมน์ / ไม่มี limit / count ทุกหน้า / AsNoTracking |
+| | OR-03 | Type ไม่ตรง, ORM ใส่ฟังก์ชันครอบคอลัมน์ (ToLower, insensitive) |
+| | OR-04 | Lost update ใน ORM, interactive transaction, supabase-js ใช้ rpc(), upsert ต้องมี unique |
+| | OR-05 | Serverless connection: pooler, pgbouncer=true + directUrl, PrismaClient singleton |
+| | OR-06 | Migration ที่ ORM สร้าง: rename = drop + add, ห้าม db push บน production |
+| | OR-07 | เมื่อไหร่เขียน SQL เอง + raw query แบบมี parameter |
 
 ## วิธีเพิ่มบทเรียนใหม่
 
 1. เลือกไฟล์ตามหัวข้อ ถ้าไม่มีไฟล์ที่เหมาะ ให้สร้างไฟล์ใหม่ (เช่น `transactions.md`, `concurrency.md`, `pagination.md`) และเพิ่มในตาราง `14.5` ของ `SKILL.md`
-2. ใช้รหัสต่อจากเดิม (AP-14, IX-13, SD-04, EP-03, FD-07, CC-07, MG-07, PG-08, OP-07 …) และเพิ่มแถวในตารางด้านบน
+2. ใช้รหัสต่อจากเดิม (AP-14, IX-13, SD-04, EP-03, FD-07, CC-07, MG-07, PG-08, OP-07, DM-09, IN-08, OR-08 …) และเพิ่มแถวในตารางด้านบน
 3. แต่ละบทต้องมี: ❌ ตัวอย่างที่ผิด · ✅ วิธีแก้ · **ทำไม** · **ข้อยกเว้น / ข้อควรระวัง** · คำสั่งของทั้ง SQL Server และ PostgreSQL ถ้าต่างกัน
 4. ตรวจความถูกต้องก่อนใส่ (คลิปสั้นมักตัดข้อยกเว้นออก) และห้ามขัดกับ CORE PRINCIPLE ใน `SKILL.md`

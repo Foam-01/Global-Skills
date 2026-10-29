@@ -508,6 +508,9 @@ After
 | [playbook/migrations.md](playbook/migrations.md) | เปลี่ยน schema / สร้าง index / backfill บน production ที่มีข้อมูลแล้ว |
 | [playbook/postgres.md](playbook/postgres.md) | งาน PostgreSQL / Supabase: อ่าน EXPLAIN, VACUUM / bloat, ชนิด index, JSONB, statistics, RLS, pooling |
 | [playbook/operations.md](playbook/operations.md) | backup / restore, monitoring, replica, timeout, สิทธิ์, การ scale |
+| [playbook/data-modeling.md](playbook/data-modeling.md) | ออกแบบระบบหลาย tenant, เงิน / กระเป๋าเงิน, สต็อก, audit, soft delete, tree, วันเวลา / timezone, สถานะ |
+| [playbook/incidents.md](playbook/incidents.md) | database มีปัญหาบน production ตอนนี้ (CPU สูง, connection เต็ม, ค้าง, disk เต็ม, ลบข้อมูลผิด) |
+| [playbook/orm.md](playbook/orm.md) | โค้ดใช้ Prisma / Drizzle / supabase-js / EF Core / TypeORM แล้วช้าหรือข้อมูลเพี้ยน |
 
 เมื่อใช้คำแนะนำจาก playbook ให้อ้างรหัสหัวข้อ (เช่น AP-03, IX-02) ในรายงาน
 
