@@ -42,6 +42,7 @@
 - อ่าน → แก้ object → save = lost update (CC-02) → ใช้ atomic update: Prisma `update({ data: { qty: { decrement: n } } })` (ยังต้องกันติดลบด้วย `where` / `CHECK`), EF Core `ExecuteUpdateAsync`, หรือ concurrency token (`[Timestamp]`, Prisma ต้องทำ version เอง)
 - Prisma interactive transaction (`$transaction(async tx => …)`) ถือ connection และ lock ตลอดฟังก์ชัน → ห้ามเรียก API / งานช้าข้างใน (AP-13) มี timeout default (5 วินาที) ไม่ใช่ให้ขยายแก้ปัญหา
 - supabase-js ไม่มี transaction ข้ามหลาย request → งานหลายขั้นที่ต้อง atomic ทำเป็น PostgreSQL function แล้วเรียก `rpc()` (AP-09)
+- ORM ฝั่ง server ที่ต่อด้วย role `postgres` **ข้าม RLS ของ Supabase** การแยกข้อมูลระหว่างผู้ใช้ / tenant ต้องทำในโค้ด (ดึง id จาก session ไม่ใช่จาก request) หรือใช้ role ที่ไม่ข้าม RLS + `SET LOCAL` (DM-01)
 - upsert ของ ORM ต้องมี unique constraint รองรับจริง ไม่เช่นนั้นเป็น "find แล้ว create" ที่มี race (CC-03)
 
 ---
