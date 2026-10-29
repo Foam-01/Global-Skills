@@ -248,3 +248,31 @@ ORDER BY ProductName, ProductID;
 - แก้ตามลำดับ: ตรวจ index ให้เหมาะก่อน → `OPTION (RECOMPILE)` เฉพาะ query ที่รันไม่บ่อย → `OPTIMIZE FOR (@p UNKNOWN)` / ค่าที่เป็นตัวแทน → Query Store บังคับ plan · SQL Server 2022 มี Parameter Sensitive Plan optimization ช่วยอัตโนมัติบางกรณี
 
 **สรุปกฎ:** CRUD ทั่วไปใช้ ORM / parameterized query; งานหลายขั้นที่ต้อง atomic, คุมสิทธิ์เข้ม หรือประมวลผลข้อมูลจำนวนมาก ใช้ SP / database function
+
+---
+
+## AP-10 — JOIN ด้วย key ที่ต้องแปลงก่อนเทียบ (format ไม่ตรง, `IN (...)` หลายรูปแบบ, `COLLATE`, `CONCAT`)
+
+**ตัวอย่างจริง (คลิป devhopsss MySQL EP.01–03):** ระบบสองฝั่งเก็บ GUID คนละรูปแบบ (`abc…`, `{abc…}`, `{ABC…}`) จึงเขียน JOIN แบบนี้
+
+```sql
+JOIN order_master om
+  ON om.order_ref_guid COLLATE utf8mb4_general_ci IN (
+       oi.uuid COLLATE utf8mb4_general_ci,
+       CONCAT('{', oi.uuid, '}') COLLATE utf8mb4_general_ci,
+       CONCAT('{', LOWER(oi.uuid), '}') COLLATE utf8mb4_general_ci)
+LEFT JOIN zone_master zm
+  ON zm.zone_code COLLATE utf8mb4_general_ci
+   = CONCAT(om.province_code, om.district_code, om.subdistrict_code) COLLATE utf8mb4_general_ci
+```
+
+ทุกเงื่อนไขครอบคอลัมน์ด้วย `COLLATE` / `CONCAT` / `LOWER` → index บน `order_ref_guid` / `zone_code` ใช้ seek ไม่ได้ (non-sargable แบบ IX-03 แต่เกิดใน `ON`) → join แบบ scan × scan ได้ข้อมูลครบใช้ราว 24 วินาที คลิปแก้ที่ต้นเหตุแล้วเร็วขึ้นหลายเท่า
+
+**แก้ที่ต้นเหตุ ไม่ใช่ใน query:**
+1. **ทำข้อมูลให้เป็นรูปแบบเดียว (canonical) ตอนเขียน:** เลือกรูปแบบ GUID เดียว (เช่น ตัวเล็ก ไม่มีวงเล็บ หรือดีกว่านั้นคือ `BINARY(16)` / `uuid` type ดู IX-10) แล้ว migrate ข้อมูลเก่า + validate ที่ API / constraint
+2. **collation และ charset ของคอลัมน์ที่ JOIN กันต้องตรงกัน** ตั้งแต่ตอนสร้างตาราง ถ้าต่างกัน MySQL ต้องแปลงฝั่งใดฝั่งหนึ่ง (เห็นใน `EXPLAIN` / warning) ตรวจด้วย `information_schema.COLUMNS`
+3. **key ที่ต้องประกอบจากหลายคอลัมน์:** JOIN ด้วยหลายคอลัมน์ตรงๆ (`ON zm.province = om.province AND zm.district = … AND …`) + composite index (IX-11) แทน `CONCAT` หรือเพิ่ม generated column แบบ `STORED` + index (MySQL `GENERATED ALWAYS AS (...) STORED`, PostgreSQL `GENERATED ALWAYS AS (...) STORED`, SQL Server persisted computed column)
+4. ระหว่างรอ migrate: functional index (MySQL 8.0.13+ `INDEX ((LOWER(col)))`, PostgreSQL expression index) ใช้ได้ถ้า expression ใน query ตรงกับ index ทุกตัวอักษร แต่เป็นแค่ทางชั่วคราว
+5. วัดด้วย `EXPLAIN ANALYZE` (MySQL 8.0.18+) ก่อน / หลัง และตรวจว่า **จำนวนแถวเท่าเดิม** (การ normalize อาจทำให้แถวที่เคย match / ไม่ match เปลี่ยน)
+
+**`IN (...)` ไม่ได้ผิดเสมอ:** `WHERE id IN (1, 2, 3)` กับคอลัมน์ที่มี index ยัง seek ได้ปกติ ปัญหาในคลิปคือการครอบ **คอลัมน์** ด้วยฟังก์ชันและการใช้ `IN` เป็นเงื่อนไข JOIN หลายรูปแบบ ไม่ใช่ตัว `IN` เอง (ชื่อคลิป "อย่าใช้ IN ในการ join" จึงกว้างเกินไป)
